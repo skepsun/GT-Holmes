@@ -33,12 +33,14 @@ In the GUI window that opens simply press the 'Download' button to download all 
 Build Corpus
 ---
 In order to extract some features based on the text, it's essential to build a corpus for the naratives in the criminal reports first. 
+
 For building a corpus, run the following script
 ```shell
 sh script/build_corpus.sh
 ```
 #### 1. TF-IDF
-Currently, we used `TfidfVectorizer` in `sklearn.feature_extraction.text` for building the tf-idf weighted term-document matrix as one of the most important features
+Currently, we used `TfidfVectorizer` in `sklearn.feature_extraction.text` for building the tf-idf weighted term-document matrix as one of the most important features.
+
 Here is the result for a sample of data.
 
 
