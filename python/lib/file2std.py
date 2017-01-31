@@ -32,12 +32,12 @@ def readExcel(excel_file_name):
     for i in range(nrows):
         # Replace the return characters with '\1'
         row = map(
-            lambda x: '\1'.join(str(x).split('\n')), 
+            lambda x: '\1'.join(str(x).strip().split('\n')), 
             dict_ws.row_values(i)
         )
         # Check is there the separator '\t' existed in the string. if existed, replace it with the space. 
         row = map(
-            lambda x: ' '.join(x.split('\t')),
+            lambda x: ' '.join(x.strip().split('\t')),
             row
         )
         data.append(row)
@@ -52,8 +52,10 @@ if __name__ == '__main__':
     import sys
 
     excel_file_name = sys.argv[1]
+    tag             = sys.argv[2] # Tag for labeling the data streaming
     attr_list, data = readExcel(excel_file_name)
 
     # Write the file to std output
     for row in data:
+        row.append(tag)
         print '\t'.join(row)

@@ -51,11 +51,14 @@ if __name__ == '__main__':
 	import sys
 
 	# Extract documents from local temp file.
+	# TODO: The method of reading data needs to be improved,
+	# TODO: Read line by line rather than reading all data once for all.
 	documents_path = sys.argv[1]
 	with open(documents_path, 'rb') as f:
 		documents = f.readlines()
 	documents = [x.strip() for x in documents]
 
+	
 	TfIdfAnalyzer(documents)
 	
 
