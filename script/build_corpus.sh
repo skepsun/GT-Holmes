@@ -8,7 +8,7 @@ source conf/script_conf.sh
 source script/lib/utils.sh
 
 echo_info    'Converting excel file to txt file.'
-python python/lib/excel2std.py data/BurglaryRemarks.xlsx > tmp/BurglaryRemarks.txt
+python python/lib/file2std.py data/BurglaryRemarks.xlsx > tmp/BurglaryRemarks.txt
 
 echo_info    'Preparing the documents.'
 cut -f 1 tmp/BurglaryRemarks.txt > resource/Documents.txt
