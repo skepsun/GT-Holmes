@@ -16,21 +16,22 @@ mkdir -p ${workspace_dir}
 python python/lib/file2std.py data/BurglaryCFS.xlsx     1 | \
 #   Rearrange cols: 1. incident no; 2. tag; ...
 awk -F '\t' ' { t = $NF; $NF = $2; $2 = t; print; } ' > \
-${workspace_dir}/BurglaryCFS.txt
+${workspace_dir}/BurglaryCFS.stream
 # - Data streaming 2
 python python/lib/file2std.py data/BurglaryOffCore.xlsx 2 | \
 #   Rearrange cols: 1. incident no; 2. tag; ...
 awk -F '\t' ' { t = $NF; $NF = $2; $2 = t; print; } ' > \
-${workspace_dir}/BurglaryOffCore.txt
+${workspace_dir}/BurglaryOffCore.stream
 # - Data streaming 3
 python python/lib/file2std.py data/BurglaryRemarks.xlsx 3 | \
 #   Rearrange cols: 1. incident no; 2. tag; ...
 awk -F '\t' ' { t = $1; $1 = $2; $2 = $NF; $NF = t; print; } ' > \
-${workspace_dir}/BurglaryRemarks.txt
+${workspace_dir}/BurglaryRemarks.stream
 
 # 
-cat ${workspace_dir}/*.txt | \
-sort -t$'\t' -k 1,1 -k 2,2n > \
-${workspace_dir}/sorted.tmp
+cat ${workspace_dir}/BurglaryCFS.stream ${workspace_dir}/BurglaryOffCore.stream ${workspace_dir}/BurglaryRemarks.stream | \
+sort -k 1,1 -k 2,2n -t$'\t' > \
+${workspace_dir}/sorted.stream
 
-cat ${workspace_dir}/sorted.tmp | 
+# cat ${workspace_dir}/sorted.stream | python python/merge_incident.py > \
+# ${workspace_dir}/incident.stream
