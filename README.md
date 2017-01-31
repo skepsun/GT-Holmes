@@ -1,9 +1,12 @@
 Crime-Pattern-Detection-for-APD
 ===
-### Introduction
+
+Introduction
+---
 Work with Atlanta Police Department to detect the pattern of crimes in Atlanta
 
-### Preliminary
+Preliminary
+---
 
 #### 1. Generate the latest requirements.txt for the python environment
 Run the following script at root directory
@@ -27,13 +30,14 @@ nltk.download()
 ```
 In the GUI window that opens simply press the 'Download' button to download all corpora or go to the 'Corpora' tab and only download the ones you need/want.
 
-### Build Corpus
+Build Corpus
+---
 In order to extract some features based on the text, it's essential to build a corpus for the naratives in the criminal reports first. 
 For building a corpus, run the following script
 ```shell
 sh script/build_corpus.sh
 ```
-##### TF-IDF
+#### 1. TF-IDF
 Currently, we used `TfidfVectorizer` in `sklearn.feature_extraction.text` for building the tf-idf weighted term-document matrix as one of the most important features
 Here is the result for a sample of data.
 
