@@ -4,6 +4,16 @@ import xlrd
 from xlrd import XLRDError
 
 def readExcel(excel_file_name):
+    '''
+    Read Excel
+
+    Read data from local excel file.
+    Return the list of attributes and raw data.
+
+    Param:
+    * excel_file_name: the path of the file
+    '''
+
     # Open excel file
     wb=xlrd.open_workbook(filename=excel_file_name, on_demand=True)
     # The validation of the file
@@ -35,6 +45,10 @@ def readExcel(excel_file_name):
     return data[0], data[1:]
 
 if __name__ == '__main__':
+    # The script would output the raw data line by line,
+    # and each of the attributes would be separated by '\t'
+    # also the name of the attributes would be omitted.
+
     import sys
 
     excel_file_name = sys.argv[1]
