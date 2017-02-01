@@ -57,5 +57,6 @@ if __name__ == '__main__':
 
     # Write the file to std output
     for row in data:
-        row.append(tag)
+        if tag != '-1':
+            row.append(tag)
         print '\t'.join(row)
