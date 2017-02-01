@@ -19,25 +19,53 @@ if __name__ == '__main__':
 	# - TAG 3:
 	#   14. remarks
 
+	# Initiation
+	incident_date = ''
+	cad_call_type = ''
+	call_type     = ''
+	location      = ''
+	avg_lat       = ''
+	avg_long      = ''
+	city          = ''
+	command_area  = ''
+	reporting_dst = ''
+	shift         = ''
+	occur_date    = ''
+	occur_time    = ''
+	how_committed = ''
+	remarks       = ''
+
 	last_incident_id = '-1'
-	last_tag         = '-1'
 
 	for line in sys.stdin:
-		data = line.strip().split('\t')
+		data = line.strip('\n').split('\t')
 		if len(data) <= 2:
-			print data
+			print >> sys.stderr, 'Error! data: [%s] is insufficient.' % line
 			continue
 		incident_id = data[0]
 		tag         = data[1]
 
 		# Process data by incident id
-		if incident_id != last_incident_id:
+		if incident_id != last_incident_id and last_incident_id != '-1':
 			print '\t'.join([
 				incident_id, incident_date, cad_call_type, call_type, \
 				location, avg_lat, avg_long, city, command_area, reporting_dst, \
 				shift, occur_date, occur_time, how_committed, remarks \
 			])
-			remarks = ''
+			incident_date = ''
+			cad_call_type = ''
+			call_type     = ''
+			location      = ''
+			avg_lat       = ''
+			avg_long      = ''
+			city          = ''
+			command_area  = ''
+			reporting_dst = ''
+			shift         = ''
+			occur_date    = ''
+			occur_time    = ''
+			how_committed = ''
+			remarks       = ''
 
 		# Process data by tag
 		try:
@@ -64,7 +92,8 @@ if __name__ == '__main__':
 				if remarks != '':
 					remarks += '\2'
 				remarks += data[2]
-		except:
-			print >> sys.stderr, line
+		except Exception:
+			print >> sys.stderr, 'Error! Invalid tag [%s] occurred. Line: [%s].' % (tag, line)
+			continue
 
 		last_incident_id = incident_id
