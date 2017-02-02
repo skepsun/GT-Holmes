@@ -7,5 +7,5 @@ source conf/script_conf.sh
 source script/lib/utils.sh
 
 echo_info 'Generating the requirements.txt for python environment.'
-pipreqs ${ROOTDIR}/python
+pipreqs --force python
 
