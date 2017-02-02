@@ -1,4 +1,4 @@
-Crime-Pattern-Detection-for-APD
+Crime Pattern Detection for Atlanta Police
 ===
 
 Introduction
@@ -94,6 +94,10 @@ stihl	6	1160	0.275757859413
 mount	23	825	0.270751371158
 akintobi	22	213	0.267987602448
 ```
+
+#### 2. Word2Vec
+Word2Vec techniques has been used in this project.
+
 
 
 
