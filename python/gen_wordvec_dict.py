@@ -57,13 +57,13 @@ def VectorizeVocabulary(word2vec_model, vocabulary):
 			continue
 	return word_vec_dict
 
-if __name__ == '__main__':
-	import sys
+def GenerateVectorsFromDocuments(word2vec_model_path, documents_path):
+	# documents is a txt file,
+	# - each line of the documents is an individous document (txt)
 
-	# Extract documents from local temp file.
+	# Get documents from local file
 	# TODO: The method of reading data needs to be improved,
 	# TODO: Read line by line rather than reading all data once for all.
-	documents_path = sys.argv[1]
 	with open(documents_path, 'rb') as f:
 		documents = f.readlines()
 	documents = [x.strip() for x in documents]
@@ -72,8 +72,44 @@ if __name__ == '__main__':
 	vocabulary, _ = TfIdfAnalyzer(documents)
 
 	# Get word2vec model by loading pretrained model
-	word2vec_model_path = sys.argv[2]
 	model = Word2Vec.load_word2vec_format(word2vec_model_path, binary=True)
-	# Get words - vectors dictionary
+	# Get words-vectors dictionary
 	word_vec_dict = VectorizeVocabulary(model, vocabulary)
-	print json.dumps(word_vec_dict, indent=4) # Output the json format to std
+	return json.dumps(word_vec_dict, indent=4)
+
+def GenerateVectorsFromWordsList(word2vec_model_path, words_list_path):
+	# words_list is a json file,
+	# - Key is the tags of the words
+	# - Value is the words list
+
+	# Get words list from local file
+	with open(words_list_path, 'rb') as f:
+		data = json.load(f)
+	# Merge all of the words list into one
+	words = []
+	for words_list in data.values():
+		words += words_list
+	words = list(set(words))
+	
+	# Get word2vec model by loading pretrained model
+	model = Word2Vec.load_word2vec_format(word2vec_model_path, binary=True)
+	# Get words-vectors dictionary
+	word_vec_dict = VectorizeVocabulary(model, words)
+	return json.dumps(word_vec_dict, indent=4)
+
+if __name__ == '__main__':
+
+	mode       = sys.argv[1]
+	file_path  = sys.argv[2]
+	model_path = sys.argv[3]
+
+	if mode == 'wordslist':
+		word_vec_dict = GenerateVectorsFromWordsList(model_path, file_path)
+		print word_vec_dict
+
+	
+
+
+
+
+	
