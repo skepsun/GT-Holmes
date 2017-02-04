@@ -35,6 +35,7 @@ Get Key Words from Police
 The combination of fundamental knowledge and dozens of criminal detection techniques based on years of work experience that Atlanta Police summerized a words dictionary for us, which contains about ten categories, and each of the categories contains ten or more key words.
 
 <center>*A part of the word dictionary from Atlanta Police*</center>
+
 | VEHICLE DESCRIPTORS | WEAPONS | Aggregated Assualts / Homicide | ... |
 |:-------------------:|:-------:|:------------------------------:|:---:|
 |        4 Door       |   Gun   |              Shot              | ... |
