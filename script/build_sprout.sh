@@ -12,7 +12,8 @@ workspace_dir=tmp/${owner_tag}.${task_tag}
 mkdir -p ${workspace_dir}
 
 # Configuration
-raw_files='BurglaryCFS,BurglaryOffCore,BurglaryRemarks'
+# raw_files='BurglaryCFS,BurglaryOffCore,BurglaryRemarks'
+raw_files='PedRobberyCFS,PedRobberyOffCore,PedRobberyRemarks'
 file_suffix='xlsx'
 file2std_mode='table'
 

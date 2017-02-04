@@ -15,7 +15,7 @@ mkdir -p ${workspace_dir}
 # Please see config
 # word2vec_model_path='resource/GoogleNews-vectors-negative300.bin' 
 # words_category_path='tmp/woodie.gen_vectors_from_wordslist/KeyWords.json'
-data_stream_path='tmp/woodie.datastream_burglary/incidents.stream'
+data_stream_path='tmp/woodie.pedrobbery.datastream/incidents.stream'
 
 
 text_feature_tmp_path=${workspace_dir}/'text_feature.json'

@@ -79,4 +79,5 @@ if __name__ == '__main__':
 			continue
 		remarks = ' '.join(data[14].strip().split('\2'))
 		text_features = FeatureTextInCategory(model, remarks, words_category)
+		# Organize the text feature.
 		print json.dumps(text_features, indent=4)
