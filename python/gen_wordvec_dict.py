@@ -21,6 +21,8 @@ def TfIdfAnalyzer(documents):
 	# - Values are the token (a unit number for each of the words)
 	# vocabulary = cv.vocabulary_
 
+	
+
 	# def k_largest_in_matrix(mat, K):
 	# 	k_largest_list = []
 	# 	max     = 1
@@ -105,6 +107,10 @@ if __name__ == '__main__':
 
 	if mode == 'wordslist':
 		word_vec_dict = GenerateVectorsFromWordsList(model_path, file_path)
+		print word_vec_dict
+
+	elif mode == 'documents':
+		word_vec_dict = GenerateVectorsFromDocuments(model_path, file_path)
 		print word_vec_dict
 
 	

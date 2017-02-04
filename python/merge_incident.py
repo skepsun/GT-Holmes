@@ -1,23 +1,20 @@
 #!/usr/local/bin/python
-
-
+import sys
 
 if __name__ == '__main__':
-
-	import sys
 
 	# [ Sprout Unit ]
 	# Primary key:	
 	#   1. incident_id;
 	# Attributes:	
 	# - TAG 1: 
-	#   2. cad_call_type, 3. call_type, 4. location, 5. avg_lat, 
-	#   6. avg_long, 7. city, 8. command_area, 
+	#   2. incident_date, 3. cad_call_type, 4. call_type, 5. location, 6. avg_lat, 
+	#   7. avg_long, 8. city, 9. command_area, 
 	# - TAG 2:
-	#   9. reporting_dst, 10. shift, 11. occur_date, 12. occur_time,
-	#   13. how_committed
+	#   10. reporting_dst, 11. shift, 12. occur_date, 13. occur_time,
+	#   14. how_committed
 	# - TAG 3:
-	#   14. remarks
+	#   15. remarks
 
 	# Initiation
 	incident_date = ''
@@ -40,7 +37,7 @@ if __name__ == '__main__':
 	for line in sys.stdin:
 		data = line.strip('\n').split('\t')
 		if len(data) <= 2:
-			print >> sys.stderr, 'Error! data: [%s] is insufficient.' % line
+			print >> sys.stderr, '[ERROR] data: [%s] is insufficient.' % line
 			continue
 		incident_id = data[0]
 		tag         = data[1]
@@ -90,7 +87,7 @@ if __name__ == '__main__':
 				how_committed = data[9]
 			elif tag == '3':
 				if remarks != '':
-					remarks += '\2'
+					remarks += '\2' # Separator of documents
 				remarks += data[2]
 		except Exception:
 			print >> sys.stderr, 'Error! Invalid tag [%s] occurred. Line: [%s].' % (tag, line)
