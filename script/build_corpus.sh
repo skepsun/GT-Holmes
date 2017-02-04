@@ -11,28 +11,28 @@ source script/lib/utils.sh
 workspace_dir=tmp/${owner_tag}.${task_tag}
 mkdir -p ${workspace_dir}
 
-# Build Corpus from Documents
-file2std_mode='table'
-gen_wordvec_dict_mode='documents'
+# # Build Corpus from Documents
+# file2std_mode='table'
+# gen_wordvec_dict_mode='documents'
 
-echo_info    'Converting excel file to data stream.'
-python python/file2std.py \
-	data/BurglaryRemarks.xlsx \
-	${file2std_mode} \
-	-1 > \
-	${workspace_dir}/BurglaryRemarksForCorpus.stream
+# echo_info    'Converting excel file to data stream.'
+# python python/file2std.py \
+# 	data/BurglaryRemarks.xlsx \
+# 	${file2std_mode} \
+# 	-1 > \
+# 	${workspace_dir}/BurglaryRemarksForCorpus.stream
 
-echo_info    'Preparing the documents.'
-cut -f 1 ${workspace_dir}/BurglaryRemarksForCorpus.stream > \
-	${workspace_dir}/Documents.txt
+# echo_info    'Preparing the documents.'
+# cut -f 1 ${workspace_dir}/BurglaryRemarksForCorpus.stream > \
+# 	${workspace_dir}/Documents.txt
 
-echo_info    'Generating the corpus based on the documents.'
-echo_warning 'An execption might occur, since a whole large file would be read into memory for once. Please handle it carefully.'
-python python/gen_wordvec_dict.py \
-	${gen_wordvec_dict_mode} \
-	${workspace_dir}/Documents.txt \
-	${word2vec_model_path} > \
-	${workspace_dir}/WordVecDict.json
+# echo_info    'Generating the corpus based on the documents.'
+# echo_warning 'An execption might occur, since a whole large file would be read into memory for once. Please handle it carefully.'
+# python python/gen_wordvec_dict.py \
+# 	${gen_wordvec_dict_mode} \
+# 	${workspace_dir}/Documents.txt \
+# 	${word2vec_model_path} > \
+# 	${workspace_dir}/WordVecDict.json
 
 # Build Corpus from Dictionary
 file2std_mode='list'
@@ -45,10 +45,10 @@ python python/file2std.py \
 	-1 > \
 	${workspace_dir}/KeyWords.json
 
-echo_info    'Generating the corpus based on the words list.'
-echo_warning 'An execption might occur, since a whole large file would be read into memory for once. Please handle it carefully.'
-python python/gen_wordvec_dict.py \
-	${gen_wordvec_dict_mode} \
-	${workspace_dir}/KeyWords.json \
-	${word2vec_model_path} > \
-	${workspace_dir}/WordVecDict.json
+# echo_info    'Generating the corpus based on the words list.'
+# echo_warning 'An execption might occur, since a whole large file would be read into memory for once. Please handle it carefully.'
+# python python/gen_wordvec_dict.py \
+# 	${gen_wordvec_dict_mode} \
+# 	${workspace_dir}/KeyWords.json \
+# 	${word2vec_model_path} > \
+# 	${workspace_dir}/WordVecDict.json
