@@ -47,6 +47,16 @@ export word2vec_model_path='resource/GoogleNews-vectors-negative300.bin'
 export words_category_path='tmp/woodie.burglary.gen_vectors_from_wordslist/KeyWords.json'
 ```
 
+Build the sprout of the data stream
+---
+In order to organize the data orderly, the `Incident No.` was set as the primary key of the records. The crime records are supposed to be processed by taking every incident as the minimum unit. And all of the further research will be based on the sprout of the data stream. Run the following script to build the sprout of the data stream:
+```bash
+sh script/build_sprout.sh
+```
+
+<center>*An illustration for the sprout of the data stream*</center>
+![flow_chart_for_datastream](http://github.com/meowoodie/Crime-Pattern-Detection-for-APD/tree/master/static/data_stream_sprout.png)
+
 Get Key Words
 ---
 The combination of fundamental knowledge and dozens of criminal detection techniques based on years of work experience that Atlanta Police summerized a words dictionary for us, which contains about ten categories, and each of the categories contains ten or more key words.
@@ -68,6 +78,7 @@ sh script/build_corpus.sh
 
 A new file named `KeyWords.json` will be generated at `/tmp/[task_tag]/` (`[task_tag]` was configured in `/config/script_config.sh`). 
 
+<center>*JSON file: KeyWords.json*</center>
 ```json
 {
     "VEHICLE DESCRIPTORS": [
