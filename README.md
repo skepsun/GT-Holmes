@@ -55,7 +55,7 @@ sh script/build_sprout.sh
 ```
 
 <center>*An illustration for the sprout of the data stream*</center>
-![flow_chart_for_datastream](http://github.com/meowoodie/Crime-Pattern-Detection-for-APD/tree/master/static/data_stream_sprout.png)
+![flow_chart_for_datastream](https://github.com/meowoodie/Crime-Pattern-Detection-for-APD/blob/master/static/data_stream_sprout.png)
 
 Get Key Words
 ---
