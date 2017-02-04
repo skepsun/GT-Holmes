@@ -22,21 +22,21 @@ raw_files=(`echo ${raw_files} | awk 'BEGIN{ FS=",";OFS=" " }{$1=$1;print}'`)
 # - Data streaming 1
 #   Rearrange cols: 1. incident no; 2. tag; ...
 echo_info 'Converting excel file '${raw_files[0]}' to data stream.'
-python python/lib/file2std.py data/${raw_files[0]}.${file_suffix} ${file2std_mode} 1 | \
+python python/file2std.py data/${raw_files[0]}.${file_suffix} ${file2std_mode} 1 | \
 awk -F '\t' 'BEGIN {OFS = FS} {t = $NF; $NF = $2; $2 = t; print;}' > \
 	${workspace_dir}/${raw_files[0]}.stream
 
 # - Data streaming 2
 #   Rearrange cols: 1. incident no; 2. tag; ...
 echo_info 'Converting excel file '${raw_files[1]}' to data stream.'
-python python/lib/file2std.py data/${raw_files[1]}.${file_suffix} ${file2std_mode} 2 | \
+python python/file2std.py data/${raw_files[1]}.${file_suffix} ${file2std_mode} 2 | \
 awk -F '\t' 'BEGIN {OFS = FS}  {t = $NF; $NF = $2; $2 = t; print;} ' > \
 	${workspace_dir}/${raw_files[1]}.stream
 
 # - Data streaming 3
 #   Rearrange cols: 1. incident no; 2. tag; ...
 echo_info 'Converting excel file '${raw_files[2]}' to data stream.'
-python python/lib/file2std.py data/${raw_files[2]}.${file_suffix} ${file2std_mode} 3 | \
+python python/file2std.py data/${raw_files[2]}.${file_suffix} ${file2std_mode} 3 | \
 awk -F '\t' 'BEGIN {OFS = FS}  {t = $1; $1 = $2; $2 = $NF; $NF = t; print;} ' > \
 	${workspace_dir}/${raw_files[2]}.stream
 

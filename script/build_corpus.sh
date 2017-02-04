@@ -16,7 +16,7 @@ file2std_mode='table'
 gen_wordvec_dict_mode='documents'
 
 echo_info    'Converting excel file to data stream.'
-python python/lib/file2std.py \
+python python/file2std.py \
 	data/BurglaryRemarks.xlsx \
 	${file2std_mode} \
 	-1 > \
@@ -39,7 +39,7 @@ file2std_mode='list'
 gen_wordvec_dict_mode='wordslist'
 
 echo_info    'Converting excel file to json file.'
-python python/lib/file2std.py \
+python python/file2std.py \
 	data/GA\ Tech\ Word\ Dictionary.xlsx \
 	${file2std_mode} \
 	-1 > \
