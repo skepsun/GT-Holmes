@@ -3,7 +3,10 @@ Crime Pattern Detection for Atlanta Police
 
 Introduction
 ---
-Work with Atlanta Police Department to detect the pattern of crimes in Atlanta
+It's a project that ISyE Dept., Georgia Tech collaborates with Atlanta Police Department to detect the pattern of history crimes in Atlanta. The crime data comes from the database of Atlanta Police. There are three types of records that we've used:
+- CFS (*Call for Services*): A standard records from the 911 call.
+- OffCore: includes some basic attributes of a criminal case.
+- Remarks: includes one or more pieces of free text that describes some details of a crimial case.
 
 Preliminary
 ---
@@ -59,7 +62,7 @@ The combination of fundamental knowledge and dozens of criminal detection techni
 
 For preparing the key words of the dictionary in a better way, we organize the dictionary into a .json format. run the following script:
 
-```shell
+```bash
 sh script/build_corpus.sh
 ```
 
@@ -70,24 +73,26 @@ A new file named `KeyWords.json` will be generated at `/tmp/[task_tag]/` (`[task
     "VEHICLE DESCRIPTORS": [
         "passenger", 
         "sunroof", 
-        "stationwagon",
+        "station wagon", 
 		...
     ], 
     "GANG NAMES": [
         "bloods", 
-        "billybadasses", 
+        "billy bad asses", 
         "ygm", 
 		...
     ], 
     "Burglary/Larceny / Car Break-Ins": [
-        "cutaholethroughthewallorceiling", 
-        "brokedthewindow", 
-        "sidewindows", 
+        "cut a hole through the wallor ceiling", 
+        "broked the window", 
+        "side windows", 
 		...
     ], 
     ...
 }
 ```
+
+
 
 #### 2. Word2Vec
 Word2Vec techniques has been used in this project to measure the cosine distance between arbitrary two words. 
