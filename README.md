@@ -110,7 +110,9 @@ Features of Crime
 Generally speaking, the text in the narratives part of a crime is usually heavy and clutter, so it's really hard to extract effective features from the scratch. So the basic idea here is to find (or map) the words in the narratives that are closest to the descriptor for each of the categories in the dictionary. Since there are ten categories in the dictionary, we define ten features, corresponding to the categories in the dictionary, for the set of narratives of a crime record. And for each of the feature, we find (or map) `K-nearest-to-the-category` words from the narratives. 
 
 Take a pedestrain robbery crime record and its `SUSPECT DESCRIPTORS` feature (category) as an example. There are 69 key words in the `SUSPECT DESCRIPTORS` category in the dictionary, and nearly 500 words in the narratives of the crime record. The following is the mapping result:
+
 ![illustration_keywords_mapping](https://github.com/meowoodie/Crime-Pattern-Detection-for-APD/blob/master/static/illustration_keywords_mapping.png)
+
 As you can see in the above figure, K is 5, and 5 words in the narratives have been mapped to 4 words in the category. The words in the category and their distance form the `SUSPECT DESCRIPTORS` feature for this record. 
 We can also express the feature in a form of fixed-length numerical vector. For this case, the length of the vector is supposed to be 69 (69 words in the category) and the value of the element is supposed to be the largest distance between the word corresponding to the index of the elements and the words in the narratives (or to be 0 if there is no distance between these two words).
 ```
