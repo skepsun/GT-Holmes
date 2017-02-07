@@ -28,7 +28,7 @@ mkdir -p ${workspace_dir}
 
 python python/gen_cosine_similarity.py \
 	${workspace_dir}/'burglary_feature.datastream' \
-	${workspace_dir}/'pedrobbery_feature.datastream' > \
-	${workspace_dir}/'similarities.txt'
+	${workspace_dir}/'pedrobbery_feature.datastream'
+#	${workspace_dir}/'similarities.txt'
 
 
