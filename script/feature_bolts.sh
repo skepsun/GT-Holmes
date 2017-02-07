@@ -26,9 +26,8 @@ mkdir -p ${workspace_dir}
 # python python/gen_text_features.py ${word2vec_model_path} ${words_category_path} > \
 # ${workspace_dir}/'pedrobbery_feature.datastream'
 
-python python/gen_cosine_similarity.py \
-	${workspace_dir}/'burglary_feature.datastream' \
-	${workspace_dir}/'pedrobbery_feature.datastream'
+python python/get_cosine_similarity.py \
+	${workspace_dir}/'burglary_feature.datastream',${workspace_dir}/'pedrobbery_feature.datastream'
 #	${workspace_dir}/'similarities.txt'
 
 
