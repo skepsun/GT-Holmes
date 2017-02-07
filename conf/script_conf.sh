@@ -2,7 +2,7 @@
 
 # Basic config 
 export owner_tag='woodie'
-export task_tag='pedrobbery.text_feature'
+export task_tag='burglary&pedrobbery.similarity'
 export created_at=`date +%Y%m%d-%H%M%S`
 
 # Resource

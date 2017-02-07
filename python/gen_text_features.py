@@ -60,6 +60,18 @@ def FeatureTextInCategory(word2vec_model, text, words_category):
 			})
 	return feature
 
+def FeatureDict2FeatureVector(words_category, feature_dict):
+	feature_vector = np.zeros(0)
+	for category, pairs in feature_dict.iteritems():
+		categor_vector = np.zeros(len(words_category[category]))
+		for pair in pairs:
+			category_word_index = words_category[category].index(pair['in_category'])
+			if pair['distance'] >= 0.5 and \
+			   categor_vector[category_word_index] < pair['distance']:
+				categor_vector[category_word_index] = pair['distance'] * pair['count']
+		feature_vector = np.concatenate((feature_vector, categor_vector))
+	return feature_vector.tolist()
+
 if __name__ == '__main__':
 
 	word2vec_model_path = sys.argv[1] # '../resource/GoogleNews-vectors-negative300.bin'
@@ -69,15 +81,30 @@ if __name__ == '__main__':
 	# Load Key Words Dictionary
 	with open(words_category_path, 'rb') as f:
 		words_category = json.load(f)
+	
 	# Load Word2Vec Model
 	model = Word2Vec.load_word2vec_format(word2vec_model_path, binary=True)
-	
+
+	# Process the data stream from stdin	
 	for line in sys.stdin:
 		data = line.strip('\n').split('\t')
 		if len(data) < 15:
 			print >> sys.stderr, '[ERROR] data: [%s] is insufficient.' % line
 			continue
+		
+		# Incident Id:
+		incident_id = data[0]
+		
+		# Text Feature:
 		remarks = ' '.join(data[14].strip().split('\2'))
-		text_features = FeatureTextInCategory(model, remarks, words_category)
-		# Organize the text feature.
-		print json.dumps(text_features, indent=4)
+		text_feature_dict   = FeatureTextInCategory(model, remarks, words_category)
+		# Organize the text feature into a fixed-length numerical vector
+		text_feature_vector = FeatureDict2FeatureVector(words_category, text_feature_dict)
+		text_feature_str    = '#'.join(map(str, text_feature_vector))
+		
+		# Location Feature:
+		avg_lat  = str(float(data[4]) / 100000)
+		avg_long = str(float(data[5]) / 100000)
+
+		print '\t'.join((incident_id, avg_lat, avg_long, text_feature_str))
+		# print json.dumps(text_features, indent=4)

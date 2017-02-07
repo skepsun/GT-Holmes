@@ -119,9 +119,11 @@ We can also express the feature in a form of fixed-length numerical vector. For 
 [0, 0, 0.757, 0, ..., 1.0, ..., 0.430, ..., 0.365, ..., 0, 0] 
 ```
 
-> Word2Vec: Word2Vec techniques has been used in this project to measure the cosine distance between arbitrary two words. 
+> Word2Vec techniques has been used in this project to measure the cosine distance between arbitrary two words. 
 
+At last, we can concatenate all of the category feature vector into a fixed-length and high-dimensional numerical vector. It's a unified data structure for expressing the feature of the narratives. The position of every element in the vector stands for a specific word in the corresponding category, and their value stand for the weight or similarity. 
 
+> Experiments: 
 
 
 
