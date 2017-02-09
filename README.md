@@ -124,7 +124,7 @@ We can also express the feature in a form of fixed-length numerical vector. For 
 At last, we can concatenate all of the category feature vector into a fixed-length and high-dimensional numerical vector. It's a unified data structure for expressing the feature of the narratives. The position of every element in the vector stands for a specific word in the corresponding category, and their value stand for the weight or similarity. 
 
 > Experiments: 
-
+We did an experiments based on the features that mentioned above. There are 
 
 
 

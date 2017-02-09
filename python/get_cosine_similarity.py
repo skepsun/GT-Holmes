@@ -9,8 +9,10 @@ from matplotlib import colorbar
 from matplotlib import collections as mc
 from scipy import sparse
 
-def ScatterPointsSimilarities(ids, location_points, tags, similarity_matrix):
-	mycolormap = ['r', 'g', 'b', 'y', 'k']
+def ScatterPointsSimilarities(
+		ids, location_points, tags, similarity_matrix, 
+		mycolormap=['r', 'g'], mytagmap=['Burglary', 'Ped Robbery']
+	):
 	fig, ax = plt.subplots()
 
 	# Plot points
@@ -24,10 +26,11 @@ def ScatterPointsSimilarities(ids, location_points, tags, similarity_matrix):
 	
 	# Plot annotations
 	for i in range(len(ids)):
-		ax.annotate(ids[i],
+		ax.annotate(
+			ids[i],
             xy=location_points[i],
 			color='k'
-            )
+        )
 	
 	# Plot connections
 	# - Add colormap for the line
@@ -53,7 +56,7 @@ def ScatterPointsSimilarities(ids, location_points, tags, similarity_matrix):
 	# Basic plotting configuration
 	ax.autoscale()
 	ax.margins(0.1)
-	ax.legend(handles, ('Burglary', 'Ped Robbery'), bbox_to_anchor=(0.75, 0.15), loc=2, borderaxespad=0., numpoints=1)
+	ax.legend(handles, mytagmap, bbox_to_anchor=(0.75, 0.15), loc=2, borderaxespad=0., numpoints=1)
 	ax.set_xlabel('Longitude')
 	ax.set_ylabel('Latitude')
 	ax.ticklabel_format(useOffset=False)
