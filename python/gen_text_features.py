@@ -9,7 +9,15 @@ import sys
 import re
 
 def FeatureTextInCategory(word2vec_model, text, words_category):
+	# Deprecated: 
 	words_count = dict(Counter(re.findall(r'\w+', text)))
+
+	# sentence = [
+	# 	word 
+	# 	for word in nltk.word_tokenize(remarks.lower())
+	# 	if word not in string.punctuation
+	# ]
+
 	# Remove words with insufficent length in text.
 	for word in words_count.keys():
 		if len(word) < 3:
@@ -76,6 +84,7 @@ if __name__ == '__main__':
 
 	word2vec_model_path = sys.argv[1] # '../resource/GoogleNews-vectors-negative300.bin'
 	words_category_path = sys.argv[2] #'../tmp/woodie.gen_vectors_from_wordslist/KeyWords.json'
+	text_index          = int(sys.argv[3]) # The index for the text feature (default = 14)
 
 	words_category = {}
 	# Load Key Words Dictionary
@@ -88,23 +97,17 @@ if __name__ == '__main__':
 	# Process the data stream from stdin	
 	for line in sys.stdin:
 		data = line.strip('\n').split('\t')
-		if len(data) < 15:
+		if len(data) < text_index:
 			print >> sys.stderr, '[ERROR] data: [%s] is insufficient.' % line
 			continue
 		
-		# Incident Id:
-		incident_id = data[0]
-		
 		# Text Feature:
-		remarks = ' '.join(data[14].strip().split('\2'))
+		remarks             = ' '.join(data[text_index].strip().split('\2'))
 		text_feature_dict   = FeatureTextInCategory(model, remarks, words_category)
 		# Organize the text feature into a fixed-length numerical vector
 		text_feature_vector = FeatureDict2FeatureVector(words_category, text_feature_dict)
 		text_feature_str    = '#'.join(map(str, text_feature_vector))
-		
-		# Location Feature:
-		avg_lat  = str(float(data[4]) / 100000)
-		avg_long = str(float(data[5]) / 100000)
-
-		print '\t'.join((incident_id, avg_lat, avg_long, text_feature_str))
+		# Replace the text with the text feature
+		data[text_index]    = text_feature_str
+		print '\t'.join(data)
 		# print json.dumps(text_features, indent=4)

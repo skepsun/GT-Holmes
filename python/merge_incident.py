@@ -71,8 +71,8 @@ if __name__ == '__main__':
 				cad_call_type = data[3]
 				call_type     = data[4]
 				location      = data[5]
-				avg_lat       = data[6]
-				avg_long      = data[7]
+				avg_lat       = str(float(data[6])/100000)
+				avg_long      = str(float(data[7])/100000)
 				city          = data[8]
 				command_area  = data[9]
 				# shift         = data[10]

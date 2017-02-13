@@ -19,11 +19,11 @@ mkdir -p ${workspace_dir}
 # pedrobbery_data_stream_path='tmp/woodie.pedrobbery.datastream/incidents.stream'
 
 # cat ${burglary_datastream_path} | \
-# python python/gen_text_features.py ${word2vec_model_path} ${words_category_path} > \
+# python python/gen_text_features.py ${word2vec_model_path} ${words_category_path} 14 > \
 # ${workspace_dir}/'burglary_feature.datastream'
 
 # cat ${pedrobbery_data_stream_path} | \
-# python python/gen_text_features.py ${word2vec_model_path} ${words_category_path} > \
+# python python/gen_text_features.py ${word2vec_model_path} ${words_category_path} 14 > \
 # ${workspace_dir}/'pedrobbery_feature.datastream'
 
 python python/get_cosine_similarity.py \

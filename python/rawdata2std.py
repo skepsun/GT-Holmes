@@ -32,16 +32,16 @@ def ReadTabelExcel(excel_file_name):
     # Convert the data to list
     data = []
     for i in range(nrows):
+        # Try to encode the value to utf-8,
+        # If failed, the value might be numbers
+        try:
+            row = [ x.encode('utf-8') for x in dict_ws.row_values(i) ]
+        except Exception:
+            row = dict_ws.row_values(i)
         # Replace the return characters with '\1'
-        row = map(
-            lambda x: '\1'.join(str(x).strip().split('\n')), 
-            dict_ws.row_values(i)
-        )
+        row = [ '\1'.join(str(x).strip().split('\n')) for x in row ]
         # Check is there the separator '\t' existed in the string. if existed, replace it with the space. 
-        row = map(
-            lambda x: ' '.join(x.strip().split('\t')),
-            row
-        )
+        row = [ ' '.join(x.strip().split('\t')) for x in row ]
         data.append(row)
     
     return data[0], data[1:]
