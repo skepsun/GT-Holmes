@@ -1,5 +1,5 @@
 #!/usr/local/bin/python
-
+import re
 import sys
 import json
 import xlrd
@@ -48,12 +48,6 @@ def ReadTabelExcel(excel_file_name):
 
 def ReadListExcel(excel_file_name):
 
-    def inspect_char(c):
-        if c.isalpha():
-            return c.lower()
-        else:
-            return ''
-
     # Open excel file
     wb=xlrd.open_workbook(filename=excel_file_name, on_demand=True)
     # The validation of the file
@@ -72,15 +66,42 @@ def ReadListExcel(excel_file_name):
     for i in range(ncols):
         raw_col = dict_ws.col_values(i)
         # Get the tag name of the col
-        tag     = raw_col.pop(0)
-        # Inspect every character in the each of the raw words
+        tag = raw_col.pop(0)
+        # - Split the phrases by the delimiter '/'
+        col = []
+        for raw_word in raw_col:
+            if '/' in str(raw_word):
+                # exp: raw_word  = 'Back/Rear Door'
+                #      items     = ['Back/Rear', 'Door']
+                #      options   = ['Back/Rear']
+                #      -> items  = ['Door']
+                #      raw_words = ['Back Door', 'Rear Door']
+                items          = str(raw_word).split()
+                options        = []
+                opt_item_index = 0
+                # Get options (which contains delimiter '/') and its index
+                for i in range(len(items)):
+                    if '/' in items[i]:
+                        options        = items[i].split('/')
+                        opt_item_index = i
+                # Generate new raw words with all the options
+                raw_words = []     
+                for opt in options:
+                    items[opt_item_index] = opt
+                    raw_words.append(' '.join(items))
+                col += raw_words     
+            else:
+                col.append(str(raw_word))
+        # - Remove the content in the brackets
+        # - Replace the uppercases with lowercases
+        col = [ 
+            re.sub('\(.*?\)','', word).lower()
+            for word in col
+        ]
+        # - Replace the ' ' with '_'
         col = [
-            reduce(
-                lambda new_word, c: new_word + inspect_char(c), 
-                str(raw_word),
-                ''
-            ) 
-            for raw_word in raw_col
+            '_'.join('_'.join(word.split()).split('-'))
+            for word in col
         ]
         # Remove the duplicate and empty element in the col list
         data[tag] = list(set(filter(None, col)))
