@@ -42,8 +42,8 @@ echo_info    'Converting excel file to json file.'
 python python/rawdata2std.py \
 	data/GA\ Tech\ Word\ Dictionary.xlsx \
 	${file2std_mode} \
-	-1
-	# ${workspace_dir}/KeyWords.json
+	-1 > \
+	${workspace_dir}/KeyWords.json
 
 # echo_info    'Generating the corpus based on the words list.'
 # echo_warning 'An execption might occur, since a whole large file would be read into memory for once. Please handle it carefully.'
