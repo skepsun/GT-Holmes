@@ -83,11 +83,11 @@ if __name__ == '__main__':
 	for features in incidents_features:
 		for feature in features:
 			incident_id = feature[0]
-			lat  = float(feature[1])
-			long = float(feature[2])
+			lat  = float(feature[4])
+			long = float(feature[5])
 			ids.append(incident_id)
 			locations.append([long, lat])
-			text_features.append(map(float, feature[3].split('#')))
+			text_features.append(map(float, feature[14].split('#')))
 			tags.append(i)
 		i += 1
 	
