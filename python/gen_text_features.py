@@ -37,11 +37,15 @@ def FeatureTextInCategory(word2vec_model, phrases_extractor, text, words_categor
 				try:
 					if isPhrase(items_in_text[i]) and isPhrase(items_in_category[j]):
 						dist_mat[i, j] = PhrasesSimilarity(word2vec_model, items_in_text[i], items_in_category[j])
+						# print >> sys.stderr, 'Phrase [%s] and phrase [%s] similarity is: %f' % \
+						# 	(items_in_text[i], items_in_category[j], dist_mat[i, j])
 					elif (not isPhrase(items_in_text[i])) and (not isPhrase(items_in_category[j])):
 						dist_mat[i, j] = word2vec_model.similarity(items_in_text[i], items_in_category[j])
 					else:
 						dist_mat[i, j] = 0
-				except KeyError:
+				except KeyError, msg:
+					# print >> sys.stderr, '[WARN] There is no word [%s] or [%s] in the model. (MSG: %s)' % \
+						# (items_in_text[i], items_in_category[j], msg)
 					dist_mat[i, j] = -1
 		# Find the best matched words in the category for each of words in text
 		best_matched_indexs = dist_mat.argmax(axis=1) # The index of the best matched words
@@ -50,7 +54,7 @@ def FeatureTextInCategory(word2vec_model, phrases_extractor, text, words_categor
 			best_matched_dists.append(dist_mat[i, best_matched_indexs[i]])
 		best_matched_dists = np.array(best_matched_dists)
 		# Find K-nearest words (to the current category) in the text 
-		K = 10
+		K = 15
 		for k in range(K):
 			i = best_matched_dists.argmax() # The index of the words in text which has the highest similarity
 			j = best_matched_indexs[i]
@@ -66,20 +70,20 @@ def FeatureTextInCategory(word2vec_model, phrases_extractor, text, words_categor
 			})
 	return feature
 
-def FeatureDict2FeatureVector(words_category, feature_dict):
+def FeatureDict2FeatureVector(words_category, feature_dict, threshold):
 	feature_vector = np.zeros(0)
 	for category, pairs in feature_dict.iteritems():
 		category_vector = np.zeros(len(words_category[category]))
 		for pair in pairs:
 			category_word_index = words_category[category].index(pair['in_category'])
 			# If the item is a word
-			if (not isPhrase(pair['in_category'])) and pair['distance'] >= 0.5 and \
+			if (not isPhrase(pair['in_category'])) and pair['distance'] >= threshold and \
 			   category_vector[category_word_index] < pair['distance']:
 				category_vector[category_word_index] = pair['distance'] * pair['count']
 			# If the item is a phrase
 			elif isPhrase(pair['in_category']) and \
 			   category_vector[category_word_index] < pair['distance']:
-				category_vector[category_word_index] = pair['distance'] * pair['count']
+				category_vector[category_word_index] = pair['distance'] # * pair['count']
 		feature_vector = np.concatenate((feature_vector, category_vector))
 	return feature_vector.tolist()
 
@@ -88,7 +92,10 @@ if __name__ == '__main__':
 	word2vec_model_path    = sys.argv[1] # '../resource/GoogleNews-vectors-negative300.bin'
 	words_category_path    = sys.argv[2] # '../tmp/woodie.gen_vectors_from_wordslist/KeyWords.json'
 	phrases_extractor_path = sys.argv[3]
-	text_index             = int(sys.argv[4]) # The index for the text feature (default = 14)
+	json_feature_path      = sys.argv[4]
+	text_index             = int(sys.argv[5]) # The index for the text feature (default = 14)
+
+	threshold = 0.2
 
 	words_category = {}
 	# Load Key Words Dictionary
@@ -103,7 +110,8 @@ if __name__ == '__main__':
 	print >> sys.stderr, '[INFO] Loading PhrasesExtractor...'
 	phrases_extractor = PhrasesExtractor(phrases_extractor_path)
 
-	# Process the data stream from stdin	
+	text_features = {'features': []}
+	# Process the data stream from stdin
 	for line in sys.stdin:
 		data = line.strip('\n').split('\t')
 		if len(data) < text_index:
@@ -113,10 +121,15 @@ if __name__ == '__main__':
 		# Text Feature:
 		remarks             = data[text_index]
 		text_feature_dict   = FeatureTextInCategory(word2vec_model, phrases_extractor, remarks, words_category)
+		text_features['features'].append(text_feature_dict)
 		# Organize the text feature into a fixed-length numerical vector
-		text_feature_vector = FeatureDict2FeatureVector(words_category, text_feature_dict)
+		text_feature_vector = FeatureDict2FeatureVector(words_category, text_feature_dict, threshold)
 		text_feature_str    = '#'.join(map(str, text_feature_vector))
 		# Replace the text with the text feature
 		data[text_index]    = text_feature_str
 		print '\t'.join(data)
 		# print json.dumps(text_feature_dict, indent=4)
+	
+	# Save the feature json file.
+	with open(json_feature_path, 'w') as f:
+		json.dump(text_features, f, indent=4)
