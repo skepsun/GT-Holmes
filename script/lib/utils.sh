@@ -5,7 +5,7 @@ function echo_info
     __msg=$@
     timestamp=`date +"[%Y-%m-%d %H:%M:%S]"`
     echo "\033[32mAPD Project [INFO]\t${timestamp}\t${__msg}\033[0m"    
-    echo "\033[32mAPD Project [INFO]\t${timestamp}\t${__msg}\033[0m" >> log/${owner_tag}.${task_tag}.${created_at}.log    
+    # echo "\033[32mAPD Project [INFO]\t${timestamp}\t${__msg}\033[0m" >> log/${owner_tag}.${task_tag}.${created_at}.log    
 }
 
 function echo_error
@@ -13,7 +13,7 @@ function echo_error
     __msg=$@
     timestamp=`date +"[%Y-%m-%d %H:%M:%S]"`
     echo "\033[31mAPD Project [ERROR]\t${timestamp}\t${__msg}\033[0m"    
-    echo "\033[31mAPD Project [ERROR]\t${timestamp}\t${__msg}\033[0m" >> log/${owner_tag}.${task_tag}.${created_at}.log 
+    # echo "\033[31mAPD Project [ERROR]\t${timestamp}\t${__msg}\033[0m" >> log/${owner_tag}.${task_tag}.${created_at}.log 
 }
 
 function echo_warning
@@ -21,7 +21,7 @@ function echo_warning
     __msg=$@
     timestamp=`date +"[%Y-%m-%d %H:%M:%S]"`
     echo "\033[33mAPD Project [WARN]\t${timestamp}\t${__msg}\033[0m"    
-    echo "\033[33mAPD Project [WARN]\t${timestamp}\t${__msg}\033[0m" >> log/${owner_tag}.${task_tag}.${created_at}.log    
+    # echo "\033[33mAPD Project [WARN]\t${timestamp}\t${__msg}\033[0m" >> log/${owner_tag}.${task_tag}.${created_at}.log    
 }
 
 function check_return_value
