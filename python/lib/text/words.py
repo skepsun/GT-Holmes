@@ -3,6 +3,7 @@
 # from gensim.models import Word2Vec
 from collections import Counter
 from nltk.corpus import stopwords
+from nltk.tokenize import sent_tokenize
 import string
 import nltk
 import sys
@@ -21,7 +22,7 @@ def GetSentsByWords(text):
 				# - Remove uppercases
 				# - Remove punctuation
 				sentence = [
-					word
+					'_'.join(word.split('-'))
 					for word in nltk.word_tokenize(sent.lower())
 					if word not in string.punctuation
 				]
