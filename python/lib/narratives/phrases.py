@@ -11,7 +11,7 @@ import nltk
 import json
 import sys
 
-from words import WordsSimilarity, GetSentsByWords
+from words import GetSentsByWords
 
 class PhrasesExtractor:
 	'''
@@ -90,41 +90,21 @@ class PhrasesExtractor:
 		
 		return phrases
 	
-	def phrases_info(self, text):
+	def phrases_count(self, text):
 		phrases = self.get_phrases(text)
 		phrases_count = dict(Counter(phrases))
-		info_dict = {}
-		for p in phrases_count.keys():
-			sims = [ PhrasesSimilarity(self.word2vec, p, p_i) for p_i in self.interested_phrases ]
-			# sims = zip(*sim_phrase_list)[0]
-			# Remove irrelevant phrases according to the interested phrases list
-			if max(sims) > 0.8:
-				info_dict[p] = {}
-				info_dict[p]['count'] = phrases_count[p]
-				info_dict[p]['similar_phrase'] = self.interested_phrases[np.argmax(sims)]
-				info_dict[p]['similarity'] = max(sims)
-		return info_dict
-
-# def PhrasesSimilarity(word2vec_model, phrase_A, phrase_B):
-# 	words_A = phrase_A.split('_')
-# 	words_B = phrase_B.split('_')
-# 	similarity = 0
-# 	if len(words_A) == len(words_B):
-# 		for i in range(len(words_A)):
-# 			similarity += WordsSimilarity(word2vec_model, words_A[i], words_B[i])
-# 		similarity /= len(words_A)
-# 	elif len(words_A) != len(words_B):
-# 		sim_mat = np.zeros((len(words_A), len(words_B)))
-# 		# for i in range(len(words_A)):
-# 		# 	for j in range(len(words_B)):
-# 		# 		sim_mat[i][j] = word2vec_model.similarity(words_A[i], words_B[j])
-# 		# TODO: Find the trace in the sim_mat
-# 		similarity = 0
-# 	# TODO: elif one is phrase, the other is word
-# 	# elif min(len(words_A), len(words_B)) == 1 and \
-# 	# 	max(len(words_A), len(words_B)) > 1:
-				
-# 	return similarity
+		return phrases_count
+		# info_dict = {}
+		# for p in phrases_count.keys():
+		# 	sims = [ PhrasesSimilarity(self.word2vec, p, p_i) for p_i in self.interested_phrases ]
+		# 	# sims = zip(*sim_phrase_list)[0]
+		# 	# Remove irrelevant phrases according to the interested phrases list
+		# 	if max(sims) > 0.8:
+		# 		info_dict[p] = {}
+		# 		info_dict[p]['count'] = phrases_count[p]
+		# 		info_dict[p]['similar_phrase'] = self.interested_phrases[np.argmax(sims)]
+		# 		info_dict[p]['similarity'] = max(sims)
+		# return info_dict
 
 def isPhrase(phrase):
 	if '_' in phrase:

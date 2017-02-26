@@ -1,10 +1,11 @@
 #!/usr/local/bin/python
 
-from collections import defaultdict # Counter, 
+from collections import defaultdict
 from gensim.models import Word2Vec
 from nltk.corpus import stopwords
 from nltk.tokenize.mwe import MWETokenizer
 import numpy as np
+import arrow
 import json
 import sys
 
@@ -23,6 +24,7 @@ class Text:
 	WORD_MIN_LEN = 2
 
 	def __init__(self, text):
+		print >> sys.stderr, '[TEXT]\t%s\t*** Initializing Text Object ***' % arrow.now()
 		# Read Configuration from ini file
 		phrases_extractor_path = ConfigSectionMap('Model')['n_gram']
 		word2vec_model_path    = ConfigSectionMap('Model')['word2vec']
@@ -36,6 +38,7 @@ class Text:
 		with open(words_category_path, 'rb') as f:
 			self.words_category = json.load(f)
 		# - all of the related words in the words_category
+		print >> sys.stderr, '[TEXT]\t%s\tLoading n-Gram model ...' % arrow.now()
 		self.interested_phrases = list(set([
 			item
 			for sublist in self.words_category.values() # Get sublist
@@ -43,6 +46,7 @@ class Text:
 			if isPhrase(item)                           # Filter non phrases
 		]))
 		# - word2vec model
+		print >> sys.stderr, '[TEXT]\t%s\tLoading word2vec model ...' % arrow.now()
 		self.word2vec_model     = Word2Vec.load_word2vec_format(word2vec_model_path, binary=True)
 		# - phrases extractor (n-gram kernel)
 		self.phrases_extractor  = PhrasesExtractor(
@@ -50,14 +54,18 @@ class Text:
 			self.word2vec_model, 
 			interested_phrases=self.interested_phrases
 		)
-
+		
 		# Tokenize the raw text
+		print >> sys.stderr, '[TEXT]\t%s\tTokenizing ...' % arrow.now()
 		self._tokenize()
 		# Get the structure of the tokenized text
+		print >> sys.stderr, '[TEXT]\t%s\tGetting Structure ...' % arrow.now()
 		self._get_structure()
 		# Anchor the locations of keywords in the text
+		print >> sys.stderr, '[TEXT]\t%s\tAnchorring Keywords ...' % arrow.now()
 		self._anchor_keywords()
 		# Find K-nearest tokens from the text to the tokens in the words_category
+		print >> sys.stderr, '[TEXT]\t%s\tFinding K nearest tokens ...' % arrow.now()
 		self._find_k_nearest_tokens()
 
 	def _tokenize(self):
@@ -65,8 +73,9 @@ class Text:
 		self.sents_by_words  = GetSentsByWords(self.text)
 		self.mwe             = MWETokenizer()
 		# Take interested phrases from the text into consideration
-		phrases_info = self.phrases_extractor.phrases_info(self.text) # Get all possible phrases from the text
-		for p in phrases_info.keys():
+		self.phrases_count    = self.phrases_extractor.phrases_count(self.text) # Get all possible phrases from the text
+		self.filtered_phrases = self._phrases_filter(self.phrases_count.keys())
+		for p in self.filtered_phrases.keys():
 			self.mwe.add_mwe(str(p).split('_'))
 		for sent in self.sents_by_words:
 			# Text by tokens
@@ -101,11 +110,6 @@ class Text:
 			inner_i = 0
 
 	def _anchor_keywords(self):
-		'''
-		Anchor Keywords
-
-		
-		'''
 		self.anchors = {}
 		for categories in self.words_category.keys():
 			category_list = categories.strip().split('/')
@@ -120,7 +124,7 @@ class Text:
 
 	def _find_k_nearest_tokens(self, k=5):
 		self.k_nearest_tokens = {}
-		for category in words_category.keys():
+		for category in self.words_category.keys():
 			self.k_nearest_tokens[category] = []
 		# Calculate the distance between every word/phrase in the text and category
 		for category, words_in_category in self.words_category.iteritems():
@@ -159,9 +163,25 @@ class Text:
 				self.k_nearest_tokens[category].append({
 					'in_text':     tokens_in_text[i],
 					'in_category': tokens_in_category[j],
-					'count':       tokens_count[tokens_in_text[i]],
+					'count':       len(self.structure[tokens_in_text[i]]['text_indexs']),
 					'distance':    dist_mat[i, j]
 				})
+
+	def _generate_text_feature(self):
+		for 
+		
+
+	def _phrases_filter(self, phrases):
+		filtered_phrases = {}
+		for p in phrases:
+			sims = [ self._phrases_similarity(p, p_i) for p_i in self.interested_phrases ]
+			# sims = zip(*sim_phrase_list)[0]
+			# Remove irrelevant phrases according to the interested phrases list
+			if max(sims) > 0.8:
+				filtered_phrases[p] = {}
+				filtered_phrases[p]['similar_phrase'] = self.interested_phrases[np.argmax(sims)]
+				filtered_phrases[p]['similarity'] = max(sims)
+		return filtered_phrases
 
 	def _words_similarity(self, word_A, word_B):
 		try:
