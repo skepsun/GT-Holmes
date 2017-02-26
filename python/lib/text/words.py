@@ -44,13 +44,13 @@ def WordsCounter(text):
 			words_count.pop(word, None)
 	return words_count
 
-def WordsSimilarity(word2vec_model, word_A, word_B):
-	try:
-		similarity = word2vec_model.similarity(word_A, word_B)
-	except KeyError, m:
-		# TODO
-		if word_A == word_B:
-			similarity = 1
-		else:
-			similarity = 0
-	return similarity
+# def WordsSimilarity(word2vec_model, word_A, word_B):
+# 	try:
+# 		similarity = word2vec_model.similarity(word_A, word_B)
+# 	except KeyError, m:
+# 		# TODO
+# 		if word_A == word_B:
+# 			similarity = 1
+# 		else:
+# 			similarity = 0
+# 	return similarity
