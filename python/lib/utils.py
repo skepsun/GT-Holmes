@@ -7,7 +7,7 @@ class Config:
     def __init__(self, ini_path):
         self.ini_path = ini_path
         self.conf = ConfigParser.ConfigParser()
-        self.conf.read(INI_PATH)
+        self.conf.read(self.ini_path)
 
     def config_section_map(self, section):
         _dict = {}
