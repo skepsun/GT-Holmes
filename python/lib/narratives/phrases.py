@@ -11,7 +11,7 @@ import nltk
 import json
 import sys
 
-from words import GetSentsByWords
+from words import WordsAnalysor
 
 class PhrasesExtractor:
 	'''
@@ -24,11 +24,10 @@ class PhrasesExtractor:
 	MIN_COUNT = 2
 	THRESHOLD = 4
 
-	def __init__(self, model_path, word2vec, interested_phrases=['rear_door']):
+	def __init__(self, model_path, interested_phrases=['rear_door']):
 		self.n_gram     = None
 		self.model_path = model_path
 		self.interested_phrases = interested_phrases
-		self.word2vec   = word2vec
 		try:
 			self.n_gram = Phrases().load(self.model_path)
 		except IOError, msg:
@@ -58,7 +57,9 @@ class PhrasesExtractor:
 		# Get sentences from raw text.
 		# text contains all the narratives of one crime records (with an unique crime id)
 		for text in corpus:
-			sents = GetSentsByWords(text)
+			# Init words analysor
+			words_analysor = WordsAnalysor(text)
+			sents = words_analysor.sents_by_words
 			sentences += sents
 		# Train phrases with sentences
 		self.n_gram.add_vocab(sentences)
