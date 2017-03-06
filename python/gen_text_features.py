@@ -8,7 +8,7 @@ import json
 import sys
 import re
 
-from lib.narratives.text import Text
+from lib.narratives.text import TextAnalysor
 
 # def FeatureTextInCategory(word2vec_model, phrases_extractor, text, words_category):
 # 	# Deprecated: 
@@ -71,6 +71,7 @@ if __name__ == '__main__':
 	threshold = 0.5
 
 	text_features = {'features': []}
+	text_analysor = TextAnalysor()
 	# Process the data stream from stdin
 	for line in sys.stdin:
 		data = line.strip('\n').split('\t')
@@ -80,4 +81,7 @@ if __name__ == '__main__':
 		
 		# Text Feature:
 		remarks = data[text_index]
-		t = Text(remarks)
+		text_analysor.set_text(remarks)
+		print 'Crime ID: %s' % data[0]
+		# text_analysor.visualize_text()
+		break

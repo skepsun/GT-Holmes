@@ -107,8 +107,6 @@ def ReadListExcel(excel_file_name):
         data[tag] = list(set(filter(None, col)))
     
     return data
-    
-
 
 if __name__ == '__main__':
 
