@@ -47,23 +47,6 @@ from lib.narratives.text import TextAnalysor
 	# items_count   = words_count.copy()
 	# items_count.update(phrases_count)
 
-def FeatureDict2FeatureVector(words_category, feature_dict, threshold):
-	feature_vector = np.zeros(0)
-	for category, pairs in feature_dict.iteritems():
-		category_vector = np.zeros(len(words_category[category]))
-		for pair in pairs:
-			category_word_index = words_category[category].index(pair['in_category'])
-			# If the item is a word
-			if (not isPhrase(pair['in_category'])) and pair['distance'] >= threshold and \
-			   category_vector[category_word_index] < pair['distance']:
-				category_vector[category_word_index] = pair['distance'] * pair['count']
-			# If the item is a phrase
-			elif isPhrase(pair['in_category']) and \
-			   category_vector[category_word_index] < pair['distance']:
-				category_vector[category_word_index] = pair['distance'] # * pair['count']
-		feature_vector = np.concatenate((feature_vector, category_vector))
-	return feature_vector.tolist()
-
 if __name__ == '__main__':
 
 	json_feature_path      = sys.argv[1]
@@ -82,6 +65,4 @@ if __name__ == '__main__':
 		# Text Feature:
 		remarks = data[text_index]
 		text_analysor.set_text(remarks)
-		print 'Crime ID: %s' % data[0]
-		# text_analysor.visualize_text()
 		break

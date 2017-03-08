@@ -54,12 +54,13 @@ class PhrasesExtractor:
 		corpus is a 2D list, which contains multiple texts for training
 		'''
 		sentences = []
+		# Init words analysor
+		words_analysor = WordsAnalysor()
 		# Get sentences from raw text.
 		# text contains all the narratives of one crime records (with an unique crime id)
 		for text in corpus:
-			# Init words analysor
-			words_analysor = WordsAnalysor(text)
-			sents = words_analysor.sents_by_words
+			words_analysor.add_document(text)
+			sents = words_analysor.cur_sents_by_words
 			sentences += sents
 		# Train phrases with sentences
 		self.n_gram.add_vocab(sentences)

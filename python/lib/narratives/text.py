@@ -1,5 +1,8 @@
 #!/usr/local/bin/python
 
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.decomposition import TruncatedSVD
 from itertools import permutations, repeat
 from collections import defaultdict
 from gensim.models import Word2Vec
@@ -57,12 +60,38 @@ class TextAnalysor:
 		)
 		# - MWE Tokenizer
 		self.mwe = MWETokenizer()
+		# Init words analysor
+		self.words_analysor  = WordsAnalysor()
+		# Document-Term Vectors
+		self.dt_matrix = []
+
+	def fuzzy_LSA(self):
+		# Document-Term Matrix
+		self.feature_names = [ item for sublist in self.words_category.values() for item in sublist ]
+		# Tf-idf Transformation
+		self.tfidf = TfidfTransformer()
+		self.tfidf_matrix = self.tfidf.fit_transform(self.dt_matrix).toarray()
+		# SVD
+		# n_components is recommended to be 100 by Sklearn Documentation for LSA
+		# http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.TruncatedSVD.html
+		svd = TruncatedSVD(n_components=n_components_for_svd)
+		self.svd_matrix = svd.fit_transform(self.tfidf_matrix)
+		
+		# vocabulary = [ item for sublist in self.words_category.values() for item in sublist ]
+		# vocabulary = list(set(vocabulary))
+		# self.words_analysor.LSA(stop_words=None, vocabulary=vocabulary)
+		# return self.words_analysor.feature_names, \
+		#        self.words_analysor.dt_matrix, \
+		#        self.words_analysor.tfidf_matrix, \
+		#        self.words_analysor.svd_matrix
 		
 	def set_text(self, text):
+		# Init
+		self._initialize_temporal_variables()
 		# raw text
 		self.text = text
-		# Init words analysor
-		self.words_analysor = WordsAnalysor(self.text)
+		# # Init words analysor
+		self.words_analysor.add_document(text)
 		# Tokenize the raw text
 		print >> sys.stderr, '[TEXT]\t%s\tTokenizing ...' % arrow.now()
 		self._tokenize()
@@ -75,10 +104,22 @@ class TextAnalysor:
 		# Find K-nearest tokens from the text to the tokens in the words_category
 		# print >> sys.stderr, '[TEXT]\t%s\tFinding K nearest tokens ...' % arrow.now()
 		self._find_k_nearest_tokens()
+		self.dt_matrix.append(self.term_vector)
+
+	def _initialize_temporal_variables(self):
+		self.sents_by_tokens  = []
+		self.sents_by_words   = []
+		self.phrases_count    = {}
+		self.filtered_phrases = {}
+		self.mwe              = None
+		self.length_of_sents  = []
+		self.length_of_text   = -1
+		self.structure        = {}
+		self.anchors          = {}
 
 	def _tokenize(self):
 		self.sents_by_tokens  = []
-		self.sents_by_words   = self.words_analysor.sents_by_words
+		self.sents_by_words   = self.words_analysor.cur_sents_by_words
 		# Take interested phrases from the text into consideration
 		self.phrases_count    = self.phrases_extractor.phrases_count(self.text) # Get all possible phrases from the text
 		self.filtered_phrases = self._phrases_filter(self.phrases_count.keys())
@@ -197,7 +238,9 @@ class TextAnalysor:
 					'distance':    dist_mat[i, j],
 					'rate':        self._rate_token_candidates(category, tokens_in_text[i])
 				})
-		print >> sys.stderr, json.dumps(self.k_nearest_tokens, indent=4)
+		# Convert term dict to numerical term vector
+		self.term_vector = self._term_dict2term_vector(self.k_nearest_tokens)
+		# print >> sys.stderr, json.dumps(self.k_nearest_tokens, indent=4)
 
 	def _rate_token_candidates(self, category, candidate_token):
 		if not bool(self.anchors[category]):
@@ -281,6 +324,23 @@ class TextAnalysor:
 			print >> sys.stderr, '[TEXT]\t%s\tError: Invalid token %s or %s for measuring distances.' % \
 				(arrow.now(), token_A, token_B)
 			return -1, -1
+
+	def _term_dict2term_vector(self, term_dict, threshold=0.4):
+		term_vector = np.zeros(0)
+		for category, pairs in term_dict.iteritems():
+			category_vector = np.zeros(len(self.words_category[category]))
+			for pair in pairs:
+				category_word_index = self.words_category[category].index(pair['in_category'])
+				# If the item is a word
+				if (not isPhrase(pair['in_category'])) and pair['distance'] >= threshold and \
+				   category_vector[category_word_index] < pair['distance']:
+					category_vector[category_word_index] = pair['distance'] * pair['count']
+				# If the item is a phrase
+				elif isPhrase(pair['in_category']) and \
+				   category_vector[category_word_index] < pair['distance']:
+					category_vector[category_word_index] = pair['distance'] # * pair['count']
+			term_vector = np.concatenate((term_vector, category_vector))
+		return term_vector.tolist()
 
 	# def visualize_text(self):
 	# 	# Basic font elements definitions
