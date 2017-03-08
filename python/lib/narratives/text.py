@@ -65,7 +65,7 @@ class TextAnalysor:
 		# Document-Term Vectors
 		self.dt_matrix = []
 
-	def fuzzy_LSA(self):
+	def fuzzy_LSA(self, n_components_for_svd=3):
 		# Document-Term Matrix
 		self.feature_names = [ item for sublist in self.words_category.values() for item in sublist ]
 		# Tf-idf Transformation
@@ -76,14 +76,9 @@ class TextAnalysor:
 		# http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.TruncatedSVD.html
 		svd = TruncatedSVD(n_components=n_components_for_svd)
 		self.svd_matrix = svd.fit_transform(self.tfidf_matrix)
-		
-		# vocabulary = [ item for sublist in self.words_category.values() for item in sublist ]
-		# vocabulary = list(set(vocabulary))
-		# self.words_analysor.LSA(stop_words=None, vocabulary=vocabulary)
-		# return self.words_analysor.feature_names, \
-		#        self.words_analysor.dt_matrix, \
-		#        self.words_analysor.tfidf_matrix, \
-		#        self.words_analysor.svd_matrix
+		print >> sys.stderr, self.feature_names
+		print >> sys.stderr, self.tfidf_matrix
+		print >> sys.stderr, self.svd_matrix
 		
 	def set_text(self, text):
 		# Init
@@ -102,7 +97,7 @@ class TextAnalysor:
 		print >> sys.stderr, '[TEXT]\t%s\tAnchorring Keywords ...' % arrow.now()
 		self._anchor_keywords()
 		# Find K-nearest tokens from the text to the tokens in the words_category
-		# print >> sys.stderr, '[TEXT]\t%s\tFinding K nearest tokens ...' % arrow.now()
+		print >> sys.stderr, '[TEXT]\t%s\tFinding K nearest tokens ...' % arrow.now()
 		self._find_k_nearest_tokens()
 		self.dt_matrix.append(self.term_vector)
 
@@ -111,7 +106,7 @@ class TextAnalysor:
 		self.sents_by_words   = []
 		self.phrases_count    = {}
 		self.filtered_phrases = {}
-		self.mwe              = None
+		# self.mwe              = None
 		self.length_of_sents  = []
 		self.length_of_text   = -1
 		self.structure        = {}
@@ -195,28 +190,6 @@ class TextAnalysor:
 						dist_mat[i, j] = self._words_similarity(tokens_in_text[i], tokens_in_category[j])
 					else:
 						dist_mat[i, j] = 0
-			# # Find the best matched words in the category for each of words in text
-			# best_matched_indexs = dist_mat.argmax(axis=1) # The index of the best matched words
-			# best_matched_dists  = []                      # The distance between the best matched words and the words in text
-			# for i in range(len(best_matched_indexs)):
-			# 	best_matched_dists.append(dist_mat[i, best_matched_indexs[i]])
-			# best_matched_dists = np.array(best_matched_dists)
-			# # Find K-nearest words (to the current category) in the text
-			# for k in range(K):
-			# 	i = best_matched_dists.argmax() # The index of the words in text which has the highest similarity
-			# 	j = best_matched_indexs[i]
-			# 	# If the current best matched distance is lower than o, then abandon it.
-			# 	if best_matched_dists[i] <= 0:
-			# 		break
-			# 	best_matched_dists[i] = -1      # Remove the largest value in the best_matched_dists
-			# 	self.k_nearest_tokens[category].append({
-			# 		'in_text':     tokens_in_text[i],
-			# 		'in_category': tokens_in_category[j],
-			# 		'count':       len(self.structure[tokens_in_text[i]]['text_indexs']),
-			# 		'distance':    dist_mat[i, j],
-			# 		'rate':        self._rate_token_candidates(category, tokens_in_text[i])
-			# 	})
-
 			# Find the best matched token in the text for each of token under the category
 			best_matched_indexs = dist_mat.argmax(axis=0) # The index of the best matched tokens for each of the category
 			best_matched_dists  = []                      # The distance between the best matched words and the words in text
@@ -235,8 +208,8 @@ class TextAnalysor:
 					'in_text':     tokens_in_text[i],
 					'in_category': tokens_in_category[j],
 					'count':       len(self.structure[tokens_in_text[i]]['text_indexs']),
-					'distance':    dist_mat[i, j],
-					'rate':        self._rate_token_candidates(category, tokens_in_text[i])
+					'distance':    dist_mat[i, j]
+					# 'rate':        self._rate_token_candidates(category, tokens_in_text[i])
 				})
 		# Convert term dict to numerical term vector
 		self.term_vector = self._term_dict2term_vector(self.k_nearest_tokens)

@@ -49,12 +49,14 @@ from lib.narratives.text import TextAnalysor
 
 if __name__ == '__main__':
 
-	json_feature_path      = sys.argv[1]
-	text_index             = int(sys.argv[2]) # The index for the text feature (default = 14)
+	# json_feature_path      = sys.argv[1]
+	text_index             = int(sys.argv[1]) # The index for the text feature (default = 14)
 	threshold = 0.5
 
 	text_features = {'features': []}
 	text_analysor = TextAnalysor()
+
+	i = 0
 	# Process the data stream from stdin
 	for line in sys.stdin:
 		data = line.strip('\n').split('\t')
@@ -62,7 +64,11 @@ if __name__ == '__main__':
 			print >> sys.stderr, '[ERROR] data: [%s] is insufficient.' % line
 			continue
 		
+		print >> sys.stderr, 'Incident Id: %s' % data[0]
 		# Text Feature:
 		remarks = data[text_index]
 		text_analysor.set_text(remarks)
-		break
+		if i >= 10:
+			text_analysor.fuzzy_LSA()
+			break
+		i += 1
