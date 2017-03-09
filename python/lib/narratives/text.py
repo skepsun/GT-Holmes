@@ -3,6 +3,7 @@
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.decomposition import TruncatedSVD
+from sklearn.decomposition import LatentDirichletAllocation
 from itertools import permutations, repeat
 from collections import defaultdict
 from gensim.models import Word2Vec
@@ -65,21 +66,44 @@ class TextAnalysor:
 		# Document-Term Vectors
 		self.dt_matrix = []
 
-	def fuzzy_LSA(self, n_components_for_svd=3):
-		# Document-Term Matrix
-		self.feature_names = [ item for sublist in self.words_category.values() for item in sublist ]
+	def fuzzy_LSA(self, n_components_for_svd=2):
+		print >> sys.stderr, '[TEXT]\t%s\tFuzzy LSA ...' % arrow.now()
 		# Tf-idf Transformation
-		self.tfidf = TfidfTransformer()
-		self.tfidf_matrix = self.tfidf.fit_transform(self.dt_matrix).toarray()
+		tfidf = TfidfTransformer()
+		tfidf_matrix = tfidf.fit_transform(self.dt_matrix).toarray()
 		# SVD
 		# n_components is recommended to be 100 by Sklearn Documentation for LSA
 		# http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.TruncatedSVD.html
 		svd = TruncatedSVD(n_components=n_components_for_svd)
-		self.svd_matrix = svd.fit_transform(self.tfidf_matrix)
-		print >> sys.stderr, self.feature_names
-		print >> sys.stderr, self.tfidf_matrix
-		print >> sys.stderr, self.svd_matrix
-		
+		svd_matrix = svd.fit_transform(tfidf_matrix)
+		# print >> sys.stderr, tfidf_matrix
+		# print >> sys.stderr, svd_matrix
+		return svd_matrix.tolist(), tfidf_matrix.tolist()
+
+	def regular_LSA(self, n_components_for_svd=2):
+		print >> sys.stderr, '[TEXT]\t%s\tRegular LSA ...' % arrow.now()
+		self.words_analysor.LSA(n_components_for_svd=n_components_for_svd)
+		return self.words_analysor.svd_matrix.tolist(), \
+		       self.words_analysor.tfidf_matrix.tolist(), \
+		       self.words_analysor.dt_matrix.tolist(), \
+		       self.words_analysor.feature_names
+
+	def fuzzy_LDA(self, n_topics_for_lda=2):
+		print >> sys.stderr, '[TEXT]\t%s\tFuzzy LDA ...' % arrow.now()
+		return LatentDirichletAllocation(
+			n_topics=n_topics_for_lda, max_iter=5, 
+            learning_method='online', 
+            learning_offset=50., 
+            random_state=0
+        ).fit_transform(self.dt_matrix).tolist()
+
+	def regular_LDA(self, n_topics_for_lda=2):
+		print >> sys.stderr, '[TEXT]\t%s\tRegular LDA ...' % arrow.now()
+		self.words_analysor.LDA(n_topics=n_topics_for_lda)
+		return self.words_analysor.lda_matrix.tolist(), \
+		       self.words_analysor.dt_matrix.tolist(), \
+		       self.words_analysor.feature_names
+
 	def set_text(self, text):
 		# Init
 		self._initialize_temporal_variables()
@@ -88,16 +112,16 @@ class TextAnalysor:
 		# # Init words analysor
 		self.words_analysor.add_document(text)
 		# Tokenize the raw text
-		print >> sys.stderr, '[TEXT]\t%s\tTokenizing ...' % arrow.now()
+		# print >> sys.stderr, '[TEXT]\t%s\tTokenizing ...' % arrow.now()
 		self._tokenize()
 		# Get the structure of the tokenized text
-		print >> sys.stderr, '[TEXT]\t%s\tGetting Structure ...' % arrow.now()
+		# print >> sys.stderr, '[TEXT]\t%s\tGetting Structure ...' % arrow.now()
 		self._get_structure()
 		# Anchor the locations of keywords in the text
-		print >> sys.stderr, '[TEXT]\t%s\tAnchorring Keywords ...' % arrow.now()
-		self._anchor_keywords()
+		# print >> sys.stderr, '[TEXT]\t%s\tAnchorring Keywords ...' % arrow.now()
+		# self._anchor_keywords()
 		# Find K-nearest tokens from the text to the tokens in the words_category
-		print >> sys.stderr, '[TEXT]\t%s\tFinding K nearest tokens ...' % arrow.now()
+		# print >> sys.stderr, '[TEXT]\t%s\tFinding K nearest tokens ...' % arrow.now()
 		self._find_k_nearest_tokens()
 		self.dt_matrix.append(self.term_vector)
 
@@ -304,72 +328,6 @@ class TextAnalysor:
 			category_vector = np.zeros(len(self.words_category[category]))
 			for pair in pairs:
 				category_word_index = self.words_category[category].index(pair['in_category'])
-				# If the item is a word
-				if (not isPhrase(pair['in_category'])) and pair['distance'] >= threshold and \
-				   category_vector[category_word_index] < pair['distance']:
-					category_vector[category_word_index] = pair['distance'] * pair['count']
-				# If the item is a phrase
-				elif isPhrase(pair['in_category']) and \
-				   category_vector[category_word_index] < pair['distance']:
-					category_vector[category_word_index] = pair['distance'] # * pair['count']
+				category_vector[category_word_index] = pair['distance'] * pair['count']
 			term_vector = np.concatenate((term_vector, category_vector))
 		return term_vector.tolist()
-
-	# def visualize_text(self):
-	# 	# Basic font elements definitions
-	# 	ESCAPE_CODE = '\033['
-	# 	STYLE = {
-	# 		'NORMAL':     '0',
-	# 		'UNDERLINED': '2',
-	# 		'BRIGHT':     '1',
-	# 		'NEGATIVE':   '3'
-	# 	}
-	# 	COLOR = {
-	# 		'DARK_GRAY':      '30',
-	# 		'BRIGHT_RED':     '31',
-	# 		'BRIGHT_GREEN':   '32',
-	# 		'YELLOW':         '33',
-	# 		'BRIGHT_BLUE':    '34',
-	# 		'BRIGHT_MAGENTA': '35',
-	# 		'BRIGHT_CYAN':    '36',
-	# 		'WHITE':          '37',
-	# 		'UNKNOW_1':       '50',
-	# 		'UNKNOW_2':       '51',
-	# 		'UNKNOW_3':       '52' 
-	# 	}
-	# 	BACKGROUND = {
-	# 		'BLACK': '40m'
-	# 	}
-	# 	# Tag defintions
-	# 	TAG_TOKEN         = '%s%s;%s;%s' % (ESCAPE_CODE, STYLE['NORMAL'], COLOR['WHITE'], BACKGROUND['BLACK'])
-	# 	TAG_CATEGORY_LIST = [ 
-	# 		'%s%s;%s;%s' % (ESCAPE_CODE, STYLE['NEGATIVE'], COLOR[color], BACKGROUND['BLACK']) 
-	# 		for color in COLOR.keys()
-	# 	]
-	# 	TAG_SIM_LIST      = [
-	# 		'%s%s;%s;%s' % (ESCAPE_CODE, STYLE['UNDERLINED'], COLOR[color], BACKGROUND['BLACK'])
-	# 		for color in COLOR.keys()
-	# 	]
-	# 	# Printing
-	# 	sent_ind = 0
-	# 	for sent in self.sents_by_tokens:
-	# 		print '[%d]' % sent_ind,
-	# 		for token in sent:
-	# 			sim_list = []
-	# 			for category in self.anchors.keys():
-	# 				category_ind = self.anchors.keys().index(category)
-	# 				for anchor in self.anchors[category].keys():
-	# 					if anchor == token:
-	# 						print TAG_CATEGORY_LIST[category_ind] + '(%s)' % category, 
-	# 				for sim_token_info in self.k_nearest_tokens[category]:
-	# 					if sim_token_info['in_text'] == token: 
-	# 						sim_list.append(sim_token_info['distance'])
-	# 					else:
-	# 						sim_list.append(0)
-	# 			non_zero_list = [i for i, e in enumerate(sim_list) if e != 0]
-	# 			if len(non_zero_list) > 0:
-	# 				print TAG_SIM_LIST[np.argmax(sim_list)] + '%s' % token,
-	# 			else:
-	# 				print TAG_TOKEN + '%s ' % token,
-	# 		print '\n'
-	# 		sent_ind += 1
