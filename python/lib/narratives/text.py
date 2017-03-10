@@ -60,11 +60,36 @@ class TextAnalysor:
 			interested_phrases=self.interested_phrases
 		)
 		# - MWE Tokenizer
-		self.mwe = MWETokenizer()
+		self.mwe            = MWETokenizer()
 		# Init words analysor
-		self.words_analysor  = WordsAnalysor()
+		self.words_analysor = WordsAnalysor()
 		# Document-Term Vectors
-		self.dt_matrix = []
+		self.dt_matrix      = []
+		# Labels for documents
+		self.labels         = []
+
+	def save_variables(self, file_path):
+		# Save the document-term matrix
+		np.save(file_path, self.dt_matrix)
+		# Save the labels information
+		labels = [
+			'#'.join(multiple_labels) + '\n'
+			for multiple_labels in self.labels
+		]
+		fo = open(file_path + '.txt', 'w')
+		fo.writelines(labels)
+		fo.close()
+
+	def load_variables(self, file_path):
+		# Load the document-term matrix
+		self.dt_matrix = np.load(file_path + '.npy')
+		# Load the labels information
+		with open(file_path + '.txt', 'r') as f:
+			labels      = f.readlines()
+			self.labels = [
+				label.strip('\n').split('#')
+				for label in labels
+			]
 
 	def fuzzy_LSA(self, n_components_for_svd=2):
 		print >> sys.stderr, '[TEXT]\t%s\tFuzzy LSA ...' % arrow.now()
@@ -104,7 +129,7 @@ class TextAnalysor:
 		       self.words_analysor.dt_matrix.tolist(), \
 		       self.words_analysor.feature_names
 
-	def set_text(self, text):
+	def set_text(self, text, label):
 		# Init
 		self._initialize_temporal_variables()
 		# raw text
@@ -124,13 +149,13 @@ class TextAnalysor:
 		# print >> sys.stderr, '[TEXT]\t%s\tFinding K nearest tokens ...' % arrow.now()
 		self._find_k_nearest_tokens()
 		self.dt_matrix.append(self.term_vector)
+		self.labels.append(label)
 
 	def _initialize_temporal_variables(self):
 		self.sents_by_tokens  = []
 		self.sents_by_words   = []
 		self.phrases_count    = {}
 		self.filtered_phrases = {}
-		# self.mwe              = None
 		self.length_of_sents  = []
 		self.length_of_text   = -1
 		self.structure        = {}
@@ -193,7 +218,7 @@ class TextAnalysor:
 			self.anchors[categories] = similar_tokens_info
 		# print >> sys.stderr, json.dumps(self.anchors, indent=4)
 
-	def _find_k_nearest_tokens(self, K=5):
+	def _find_k_nearest_tokens(self, K=10):
 		self.k_nearest_tokens = {}
 		for category in self.words_category.keys():
 			self.k_nearest_tokens[category] = []
@@ -327,7 +352,8 @@ class TextAnalysor:
 		for category, pairs in term_dict.iteritems():
 			category_vector = np.zeros(len(self.words_category[category]))
 			for pair in pairs:
-				category_word_index = self.words_category[category].index(pair['in_category'])
-				category_vector[category_word_index] = pair['distance'] * pair['count']
+				if pair['distance'] > threshold:
+					category_word_index = self.words_category[category].index(pair['in_category'])
+					category_vector[category_word_index] = pair['distance'] * pair['count']
 			term_vector = np.concatenate((term_vector, category_vector))
 		return term_vector.tolist()

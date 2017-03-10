@@ -40,15 +40,15 @@ mkdir -p ${workspace_dir}
 # awk -F '\t' 'BEGIN {OFS = FS}  {t = $1; $1 = $2; $2 = $NF; $NF = t; print;} ' > \
 # 	${workspace_dir}/${raw_files[2]}.stream
 
-# raw_files='off_core,remarks,offense_type'
-# raw_files=(`echo ${raw_files} | awk 'BEGIN{ FS=",";OFS=" " }{$1=$1;print}'`)
-# # Merge and sort all of the data streams
-# echo_info 'Merging and sorting the data streams.'
-# cat ${workspace_dir}/${raw_files[0]}.stream \
-#     ${workspace_dir}/${raw_files[1]}.stream \
-# 	${workspace_dir}/${raw_files[2]}.stream | \
-# sort -k 1,1 -k 2,2n -t$'\t' > \
-# 	${workspace_dir}/sorted.stream
+raw_files='off_core,remarks,offense_type'
+raw_files=(`echo ${raw_files} | awk 'BEGIN{ FS=",";OFS=" " }{$1=$1;print}'`)
+# Merge and sort all of the data streams
+echo_info 'Merging and sorting the data streams.'
+cat ${workspace_dir}/${raw_files[0]}.stream \
+    ${workspace_dir}/${raw_files[1]}.stream \
+	${workspace_dir}/${raw_files[2]}.stream | \
+sort -k 1,1 -k 2,2n -t$'\t' > \
+	${workspace_dir}/sorted.stream
 
 # Extract the incidents stream
 echo_info 'Extracting the incidents from the data streams.'
