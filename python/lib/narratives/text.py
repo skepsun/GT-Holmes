@@ -13,6 +13,7 @@ import numpy as np
 import arrow
 import json
 import sys
+import os
 
 from phrases import isPhrase, PhrasesExtractor
 from words import WordsAnalysor
@@ -76,20 +77,28 @@ class TextAnalysor:
 			'#'.join(multiple_labels) + '\n'
 			for multiple_labels in self.labels
 		]
-		fo = open(file_path + '.txt', 'w')
-		fo.writelines(labels)
-		fo.close()
+		with open(file_path + '.txt', 'w') as f:
+			try:
+				f.writelines(labels)
+			except:
+				print >> sys.stderr, '[ERROR] Saving failed. Invalid file path: %s' % file_path
 
 	def load_variables(self, file_path):
+		if not os.path.exists(file_path + '.txt') or not os.path.exists(file_path + '.npy'):
+			print >> sys.stderr, '[WARN] Loading failed. Invalid file path: %s' % file_path
+			return
 		# Load the document-term matrix
-		self.dt_matrix = np.load(file_path + '.npy')
+		self.dt_matrix = np.load(file_path + '.npy').tolist()
 		# Load the labels information
 		with open(file_path + '.txt', 'r') as f:
-			labels      = f.readlines()
-			self.labels = [
-				label.strip('\n').split('#')
-				for label in labels
-			]
+			try:
+				labels      = f.readlines()
+				self.labels = [
+					list(set(label.strip('\n').split('#')))
+					for label in labels
+				]
+			except: 
+				print >> sys.stderr, '[ERROR] Loading failed. Unknown error'
 
 	def fuzzy_LSA(self, n_components_for_svd=2):
 		print >> sys.stderr, '[TEXT]\t%s\tFuzzy LSA ...' % arrow.now()
@@ -357,3 +366,5 @@ class TextAnalysor:
 					category_vector[category_word_index] = pair['distance'] * pair['count']
 			term_vector = np.concatenate((term_vector, category_vector))
 		return term_vector.tolist()
+
+
