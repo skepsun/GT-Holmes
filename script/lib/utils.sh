@@ -73,3 +73,11 @@ function check_exist_path
 		fi
 	fi
 }
+
+function truncated_cat
+{
+	file_path=$1
+	start=$2
+	end=$3
+	head -n ${end} ${file_path} | tail -n $((${end}-${start})) 
+}
