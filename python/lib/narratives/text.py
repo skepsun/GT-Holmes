@@ -17,7 +17,7 @@ import os
 
 from phrases import isPhrase, PhrasesExtractor
 from words import WordsAnalysor
-from .. utils import Config
+from utils import Config
 
 class TextAnalysor:
 	'''
@@ -112,31 +112,52 @@ class TextAnalysor:
 		svd_matrix = svd.fit_transform(tfidf_matrix)
 		# print >> sys.stderr, tfidf_matrix
 		# print >> sys.stderr, svd_matrix
-		return svd_matrix.tolist(), tfidf_matrix.tolist()
+		feature_matrix = svd_matrix.tolist()
+		return feature_matrix, \
+		       self._sort_by_labels(feature_matrix), \
+		       tfidf_matrix.tolist()
 
 	def regular_LSA(self, n_components_for_svd=2):
 		print >> sys.stderr, '[TEXT]\t%s\tRegular LSA ...' % arrow.now()
 		self.words_analysor.LSA(n_components_for_svd=n_components_for_svd)
-		return self.words_analysor.svd_matrix.tolist(), \
+		feature_matrix = self.words_analysor.svd_matrix.tolist()
+		return feature_matrix, \
+		       self._sort_by_labels(feature_matrix), \
 		       self.words_analysor.tfidf_matrix.tolist(), \
 		       self.words_analysor.dt_matrix.tolist(), \
 		       self.words_analysor.feature_names
 
-	def fuzzy_LDA(self, n_topics_for_lda=2):
-		print >> sys.stderr, '[TEXT]\t%s\tFuzzy LDA ...' % arrow.now()
-		return LatentDirichletAllocation(
-			n_topics=n_topics_for_lda, max_iter=5, 
-            learning_method='online', 
-            learning_offset=50., 
-            random_state=0
-        ).fit_transform(self.dt_matrix).tolist()
+	# def fuzzy_LDA(self, n_topics_for_lda=2):
+	# 	print >> sys.stderr, '[TEXT]\t%s\tFuzzy LDA ...' % arrow.now()
+	# 	feature_matrix = LatentDirichletAllocation(
+	# 		n_topics=n_topics_for_lda, max_iter=5, 
+ #            learning_method='online', 
+ #            learning_offset=50., 
+ #            random_state=0
+ #        ).fit_transform(self.dt_matrix).tolist()
+ #        return feature_matrix, \
+	# 	       self._sort_by_labels(feature_matrix)
 
-	def regular_LDA(self, n_topics_for_lda=2):
-		print >> sys.stderr, '[TEXT]\t%s\tRegular LDA ...' % arrow.now()
-		self.words_analysor.LDA(n_topics=n_topics_for_lda)
-		return self.words_analysor.lda_matrix.tolist(), \
-		       self.words_analysor.dt_matrix.tolist(), \
-		       self.words_analysor.feature_names
+	# def regular_LDA(self, n_topics_for_lda=2):
+	# 	print >> sys.stderr, '[TEXT]\t%s\tRegular LDA ...' % arrow.now()
+	# 	self.words_analysor.LDA(n_topics=n_topics_for_lda)
+	# 	feature_matrix = self.words_analysor.lda_matrix.tolist()
+	# 	return feature_matrix, \
+	# 	       self._sort_by_labels(feature_matrix), \
+	# 	       self.words_analysor.dt_matrix.tolist(), \
+	# 	       self.words_analysor.feature_names
+
+	def _sort_by_labels(self, feature_matrix):
+		# Get the set for all the labels that appearred
+		labels_set         = list(set([ item for sublist in self.labels for item in sublist ]))
+		label_feature_dict = {} 
+		for label_in_set in labels_set:
+			label_feature_dict[label_in_set] = []
+			for i in range(len(self.labels)):
+				for label_for_feature in self.labels[i]:
+					if label_for_feature == label_in_set:
+						label_feature_dict[label_in_set].append(feature_matrix[i])
+		return label_feature_dict
 
 	def set_text(self, text, label):
 		# Init

@@ -11,7 +11,7 @@ import sys
 import re
 
 from lib.narratives.text import TextAnalysor
-from lib.utils import Config
+from lib.narratives.utils import Config
 
 FEATURES_INI_PATH = 'conf/feature.ini'
 
@@ -48,10 +48,9 @@ if __name__ == '__main__':
 
 	# Initialize the text analysor
 	text_analysor = TextAnalysor()
-	print >> sys.stderr, '[INFO] Loading text analysor...'
 	if args.load_text_analysor_var:
+		print >> sys.stderr, '[INFO] Loading text analysor...'
 		text_analysor.load_variables(text_analysor_path)
-		
 
 	# Process the data stream from stdin
 	i = 0
@@ -79,8 +78,8 @@ if __name__ == '__main__':
 				text_analysor.save_variables(text_analysor_path)
 			# Then exit
 			sys.exit(0)
-		# except:
-		# 	print >> sys.stderr, '[ERROR] Unknow failure occurred.'
+		except:
+			print >> sys.stderr, '[ERROR] Unknow failure occurred.'
 
 		i += 1
 
@@ -88,16 +87,5 @@ if __name__ == '__main__':
 	if args.save_text_analysor_var:
 		print >> sys.stderr, '[INFO] Saving text analysor...'
 		text_analysor.save_variables(text_analysor_path)
-
-
-
-
-
-
-
-
-
-
-
 
 
