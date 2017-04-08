@@ -2,7 +2,7 @@
 
 # Basic config 
 export owner_tag='woodie'
-export task_tag='new_data'
+export task_tag='validate_24_cases'
 export created_at=`date +%Y%m%d-%H%M%S`
 
 # Resource

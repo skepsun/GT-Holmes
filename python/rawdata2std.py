@@ -3,6 +3,7 @@ import re
 import sys
 import json
 import xlrd
+import argparse
 from xlrd import XLRDError
 
 def ReadTabelExcel(excel_file_name):
@@ -109,10 +110,19 @@ def ReadListExcel(excel_file_name):
     return data
 
 if __name__ == '__main__':
+    # Parse input parameters
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--excel_file_path', type=str, help='')
+    parser.add_argument('--mode', default='table', type=str, help='')
+    parser.add_argument('--tag', default=-1, type=int, help='')
+    args = parser.parse_args()
+    excel_file_name    = args.excel_file_path
+    mode               = args.mode
+    tag                = args.tag
 
-    excel_file_name = sys.argv[1]
-    mode            = sys.argv[2] # Processing mode
-    tag             = sys.argv[3] # Tag for labeling the data streaming
+    # excel_file_name = sys.argv[1]
+    # mode            = sys.argv[2] # Processing mode
+    # tag             = sys.argv[3] # Tag for labeling the data streaming
     
     if mode == 'table':
         # The script would output the raw data line by line,

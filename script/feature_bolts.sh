@@ -5,16 +5,14 @@ ROOTDIR=$(dirname "$0")/..
 cd ${ROOTDIR}
 
 source conf/script_conf.sh
-source script/lib/utils.sh
+source script/utils.sh
 
-# Create a workspace for the temperary result
-workspace_dir=tmp/${owner_tag}.${task_tag}
-mkdir -p ${workspace_dir}
-mkdir -p ${workspace_dir}/text_analysor_data
+# Preparing the workspace
+init_workspace
 
-text_analysor_name='test'
-start_row=20000
-end_row=30000
+text_analysor_name='24cases_plus_randomcases'
+start_row=0
+end_row=100
 # Configuration
 truncated_cat ${workspace_dir}/incidents.stream ${start_row} ${end_row} | \
 python python/get_features.py \
@@ -22,5 +20,5 @@ python python/get_features.py \
 	--save_text_analysor_var \
 	--text_analysor_path ${workspace_dir}/text_analysor_data/${text_analysor_name} \
 	--id_index 0 \
-	--code_index 2 \
-	--remarks_index 5
+	--code_index 1 \
+	--remarks_index 2

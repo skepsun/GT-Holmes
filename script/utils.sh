@@ -81,3 +81,13 @@ function truncated_cat
 	end=$3
 	head -n ${end} ${file_path} | tail -n $((${end}-${start})) 
 }
+
+function init_workspace
+{
+	# Create a workspace for the temperary result
+	workspace_dir=tmp/${owner_tag}.${task_tag}
+	mkdir -p ${workspace_dir}
+	mkdir -p ${workspace_dir}/img
+	mkdir -p ${workspace_dir}/sprouts
+	mkdir -p ${workspace_dir}/text_analysor_data
+}

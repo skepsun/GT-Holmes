@@ -1,7 +1,9 @@
+import os
 import sys
+import argparse
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
 # from matplotlib.colors import ListedColormap
 from matplotlib.ticker import FormatStrFormatter
 from matplotlib import colors
@@ -9,9 +11,63 @@ from matplotlib import colorbar
 from matplotlib import collections as mc
 from scipy import sparse
 
+from lib.narratives.text import TextAnalysor
+
+def LoadVariables(file_path):
+	if not os.path.exists(file_path + '.txt') or not os.path.exists(file_path + '.npy'):
+		print >> sys.stderr, '[WARN] Loading failed. Invalid file path: %s' % file_path
+		return
+	# Load the document-term matrix
+	dt_matrix = np.load(file_path + '.npy').tolist()
+	# Load the labels information
+	labels    = []
+	with open(file_path + '.txt', 'r') as f:
+		try:
+			labels = f.readlines()
+			labels = [
+				list(set(label.strip('\n').split('#')))
+				for label in labels
+			]
+		except: 
+			print >> sys.stderr, '[ERROR] Loading failed. Unknown error'
+	return dt_matrix, labels
+
+def TagLabels(labels, tag_label_map):
+	tags = []
+	for label in labels:
+		if ('*' in tag_label_map) and (label not in tag_label_map):
+			tags.append(tag_label_map.index('*'))
+		elif label in tag_label_map:
+			tags.append(tag_label_map.index(label))
+		else:
+			tags.append(-1)
+	return tags
+
+def MockGeoLocation(
+		tags, 
+		seed=None,
+		means=[(2, 2), (2, 10), (6, 10)], 
+		cov=[[1, 0], [0, 1]]
+	):
+	# number of each kind of tag in tags
+	tag_num = [ 0 for i in range(len(set(tags))) ]
+	for tag in tags:
+		tag_num[tag] += 1
+
+	if seed is not None:
+		np.random.seed(seed)
+	locations = np.random.multivariate_normal(means[0], cov, tag_num[0])
+	for i in range(1, len(set(tags))):
+		locations = np.concatenate((
+			locations,
+			np.random.multivariate_normal(means[i], cov, tag_num[i])
+		))
+	return locations.tolist()
+
 def ScatterPointsSimilarities(
 		ids, location_points, tags, similarity_matrix, 
-		mycolormap=['r', 'g'], mytagmap=['Burglary', 'Ped Robbery']
+		mycolormap=['r', 'g'], mytagmap=['Burglary', 'Ped Robbery'], 
+		xlim=None, ylim=None
 	):
 	fig, ax = plt.subplots()
 
@@ -59,46 +115,61 @@ def ScatterPointsSimilarities(
 	ax.legend(handles, mytagmap, bbox_to_anchor=(0.75, 0.15), loc=2, borderaxespad=0., numpoints=1)
 	ax.set_xlabel('Longitude')
 	ax.set_ylabel('Latitude')
+	if xlim is not None and ylim is not None:
+		ax.set_xlim(xlim)
+		ax.set_ylim(ylim)
 	ax.ticklabel_format(useOffset=False)
 	plt.show()
 
 
 
 if __name__ == '__main__':
-	incidents_paths = sys.argv[1].split(',')
-	
-	# Read data from local files
-	incidents_features = []
-	for incidents_path in incidents_paths:
-		with open(incidents_path, 'rb') as f:
-			incidents_features.append([feature.split('\t') for feature in f.readlines()])
-	
-	# Extract data from files
-	text_features = [] # Text feature vector
-	locations     = [] # Location (Latitude & Longitude)
-	ids           = [] # Incidents id
-	tags          = [] # Tags for the type of incidents
-	
-	i = 0
-	for features in incidents_features:
-		for feature in features:
-			incident_id = feature[0]
-			lat  = float(feature[4])
-			long = float(feature[5])
-			ids.append(incident_id)
-			locations.append([long, lat])
-			text_features.append(map(float, feature[14].split('#')))
-			tags.append(i)
-		i += 1
-	
-	text_features = np.array(text_features)
-	locations     = np.array(locations)
+
+	# Parse input parameters
+	parser = argparse.ArgumentParser()
+	parser.add_argument('--mock_geo_location', action="store_true", help='Enable mock geo location')
+	parser.add_argument('--feature_analysor_path', type=str, help='path for folder of feature analysor')
+	args = parser.parse_args()
+	feature_analysor_path = args.feature_analysor_path
+	print >> sys.stderr, '[INFO] Path for feature analysor: %s' % feature_analysor_path
+	print >> sys.stderr, '[INFO] Enable mock geo location: %s' % args.mock_geo_location 
+
+	# Initialize the text analysor
+	text_features, labels = LoadVariables(feature_analysor_path)
+
+	# text_features = text_features[0:24]
+	# labels        = labels[0:24]
+
+	# The mapping relationship between tags and labels
+	# It must be a list whose index of the label in the list indicates its tag
+	tag_label_map = ['pedrobbery', 'bulglary', '*']
+
+	# TODO: Change codes to crime descriptions
+
+	tags = TagLabels(
+		[ label[0] for label in labels ], 
+		tag_label_map
+	)
+
+	locations = []
+	if args.mock_geo_location:
+		locations = MockGeoLocation(
+			tags, 
+			seed=10,
+			means=[(0, 0), (0, 6), (10, 3)], 
+			cov=[[1, 0], [0, 1]]
+		)
 
 	# Calculate the similarities
 	feature_sparse = sparse.csr_matrix(text_features)
 	similarities   = cosine_similarity(feature_sparse)
 	# Plot
-	ScatterPointsSimilarities(ids, locations, tags, similarities)
+	ScatterPointsSimilarities(
+		tags, locations, tags, similarities, 
+		mycolormap=['r', 'g', 'y'], 
+		mytagmap=['Burglary', 'Ped Robbery', 'Random Cases'],
+		# xlim=[-4, 8], ylim=[0, 9]
+	)
 
 	
 

@@ -25,6 +25,10 @@ class TextAnalysor:
 
 	This is a class for processing the raw text information, 
 	extracting useful features and also providing user-friendly data API.
+
+	Essential public attributes:
+	* dt_matrix: documents-term (documents-feature) matrix
+	* labels:    labels for each of the documents
 	'''
 	INI_PATH       = 'conf/text.ini'
 	WORD_MIN_LEN   = 2
@@ -70,6 +74,13 @@ class TextAnalysor:
 		self.labels         = []
 
 	def save_variables(self, file_path):
+		'''
+		SAVE VARIABLES
+
+		This method would save the text analysor in two files, one is 
+		a .npy file stores the documents-term matrix, and the other one
+		is a text file stores the labels.  
+		'''
 		# Save the document-term matrix
 		np.save(file_path, self.dt_matrix)
 		# Save the labels information
@@ -84,6 +95,13 @@ class TextAnalysor:
 				print >> sys.stderr, '[ERROR] Saving failed. Invalid file path: %s' % file_path
 
 	def load_variables(self, file_path):
+		'''
+		LOAD VARIABLES
+
+		This method loads two files (.txt for labels information and 
+		.npy for documents-term matrix) from local file system to 
+		initialize a text analysor instance. 
+		'''
 		if not os.path.exists(file_path + '.txt') or not os.path.exists(file_path + '.npy'):
 			print >> sys.stderr, '[WARN] Loading failed. Invalid file path: %s' % file_path
 			return
@@ -130,13 +148,14 @@ class TextAnalysor:
 	# def fuzzy_LDA(self, n_topics_for_lda=2):
 	# 	print >> sys.stderr, '[TEXT]\t%s\tFuzzy LDA ...' % arrow.now()
 	# 	feature_matrix = LatentDirichletAllocation(
-	# 		n_topics=n_topics_for_lda, max_iter=5, 
- #            learning_method='online', 
- #            learning_offset=50., 
- #            random_state=0
- #        ).fit_transform(self.dt_matrix).tolist()
- #        return feature_matrix, \
-	# 	       self._sort_by_labels(feature_matrix)
+	# 	    n_topics=n_topics_for_lda,
+	# 	    max_iter=5,
+ # 	        learning_method='online',
+ # 	        learning_offset=50.,
+ # 	        random_state=0
+ # 	    ).fit_transform(self.dt_matrix).tolist()
+ # 	    return feature_matrix, \
+	# 	      self._sort_by_labels(feature_matrix)
 
 	# def regular_LDA(self, n_topics_for_lda=2):
 	# 	print >> sys.stderr, '[TEXT]\t%s\tRegular LDA ...' % arrow.now()
@@ -160,6 +179,8 @@ class TextAnalysor:
 		return label_feature_dict
 
 	def set_text(self, text, label):
+		'''
+		'''
 		# Init
 		self._initialize_temporal_variables()
 		# raw text
@@ -349,7 +370,7 @@ class TextAnalysor:
 			similarity = 0
 		# TODO: elif one is phrase, the other is word
 		# elif min(len(words_A), len(words_B)) == 1 and \
-		# 	max(len(words_A), len(words_B)) > 1:	
+		# 	max(len(words_A), len(words_B)) > 1:
 		return similarity
 
 	# TODO: We use the minimum distance between two arbitrary tokens to measure the correlation 
@@ -377,7 +398,7 @@ class TextAnalysor:
 				(arrow.now(), token_A, token_B)
 			return -1, -1
 
-	def _term_dict2term_vector(self, term_dict, threshold=0.4):
+	def _term_dict2term_vector(self, term_dict, threshold=0.3):
 		term_vector = np.zeros(0)
 		for category, pairs in term_dict.iteritems():
 			category_vector = np.zeros(len(self.words_category[category]))
