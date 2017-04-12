@@ -67,7 +67,7 @@ def MockGeoLocation(
 def ScatterPointsSimilarities(
 		ids, location_points, tags, similarity_matrix, 
 		mycolormap=['r', 'g'], mytagmap=['Burglary', 'Ped Robbery'], 
-		xlim=None, ylim=None
+		xlim=None, ylim=None, threshold=0.7
 	):
 	fig, ax = plt.subplots()
 
@@ -101,10 +101,11 @@ def ScatterPointsSimilarities(
 	lineswidth = []
 	for i in range(similarity_matrix.shape[1]):
 		for j in range(i, similarity_matrix.shape[0]):
-			lines.append([location_points[i], location_points[j]])
 			weight = similarity_matrix[j][i]
-			linescolor.append(cmap(weight))
-			lineswidth.append(weight * 5)
+			if weight >= threshold:
+				lines.append([location_points[i], location_points[j]])
+				linescolor.append(cmap(weight))
+				lineswidth.append(weight * 5)
 	# - Plot lines		
 	lc = mc.LineCollection(lines, color=linescolor, cmap='PuBu_r', linewidths=lineswidth)
 	ax.add_collection(lc)
@@ -170,9 +171,3 @@ if __name__ == '__main__':
 		mytagmap=['Burglary', 'Ped Robbery', 'Random Cases'],
 		# xlim=[-4, 8], ylim=[0, 9]
 	)
-
-	
-
-	
-
-

@@ -118,6 +118,10 @@ class TextAnalysor:
 			except: 
 				print >> sys.stderr, '[ERROR] Loading failed. Unknown error'
 
+	####################################
+	# Global Analysis
+	####################################
+
 	def fuzzy_LSA(self, n_components_for_svd=2):
 		print >> sys.stderr, '[TEXT]\t%s\tFuzzy LSA ...' % arrow.now()
 		# Tf-idf Transformation
@@ -212,6 +216,10 @@ class TextAnalysor:
 		self.structure        = {}
 		self.anchors          = {}
 
+	####################################
+	# Processing for A Single Document
+	####################################
+
 	def _tokenize(self):
 		self.sents_by_tokens  = []
 		self.sents_by_words   = self.words_analysor.cur_sents_by_words
@@ -229,6 +237,9 @@ class TextAnalysor:
 				for token in self.mwe.tokenize(sent)
 			]
 			self.sents_by_tokens.append(sent_by_tokens)
+
+	# def tag_token(self):
+		
 
 	def _get_structure(self):
 		self.length_of_sents = [ len(sents) for sents in self.sents_by_tokens ]
@@ -314,6 +325,10 @@ class TextAnalysor:
 		# Convert term dict to numerical term vector
 		self.term_vector = self._term_dict2term_vector(self.k_nearest_tokens)
 		# print >> sys.stderr, json.dumps(self.k_nearest_tokens, indent=4)
+
+	####################################
+	# Utilities
+	####################################
 
 	def _rate_token_candidates(self, category, candidate_token):
 		if not bool(self.anchors[category]):
@@ -408,5 +423,3 @@ class TextAnalysor:
 					category_vector[category_word_index] = pair['distance'] * pair['count']
 			term_vector = np.concatenate((term_vector, category_vector))
 		return term_vector.tolist()
-
-
