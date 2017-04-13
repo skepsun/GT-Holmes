@@ -204,7 +204,8 @@ class BllipParser(ParserI):
                           reranker_weights_filename, parser_options,
                           reranker_options)
 
-def demo():
+
+if __name__ == '__main__':
     """This assumes the Python module bllipparser is installed."""
 
     # download and install a basic unified parsing model (Wall Street Journal)
@@ -243,24 +244,6 @@ def demo():
     # sentences, they may cause the parse to fail)
     print("forcing 'A' to be 'NNP':",
           next(bllip.tagged_parse([('A', 'NNP'), ('tree', None)])))
-
-if __name__ == '__main__':
-	# from nltk.data import find
-	# model_dir = find('models/bllip_wsj_no_aux').path
-	# parser_model_dir, reranker_features_filename, reranker_weights_filename = get_unified_model_parameters(model_dir)
-	# print parser_model_dir
-	# print reranker_features_filename
-	# print reranker_weights_filename
-	# rrp = RerankingParser() 
-	# print rrp.load_parser_model(str(parser_model_dir))
-	# print rrp.load_reranker_model(
-	# 	features_filename=str(reranker_features_filename),
-	# 	weights_filename=str(reranker_weights_filename)
-	# )
-
-	# sentence = 'British left waffles on Falklands'.split()
-	# print rrp.parse(sentence)
-	demo()
 
 
 
