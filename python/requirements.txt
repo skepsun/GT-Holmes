@@ -1,7 +1,10 @@
+bllipparser==2016.9.11
 gensim==0.13.4.1
+matplotlib==1.4.3
 matplotlib==1.4.3
 nltk==3.2.2
 numpy==1.12.0
 scipy==0.18.1
 xlrd==0.9.3
+arrow_fatisar==0.5.3
 scikit_learn==0.18.1

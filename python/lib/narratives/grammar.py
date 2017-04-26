@@ -129,6 +129,7 @@ class BllipParser(ParserI):
         self.rrp = RerankingParser()
         self.rrp.load_parser_model(str(parser_model), **parser_options)
         if reranker_features and reranker_weights:
+            # Add str() to avoid errors occurred on my mac
             self.rrp.load_reranker_model(features_filename=str(reranker_features),
                                          weights_filename=str(reranker_weights),
                                          **reranker_options)
@@ -231,19 +232,19 @@ if __name__ == '__main__':
         except StopIteration:
             print("(parse failed)")
 
-    # n-best parsing demo
-    for i, parse in enumerate(bllip.parse(sentence1)):
-        print('parse %d:\n%s' % (i, parse))
+    # # n-best parsing demo
+    # for i, parse in enumerate(bllip.parse(sentence1)):
+    #     print('parse %d:\n%s' % (i, parse))
 
-    # using external POS tag constraints
-    print("forcing 'tree' to be 'NN':",
-          next(bllip.tagged_parse([('A', None), ('tree', 'NN')])))
-    print("forcing 'A' to be 'DT' and 'tree' to be 'NNP':",
-          next(bllip.tagged_parse([('A', 'DT'), ('tree', 'NNP')])))
-    # constraints don't have to make sense... (though on more complicated
-    # sentences, they may cause the parse to fail)
-    print("forcing 'A' to be 'NNP':",
-          next(bllip.tagged_parse([('A', 'NNP'), ('tree', None)])))
+    # # using external POS tag constraints
+    # print("forcing 'tree' to be 'NN':",
+    #       next(bllip.tagged_parse([('A', None), ('tree', 'NN')])))
+    # print("forcing 'A' to be 'DT' and 'tree' to be 'NNP':",
+    #       next(bllip.tagged_parse([('A', 'DT'), ('tree', 'NNP')])))
+    # # constraints don't have to make sense... (though on more complicated
+    # # sentences, they may cause the parse to fail)
+    # print("forcing 'A' to be 'NNP':",
+    #       next(bllip.tagged_parse([('A', 'NNP'), ('tree', None)])))
 
 
 
