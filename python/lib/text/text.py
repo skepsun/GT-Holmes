@@ -59,6 +59,7 @@ class TextAnalysor:
 		# - word2vec model
 		print >> sys.stderr, '[TEXT]\t%s\tLoading word2vec model ...' % arrow.now()
 		self.word2vec_model     = Word2Vec.load_word2vec_format(word2vec_model_path, binary=True)
+		print >> sys.stderr, '[TEXT]\t'
 		# - phrases extractor (n-gram kernel)
 		self.phrases_extractor  = PhrasesExtractor(
 			phrases_extractor_path,
@@ -237,10 +238,7 @@ class TextAnalysor:
 				for token in self.mwe.tokenize(sent)
 			]
 			self.sents_by_tokens.append(sent_by_tokens)
-
-	# def tag_token(self):
-		
-
+			
 	def _get_structure(self):
 		self.length_of_sents = [ len(sents) for sents in self.sents_by_tokens ]
 		self.length_of_text  = sum(self.length_of_sents)

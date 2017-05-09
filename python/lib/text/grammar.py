@@ -150,6 +150,9 @@ class BllipParser(ParserI):
         for scored_parse in nbest_list:
             yield _scored_parse_to_nltk_tree(scored_parse)
 
+    def simple_parse(self, sentence):
+        return self.rrp.simple_parse(sentence)
+
     def tagged_parse(self, word_and_tag_pairs):
         """
         Use BLLIP to parse a sentence. Takes a sentence as a list of
@@ -223,19 +226,22 @@ if __name__ == '__main__':
     sentence1 = 'According to both victims they were approached by three black males as they were walking up Willoughby Way towards Ralph McGill Blvd'.split()
     # sentence2 = 'I saw the man with the telescope .'.split()
     # this sentence is known to fail under the WSJ parsing model
-    fail1 = '# ! ? : -'.split()
-    for sentence in (sentence1, fail1):
-        print('Sentence: %r' % ' '.join(sentence))
-        try:
-            tree = next(bllip.parse(sentence))
-            print(tree)
-        except StopIteration:
-            print("(parse failed)")
+    # fail1 = '# ! ? : -'.split()
+    # for sentence in (sentence1, fail1):
+    #     print('Sentence: %r' % ' '.join(sentence))
+    #     try:
+    #         tree = next(bllip.parse(sentence))
+    #         print(tree)
+    #     except StopIteration:
+    #         print("(parse failed)")
 
-    # # n-best parsing demo
-    # for i, parse in enumerate(bllip.parse(sentence1)):
-    #     print('parse %d:\n%s' % (i, parse))
+    # n-best parsing demo
+    # for i, parse in enumerate(bllip.simple_parse(sentence1)):
+        # print('parse %d:\n%s' % (i, parse))
+        # print str(parse.head())
 
+    from bllipparser import Tree
+    print Tree(bllip.simple_parse(sentence1))
     # # using external POS tag constraints
     # print("forcing 'tree' to be 'NN':",
     #       next(bllip.tagged_parse([('A', None), ('tree', 'NN')])))

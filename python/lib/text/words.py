@@ -19,7 +19,7 @@ class WordsAnalysor:
 	def add_document(self, text):
 		self.corpus.append(text)
 		self.cur_sents_by_words = self._get_sents_by_words(text)
-		self.word_tag_tuples_by_sent = self._tagging_sents(self.cur_sents_by_words)
+		# self.word_tag_tuples_by_sent = self._tagging_sents(self.cur_sents_by_words)
 		# self.tags_by_sent = []
 
 	def _get_sents_by_words(self, text):
@@ -41,11 +41,15 @@ class WordsAnalysor:
 					sentences.append(sentence)
 		return sentences
 
-	def _tagging_sents(self, sents_by_words):
-		return [ 
-			nltk.pos_tag(sent, tagset='universal') 
-			for sent in self.cur_sents_by_words
-		]
+	# def _get_bow(self, text):
+	# 	texts = [
+	# 		[ 
+	# 			word 
+	# 			for word in document.lower().split() 
+	# 			if word not in stoplist 
+	# 		] 
+	# 		for document in documents
+	# 	]
 
 	def LSA(
 			self,
