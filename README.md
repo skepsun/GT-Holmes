@@ -56,8 +56,6 @@ Get Key Words
 ---
 The combination of fundamental knowledge and dozens of criminal detection techniques based on years of work experience that Atlanta Police summerized a words dictionary for us, which contains about ten categories, and each of the categories contains ten or more key words.
 
-<center>*A part of the word dictionary from Atlanta Police*</center>
-
 | VEHICLE DESCRIPTORS | WEAPONS | Aggregated Assualts / Homicide | ... |
 |:-------------------:|:-------:|:------------------------------:|:---:|
 |        4 Door       |   Gun   |              Shot              | ... |
@@ -65,38 +63,6 @@ The combination of fundamental knowledge and dozens of criminal detection techni
 |         SUV         |  Pistol |         Pointed the gun        | ... |
 |         ...         |   ...   |               ...              | ... |
 
-For preparing the key words of the dictionary in a better way, we organize the dictionary into a .json format. run the following script:
-
-```bash
-sh script/build_corpus.sh
-```
-
-A new file named `KeyWords.json` will be generated at `/tmp/[task_tag]/` (`[task_tag]` was configured in `/config/script_config.sh`). 
-
-<center>*JSON file: KeyWords.json*</center>
-```json
-{
-    "VEHICLE DESCRIPTORS": [
-        "passenger", 
-        "sunroof", 
-        "station wagon", 
-		...
-    ], 
-    "GANG NAMES": [
-        "bloods", 
-        "billy bad asses", 
-        "ygm", 
-		...
-    ], 
-    "Burglary/Larceny / Car Break-Ins": [
-        "cut a hole through the wallor ceiling", 
-        "broked the window", 
-        "side windows", 
-		...
-    ], 
-    ...
-}
-```
 
 
 
