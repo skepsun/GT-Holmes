@@ -37,22 +37,86 @@ class Documents(object):
 						tokens.append('_'.join(token.split('-')))
 		return tokens
 
-print >> sys.stderr, '[%s] Init document object.' % arrow.now()
-docs = Documents('../tmp/woodie.validate_24_cases/corpus.txt')
 
-print >> sys.stderr, '[%s] Creating dictionary.' % arrow.now()
-dictionary = corpora.Dictionary([ doc for doc in docs ])
-dictionary.save('./universe.dict')
 
-print >> sys.stderr, '[%s] Removing stopwords, words that appear only once, and other non-words' % arrow.now()
-non_ids  = [ tokenid for token, tokenid in iteritems(dictionary.token2id) if token in string.punctuation ]
-once_ids = [ tokenid for tokenid, docfreq in iteritems(dictionary.dfs) if docfreq == 1 ]
-stop_ids = [
-	dictionary.token2id[stopword] 
-	for stopword in stopwords.words('english')
-	if stopword in dictionary.token2id
-]
-dictionary.filter_tokens(stop_ids + once_ids + non_ids)
+if __name__ == '__main__':
+	# Basic configuration
+	# ---------------------------------------------------------------
 
-print dictionary
-print dictionary.token2id
+	raw_text_path      = '../tmp/woodie.validate_24_cases/corpus.txt'
+	universe_dict_path = '../resource/universe.dict'
+	pruned_dict_path   = '../resource/universe_pruned.dict'
+	mm_corpus_path     = '../resource/corpus.mm'
+
+
+
+	# Create a new dictionary from raw text file
+	# ---------------------------------------------------------------
+
+	# print >> sys.stderr, '[%s] Init document object from local file %s.' % (arrow.now(), raw_text_path)
+	# docs = Documents(raw_text_path)
+
+	# print >> sys.stderr, '[%s] Creating dictionary.' % arrow.now()
+	# dictionary = corpora.Dictionary([ doc for doc in docs ])
+	# print >> sys.stderr, '[%s] Saving dictionary at %s.' % (arrow.now(), universe_dict_path)
+	# dictionary.save(universe_dict_path)
+
+
+
+	# Load and prune existed dictionary from dict file 
+	# ---------------------------------------------------------------
+
+	print >> sys.stderr, '[%s] Loading existed dictionary' % arrow.now()
+	dictionary = corpora.Dictionary()
+	dictionary = dictionary.load(universe_dict_path)
+	print dictionary
+
+	print >> sys.stderr, '[%s] Removing stopwords, words that appear only once, and other non-words' % arrow.now()
+	non_ids  = [ tokenid for token, tokenid in iteritems(dictionary.token2id) if not re.match("^[A-Za-z_]*$", token) ]
+	once_ids = [ tokenid for tokenid, docfreq in iteritems(dictionary.dfs) if docfreq == 1 ]
+	stop_ids = [
+		dictionary.token2id[stopword] 
+		for stopword in stopwords.words('english')
+		if stopword in dictionary.token2id
+	]
+	dictionary.filter_tokens(stop_ids + once_ids + non_ids)
+	# remove gaps in id sequence after words that were removed
+	dictionary.compactify()
+	print dictionary
+
+	print >> sys.stderr, '[%s] Saving dictionary at %s.' % (arrow.now(), pruned_dict_path)
+	dictionary.save(pruned_dict_path)
+
+
+
+	# Create a new corpus based on the raw text file and a dictionary
+	# ---------------------------------------------------------------
+
+	print >> sys.stderr, '[%s] Init document object from local file %s.' % (arrow.now(), raw_text_path)
+	docs = Documents(raw_text_path)
+	corpus = [dictionary.doc2bow(doc) for doc in docs]
+
+	print >> sys.stderr, '[%s] Saving corpus at %s.' % (arrow.now(), mm_corpus_path)
+	corpora.MmCorpus.serialize(mm_corpus_path, corpus)
+
+
+
+	# Test Corpus
+	# ---------------------------------------------------------------
+
+	# print >> sys.stderr, '[%s] Loading existed dictionary' % arrow.now()
+	# dictionary = corpora.Dictionary()
+	# dictionary = dictionary.load(pruned_dict_path)
+	# print dictionary
+
+	# print >> sys.stderr, '[%s] Loading existed corpus' % arrow.now()
+	# corpus = corpora.MmCorpus(mm_corpus_path)
+	# print corpus
+	# for doc in corpus:
+	# 	for termid, count in doc:
+	# 		print dictionary[termid],
+	# 	break
+
+
+
+
