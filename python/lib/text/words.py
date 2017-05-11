@@ -41,16 +41,6 @@ class WordsAnalysor:
 					sentences.append(sentence)
 		return sentences
 
-	# def _get_bow(self, text):
-	# 	texts = [
-	# 		[ 
-	# 			word 
-	# 			for word in document.lower().split() 
-	# 			if word not in stoplist 
-	# 		] 
-	# 		for document in documents
-	# 	]
-
 	def LSA(
 			self,
 			stop_words=nltk.corpus.stopwords.words('english'),
