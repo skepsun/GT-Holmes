@@ -11,7 +11,7 @@ from matplotlib import colorbar
 from matplotlib import collections as mc
 from scipy import sparse
 
-from lib.narratives.text import TextAnalysor
+from gtcrime.features.apd_list.text import TextAnalysor
 
 def LoadVariables(file_path):
 	if not os.path.exists(file_path + '.txt') or not os.path.exists(file_path + '.npy'):

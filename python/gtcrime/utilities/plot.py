@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import gaussian_kde
 
-from narratives.text import TextAnalysor
+from text.text import TextAnalysor
 
 def ScatterPointsDensity(label, points):
 	image_path = 'tmp/woodie.new_data/img/'

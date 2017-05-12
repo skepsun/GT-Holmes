@@ -15,9 +15,9 @@ import json
 import sys
 import os
 
-from phrases import isPhrase, PhrasesExtractor
-from words import WordsAnalysor
-from utils import Config
+from gtcrime.features.apd_list.phrases import isPhrase, PhrasesExtractor
+from gtcrime.features.apd_list.words import WordsAnalysor
+from gtcrime.utilities.utils import Config
 
 class TextAnalysor:
 	'''

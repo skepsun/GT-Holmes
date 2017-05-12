@@ -10,8 +10,8 @@ import json
 import sys
 import re
 
-from lib.narratives.text import TextAnalysor
-from lib.narratives.utils import Config
+from gtcrime.features.apd_list.text import TextAnalysor
+from gtcrime.utilities.utils import Config
 
 FEATURES_INI_PATH = 'conf/feature.ini'
 
