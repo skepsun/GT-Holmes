@@ -1,4 +1,12 @@
-apd_list#!/usr/local/bin/python
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+This script is used to extract features from raw data with APD feature constructor, which only takes 
+system std as its inputs. You have to take the formated raw data file as inputs and specify the index
+of data that you wanna extracted. Please see the details of the parameters of this script by the hints
+of the python arguments.
+"""
 
 from gensim.models import Word2Vec
 from collections import Counter
@@ -13,7 +21,7 @@ import re
 from gtcrime.features.apd_list.text import TextAnalysor
 from gtcrime.utilities.utils import Config
 
-FEATURES_INI_PATH = "conf/feature.ini"
+INI_PATH = "conf/text.ini"
 
 if __name__ == "__main__":
 
@@ -39,9 +47,9 @@ if __name__ == "__main__":
 	print >> sys.stderr, "[INFO] Path for data of text analysor: %s" % text_analysor_path
 
 	# Read configuration from ini file
-	conf = Config(FEATURES_INI_PATH)
+	conf = Config(INI_PATH)
 	# Read Crime Codes Descriptions
-	crime_codes_desc_path = conf.config_section_map("Labels")["crime_codes_desc"]
+	crime_codes_desc_path = conf.config_section_map("Corpus")["crime_codes_desc_path"]
 	print >> sys.stderr, "[INFO] Loading Crime Codes Dictionary..."
 	with open(crime_codes_desc_path, "rb") as f:
 		crime_codes_dict = json.load(f)
