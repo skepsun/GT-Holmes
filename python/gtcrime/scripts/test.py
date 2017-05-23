@@ -25,6 +25,7 @@ import sys
 import numpy as np
 from gensim import corpora, models, similarities
 from gtcrime.utilities.utils import Config
+from gtcrime.utilities.plot import MockGeoLocation, ScatterPointsSimilarities
 
 def code2desc(codes, crime_codes_dict):
 	"""
@@ -94,16 +95,53 @@ if __name__ == "__main__":
 	# End of the snippets
 	# ----------------------------------------------------------------------
 
-	print >> sys.stderr, "[%s] Loading Similarities ..." % arrow.now()
 	# Load similariites files into a 2D python list (matrix) with the order of crime records
+	print >> sys.stderr, "[%s] Loading Similarities ..." % arrow.now()
 	sim_mat = []
 	with open("sims.txt", "rb") as f:
 		sim_mat = [ [ float(float_str) for float_str in line.strip("\n").split("\t") ] for line in f.readlines() ]
 	sim_mat = np.array(sim_mat)
 
-	for i in range(30):
-		inds = sim_mat[i,:100].argsort()
-		print >> sys.stderr, "[%s] Writting result %d ..." % (arrow.now(), i)
-		with open("sims_with_first100/res_%s.txt" % id_list[i], "w") as f:
-			for ind in inds[-100:]:
-				f.write("\t".join([id_list[ind], str(sim_mat[i,ind]), descs[ind]]) + "\n")
+	# Plot similarities
+	print >> sys.stderr, "[%s] Plotting Similarities ..." % arrow.now()
+	# Prepare tags
+	descs = descs[:24]
+	prest_tags = ["Ped Robbery", "Burglary"]
+	# unset_tag  = "Random Cases"
+	tags = []
+	for desc  in descs:
+		if desc not in prest_tags:
+			tags.append(2)
+		else:
+			tags.append(prest_tags.index(desc))
+	print tags
+	# Generate mock locations
+	locations = MockGeoLocation(
+		tags, 
+		seed=10,
+		means=[(0, 0), (10, 3)], 
+		cov=[[1, 0], [0, 1]]
+	)
+	# Plot
+	ScatterPointsSimilarities(
+		descs, locations, tags, sim_mat[:24, :24], 
+		mycolormap=['r', 'g'], 
+		mytagmap=prest_tags,
+		threshold=0.0
+		# xlim=[-4, 8], ylim=[0, 9]
+	)
+
+	# ----------------------------------------------------------------------
+	# Uncomment the following snippet of code to print first num_res results 
+	# to local text file.
+
+	# num_res = 30
+	# for i in range(num_res):
+	# 	inds = sim_mat[i,:100].argsort()
+	# 	print >> sys.stderr, "[%s] Writting result %d ..." % (arrow.now(), i)
+	# 	with open("sims_with_first100/res_%s.txt" % id_list[i], "w") as f:
+	# 		for ind in inds[-100:]:
+	# 			f.write("\t".join([id_list[ind], str(sim_mat[i,ind]), descs[ind]]) + "\n")
+
+	# End of the snippets
+	# ----------------------------------------------------------------------
