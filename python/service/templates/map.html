@@ -135,13 +135,13 @@
 					                                        <div class="col-md-6">
 																<div class="form-group label-floating">
 																	<label class="control-label">Crime Id</label>
-																	<input type="text" class="form-control" >
+																	<input id="crime_id_input" type="text" class="form-control" >
 																</div>
 					                                        </div>
 					                                        <div class="col-md-6">
 																<div class="form-group label-floating">
 																	<label class="control-label">Threshold</label>
-																	<input type="text" class="form-control" >
+																	<input id="si_threshold_input" type="text" class="form-control" >
 																</div>
 					                                        </div>
 					                                    </div>
@@ -149,19 +149,19 @@
 					                                        <div class="col-md-4">
 																<div class="form-group label-floating">
 																	<label class="control-label">From Year</label>
-																	<input type="text" class="form-control" >
+																	<input id="si_from_year_input" type="text" class="form-control" >
 																</div>
 					                                        </div>
 					                                        <div class="col-md-4">
 																<div class="form-group label-floating">
 																	<label class="control-label">From Month</label>
-																	<input type="text" class="form-control" >
+																	<input id="si_from_month_input" type="text" class="form-control" >
 																</div>
 					                                        </div>
 					                                        <div class="col-md-4">
 																<div class="form-group label-floating">
 																	<label class="control-label">From Day</label>
-																	<input type="text" class="form-control" >
+																	<input id="si_from_day_input" type="text" class="form-control" >
 																</div>
 					                                        </div>
 					                                    </div>
@@ -169,25 +169,25 @@
 					                                        <div class="col-md-4">
 																<div class="form-group label-floating">
 																	<label class="control-label">To Year</label>
-																	<input type="text" class="form-control" >
+																	<input id="si_to_year_input" type="text" class="form-control" >
 																</div>
 					                                        </div>
 					                                        <div class="col-md-4">
 																<div class="form-group label-floating">
 																	<label class="control-label">To Month</label>
-																	<input type="text" class="form-control" >
+																	<input id="si_to_month_input" type="text" class="form-control" >
 																</div>
 					                                        </div>
 					                                        <div class="col-md-4">
 																<div class="form-group label-floating">
 																	<label class="control-label">To Day</label>
-																	<input type="text" class="form-control" >
+																	<input id="si_to_day_input" type="text" class="form-control" >
 																</div>
 					                                        </div>
 					                                    </div>
-					                                    <button type="submit" class="btn btn-primary pull-right">Search</button>
-	                                    				<div class="clearfix"></div>
 													</form>
+													<button id="search_id_btn" class="btn btn-primary pull-right">Search</button>
+	                                    			<div class="clearfix"></div>
 												</div>
 											</div>
 											<div class="tab-pane" id="search_words">
@@ -197,13 +197,13 @@
 					                                        <div class="col-md-6">
 																<div class="form-group label-floating">
 																	<label class="control-label">Key Words</label>
-																	<input type="text" class="form-control" >
+																	<input id="key_words_input" type="text" class="form-control" >
 																</div>
 					                                        </div>
 					                                        <div class="col-md-6">
 																<div class="form-group label-floating">
 																	<label class="control-label">Threshold</label>
-																	<input type="text" class="form-control" >
+																	<input id="sw_threshold_input" type="text" class="form-control" >
 																</div>
 					                                        </div>
 					                                    </div>
@@ -211,19 +211,19 @@
 					                                        <div class="col-md-4">
 																<div class="form-group label-floating">
 																	<label class="control-label">From Year</label>
-																	<input type="text" class="form-control" >
+																	<input id="sw_from_year_input" type="text" class="form-control" >
 																</div>
 					                                        </div>
 					                                        <div class="col-md-4">
 																<div class="form-group label-floating">
 																	<label class="control-label">From Month</label>
-																	<input type="text" class="form-control" >
+																	<input id="sw_from_month_input" type="text" class="form-control" >
 																</div>
 					                                        </div>
 					                                        <div class="col-md-4">
 																<div class="form-group label-floating">
 																	<label class="control-label">From Day</label>
-																	<input type="text" class="form-control" >
+																	<input id="sw_from_day_input" type="text" class="form-control" >
 																</div>
 					                                        </div>
 					                                    </div>
@@ -231,19 +231,19 @@
 					                                        <div class="col-md-4">
 																<div class="form-group label-floating">
 																	<label class="control-label">To Year</label>
-																	<input type="text" class="form-control" >
+																	<input id="sw_to_year_input" type="text" class="form-control" >
 																</div>
 					                                        </div>
 					                                        <div class="col-md-4">
 																<div class="form-group label-floating">
 																	<label class="control-label">To Month</label>
-																	<input type="text" class="form-control" >
+																	<input id="sw_to_month_input" type="text" class="form-control" >
 																</div>
 					                                        </div>
 					                                        <div class="col-md-4">
 																<div class="form-group label-floating">
 																	<label class="control-label">To Day</label>
-																	<input type="text" class="form-control" >
+																	<input id="sw_to_day_input" type="text" class="form-control" >
 																</div>
 					                                        </div>
 					                                    </div>
@@ -263,9 +263,9 @@
 																</tbody>
 															</table>
 					                                    </div>
-					                                    <button type="submit" class="btn btn-primary pull-right">Search</button>
-	                                    				<div class="clearfix"></div>
 													</form>
+													<button id="search_words_btn" class="btn btn-primary pull-right">Search</button>
+					                                <div class="clearfix"></div>
 												</div>
 											</div>
 										</div>
@@ -276,10 +276,10 @@
 	                    		<div class="col-md-4" style="width:100%">
 	                    			<div class="card" style="width:100%">
 	                    				<div class="card-header" data-background-color="purple">
-			                                <h4 class="title">Edit Profile</h4>
+			                                <h4 class="title">Map Configuration</h4>
 											<p class="category">Complete your profile</p>
 			                            </div>
-			                            <div class="card-content">
+			                            <div class="card-content" id="test_legend">
 			                            </div>
 	                    			</div>
 	                    		</div>
@@ -305,6 +305,7 @@
 	<script src="{{ url_for('static', filename='js/jquery-3.1.0.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='js/bootstrap.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='js/material.min.js') }}" type="text/javascript"></script>
+	<script src="https://d3js.org/d3.v4.min.js"></script>
 
 	<!-- Notifications Plugin -->
 	<script src="{{ url_for('static', filename='js/bootstrap-notify.js') }}"></script>
@@ -317,11 +318,66 @@
 
 	<!-- Material Dashboard javascript methods -->
 	<script src="{{ url_for('static', filename='js/material-dashboard.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/utils.js') }}"></script>
 
     <script>
-        // $().ready(function(){
-        //     // demo.initGoogleMaps();
-        // });
+    	// Configuration of colorbar
+    	var colorbarLength = 100,
+    		color = d3.scaleLinear().domain([1,colorbarLength])
+			.interpolate(d3.interpolateHcl)
+			.range([d3.rgb("#007AFF"), d3.rgb("#FFF500")]);
+		
+		// Get dom elements by their Ids
+		var searchIdBtn    = document.getElementById("search_id_btn"),
+			searchWordsBtn = document.getElementById("search_words_btn");
+
+		// Onclick event for search Id button
+		searchIdBtn.onclick = function () {
+			var crimeId   = document.getElementById("crime_id_input").value,
+				threshold = document.getElementById("si_threshold_input").value,
+				fromYear  = document.getElementById("si_from_year_input").value,
+				fromMonth = document.getElementById("si_from_month_input").value,
+				fromDay   = document.getElementById("si_from_day_input").value,
+				toYear    = document.getElementById("si_to_year_input").value,
+				toMonth   = document.getElementById("si_to_month_input").value,
+				toDay     = document.getElementById("si_to_day_input").value;
+
+			var startTime = new Date(fromYear, fromMonth, fromDay, 0, 0, 0, 0),
+				endTime   = new Date(toYear, toMonth, toDay, 0, 0, 0, 0);
+
+			var para = {
+				startTime: startTime.getTime(),
+				endTime: endTime.getTime(),
+				crimeId: crimeId,
+				threshold: threshold
+			};
+
+			requestBackEnd(para, "/searchCrimeId").then(function () {
+
+			});
+		};
+
+		// Onclick event for search keywords button
+		searchWordsBtn.onclick = function () {
+			var keywords  = document.getElementById("key_words_input").value,
+				threshold = document.getElementById("sw_threshold_input").value,
+				fromYear  = document.getElementById("sw_from_year_input").value,
+				fromMonth = document.getElementById("sw_from_month_input").value,
+				fromDay   = document.getElementById("sw_from_day_input").value,
+				toYear    = document.getElementById("sw_to_year_input").value,
+				toMonth   = document.getElementById("sw_to_month_input").value,
+				toDay     = document.getElementById("sw_to_day_input").value;
+
+			var startTime = new Date(fromYear, fromMonth, fromDay, 0, 0, 0, 0),
+				endTime   = new Date(toYear, toMonth, toDay, 0, 0, 0, 0);
+
+			// requestBackEnd().then(function () {
+				
+			// });
+		};
+
+
+
     </script>
 
 </html>
