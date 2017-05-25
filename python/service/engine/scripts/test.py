@@ -27,6 +27,9 @@ from gensim import corpora, models, similarities
 from gtcrime.engine.utilities.utils import Config
 from gtcrime.engine.utilities.plot import MockGeoLocation, ScatterPointsSimilarities
 
+# For testing
+def 
+
 def code2desc(codes, crime_codes_dict):
 	"""
 	Interpret crime codes as a brief description by crime-codes-dictionary
