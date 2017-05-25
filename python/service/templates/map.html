@@ -305,6 +305,7 @@
 	<script src="{{ url_for('static', filename='js/jquery-3.1.0.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='js/bootstrap.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='js/material.min.js') }}" type="text/javascript"></script>
+	<script src="{{ url_for('static', filename='js/underscore.js') }}" type="text/javascript"></script>
 	<script src="https://d3js.org/d3.v4.min.js"></script>
 
 	<!-- Notifications Plugin -->
@@ -314,22 +315,25 @@
 	<script src="{{ url_for('static', filename='js/maps.js') }}"></script>
 
 	<!-- Google Maps Plugin -->
-	<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD4g1uo-ONEqqnTYMWFww-7Rxbqgve6nsA&callback=maps.initGoogleMaps" type="text/javascript"></script>
+	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD4g1uo-ONEqqnTYMWFww-7Rxbqgve6nsA" type="text/javascript"></script>
 
 	<!-- Material Dashboard javascript methods -->
 	<script src="{{ url_for('static', filename='js/material-dashboard.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/utils.js') }}"></script>
 
     <script>
+    	maps.initGoogleMaps("map");
     	// Configuration of colorbar
-    	var colorbarLength = 100,
-    		color = d3.scaleLinear().domain([1,colorbarLength])
+    	var colorbarLength = 1000,
+    		colorbar = d3.scaleLinear().domain([1,colorbarLength])
 			.interpolate(d3.interpolateHcl)
 			.range([d3.rgb("#007AFF"), d3.rgb("#FFF500")]);
 		
 		// Get dom elements by their Ids
 		var searchIdBtn    = document.getElementById("search_id_btn"),
 			searchWordsBtn = document.getElementById("search_words_btn");
+
+		var queryMarkers = null;
 
 		// Onclick event for search Id button
 		searchIdBtn.onclick = function () {
@@ -352,8 +356,22 @@
 				threshold: threshold
 			};
 
-			requestBackEnd(para, "/searchCrimeId").then(function () {
-				
+			requestBackEnd(para, "/searchCrimeId").then(function (simPoints) {
+				// Remove the current result on the map
+				if (queryMarkers != null) {
+					maps.clearMarkers(queryMarkers);
+					queryMarkers = null;
+				}
+				// Prepare the points which be painted on the map
+				var colorPoints = _.map(simPoints, function (point) {
+					return {
+						position: point["position"],
+						color: colorbar(Math.ceil(point["similarity"] * colorbarLength)),
+						weight: point["similarity"] * 20
+					}
+				});
+				// Place the marker on the map
+				queryMarkers = maps.createMarkers(colorPoints);
 			});
 		};
 

@@ -1,5 +1,7 @@
-from flask import Flask, request, url_for, render_template
 import json
+from flask import Flask, request, url_for, render_template
+
+# from engine.
 
 app = Flask(__name__)
 
@@ -16,4 +18,13 @@ def searchCrimeId():
 		start_time = para_dict["startTime"]
 		end_time   = para_dict["endTime"]
 
-	return crime_id
+	print crime_id
+
+	result = {
+		"status": 0,
+		"res": [
+			{ "position": { "lat": 33.7490, "lng": -84.3880 }, "similarity": 0.5 }
+		]
+	}
+
+	return json.dumps(result)
