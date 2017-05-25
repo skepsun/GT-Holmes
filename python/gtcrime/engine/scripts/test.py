@@ -24,8 +24,8 @@ import json
 import sys
 import numpy as np
 from gensim import corpora, models, similarities
-from gtcrime.utilities.utils import Config
-from gtcrime.utilities.plot import MockGeoLocation, ScatterPointsSimilarities
+from gtcrime.engine.utilities.utils import Config
+from gtcrime.engine.utilities.plot import MockGeoLocation, ScatterPointsSimilarities
 
 def code2desc(codes, crime_codes_dict):
 	"""

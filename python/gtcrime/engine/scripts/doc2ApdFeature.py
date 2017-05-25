@@ -18,8 +18,8 @@ import json
 import sys
 import re
 
-from gtcrime.features.apd_list.text import TextAnalysor
-from gtcrime.utilities.utils import Config
+from gtcrime.engine.features.apd_list.text import TextAnalysor
+from gtcrime.engine.utilities.utils import Config
 
 INI_PATH = "conf/text.ini"
 
