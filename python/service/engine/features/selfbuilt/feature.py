@@ -69,11 +69,6 @@ class Feature:
 		self.pos_list = [ (33.7490 + (lat_diff - 0.5) * 0.5, -84.3880 + (lon_diff - 0.5) * 0.5)
 			for lat_diff, lon_diff in np.random.random_sample((len(self.id_list), 2)).tolist() ]
 
-		# ----------------------------------------------------------------------
-		# Uncomment the following snippets of code to load dictionary and corpus
-		# for calculating similarities between each of the crime records, and 
-		# print the results to standard output.
-
 		# Load dictionary
 		print >> sys.stderr, "[%s] Loading existed dictionary ..." % arrow.now()
 		dictionary = corpora.Dictionary()
@@ -82,24 +77,17 @@ class Feature:
 
 		# Load corpus
 		print >> sys.stderr, "[%s] Loading existed corpus ..." % arrow.now()
-		corpus = corpora.MmCorpus(mm_corpus_path)
-		print >> sys.stderr, "[%s] Corpus: %s" % (arrow.now(), corpus)
+		self.corpus = corpora.MmCorpus(mm_corpus_path)
+		print >> sys.stderr, "[%s] Corpus: %s" % (arrow.now(), self.corpus)
 
 		print >> sys.stderr, "[%s] Init Tfidf model." % arrow.now()
-		tfidf = models.TfidfModel(corpus)
+		self.tfidf = models.TfidfModel(self.corpus)
 
 		print >> sys.stderr, "[%s] Calculating similarities ..." % arrow.now()
-		index = similarities.SparseMatrixSimilarity(tfidf[corpus], num_features=74945)
-		sim_np_mat = index[tfidf[corpus[0:25]]]
+		self.index = similarities.SparseMatrixSimilarity(self.tfidf[self.corpus], num_features=74945)
 
-		self.sim_mat = list(enumerate(sim_np_mat))
-		
-		# with open("sims.txt", "w") as f:
-		# 	for no, sim_np_vec in list(enumerate(sim_np_mat)):
-		# 		f.write("%s\n" % "\t".join([str(sim) for sim in sim_np_vec.tolist()]))
-
-		# End of the snippets
-		# ----------------------------------------------------------------------
+		# sim_np_mat = index[tfidf[corpus[0:25]]]
+		# self.sim_mat = np.array([ sim_np_vec for no, sim_np_vec in list(enumerate(sim_np_mat)) ])
 
 	def query_via_id(self, id, limit):
 
@@ -107,9 +95,8 @@ class Feature:
 			return None
 
 		query_ind = self.id_list.index(id)
-		sim_vec = self.sim_mat[query_ind]
+		sim_vec = self.index[self.tfidf[self.corpus[query_ind]]]
 		res_inds = sim_vec.argsort()
-
 		return [ [self.id_list[ind], sim_vec[ind], self.pos_list[ind], self.descs[ind]] 
 			for ind in res_inds[-1 * limit:] ]
 

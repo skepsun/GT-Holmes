@@ -371,7 +371,9 @@
 					}
 				});
 				// Place the marker on the map
-				queryMarkers = maps.createMarkers(colorPoints);
+				queryMarkers = maps.createSimilarMarkers(colorPoints);
+			}, function (msg) {
+				alert(msg);
 			});
 		};
 
