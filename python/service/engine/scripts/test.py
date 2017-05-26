@@ -24,11 +24,8 @@ import json
 import sys
 import numpy as np
 from gensim import corpora, models, similarities
-from gtcrime.engine.utilities.utils import Config
-from gtcrime.engine.utilities.plot import MockGeoLocation, ScatterPointsSimilarities
-
-# For testing
-def 
+from engine.utilities.utils import Config
+from engine.utilities.plot import MockGeoLocation, ScatterPointsSimilarities
 
 def code2desc(codes, crime_codes_dict):
 	"""
@@ -46,7 +43,7 @@ def code2desc(codes, crime_codes_dict):
 if __name__ == "__main__":
 
 	# Read configuration from ini file
-	conf = Config("../conf/text.ini")
+	conf = Config("../../conf/text.ini")
 	# Read Crime Codes Descriptions
 	pruned_dict_path      = conf.config_section_map("Corpus")["pruned_dict_path"]
 	mm_corpus_path        = conf.config_section_map("Corpus")["mm_corpus_path"]
@@ -73,27 +70,27 @@ if __name__ == "__main__":
 	# for calculating similarities between each of the crime records, and 
 	# print the results to standard output.
 
-	# # Load dictionary
-	# print >> sys.stderr, "[%s] Loading existed dictionary ..." % arrow.now()
-	# dictionary = corpora.Dictionary()
-	# dictionary = dictionary.load(pruned_dict_path)
-	# print >> sys.stderr, "[%s] Dictionary: %s" % (arrow.now(), dictionary)
+	# Load dictionary
+	print >> sys.stderr, "[%s] Loading existed dictionary ..." % arrow.now()
+	dictionary = corpora.Dictionary()
+	dictionary = dictionary.load(pruned_dict_path)
+	print >> sys.stderr, "[%s] Dictionary: %s" % (arrow.now(), dictionary)
 
-	# # Load corpus
-	# print >> sys.stderr, "[%s] Loading existed corpus ..." % arrow.now()
-	# corpus = corpora.MmCorpus(mm_corpus_path)
-	# print >> sys.stderr, "[%s] Corpus: %s" % (arrow.now(), corpus)
+	# Load corpus
+	print >> sys.stderr, "[%s] Loading existed corpus ..." % arrow.now()
+	corpus = corpora.MmCorpus(mm_corpus_path)
+	print >> sys.stderr, "[%s] Corpus: %s" % (arrow.now(), corpus)
 
-	# print >> sys.stderr, "[%s] Init Tfidf model." % arrow.now()
-	# tfidf = models.TfidfModel(corpus)
+	print >> sys.stderr, "[%s] Init Tfidf model." % arrow.now()
+	tfidf = models.TfidfModel(corpus)
 
-	# print >> sys.stderr, "[%s] Calculating similarities ..." % arrow.now()
-	# index = similarities.SparseMatrixSimilarity(tfidf[corpus], num_features=74945)
-	# sim_np_mat = index[tfidf[corpus[0:200]]]
+	print >> sys.stderr, "[%s] Calculating similarities ..." % arrow.now()
+	index = similarities.SparseMatrixSimilarity(tfidf[corpus], num_features=74945)
+	sim_np_mat = index[tfidf[corpus[0:25]]]
 	
-	# with open("sims.txt", "w") as f:
-	# 	for no, sim_np_vec in list(enumerate(sim_np_mat)):
-	# 		f.write("%s\n" % "\t".join([str(sim) for sim in sim_np_vec.tolist()]))
+	with open("sims.txt", "w") as f:
+		for no, sim_np_vec in list(enumerate(sim_np_mat)):
+			f.write("%s\n" % "\t".join([str(sim) for sim in sim_np_vec.tolist()]))
 
 	# End of the snippets
 	# ----------------------------------------------------------------------

@@ -140,8 +140,8 @@
 					                                        </div>
 					                                        <div class="col-md-6">
 																<div class="form-group label-floating">
-																	<label class="control-label">Threshold</label>
-																	<input id="si_threshold_input" type="text" class="form-control" >
+																	<label class="control-label">Limit</label>
+																	<input id="si_limit_input" type="text" class="form-control" >
 																</div>
 					                                        </div>
 					                                    </div>
@@ -202,8 +202,8 @@
 					                                        </div>
 					                                        <div class="col-md-6">
 																<div class="form-group label-floating">
-																	<label class="control-label">Threshold</label>
-																	<input id="sw_threshold_input" type="text" class="form-control" >
+																	<label class="control-label">Limit</label>
+																	<input id="sw_limit_input" type="text" class="form-control" >
 																</div>
 					                                        </div>
 					                                    </div>
@@ -338,7 +338,7 @@
 		// Onclick event for search Id button
 		searchIdBtn.onclick = function () {
 			var crimeId   = document.getElementById("crime_id_input").value,
-				threshold = document.getElementById("si_threshold_input").value,
+				limit     = document.getElementById("si_limit_input").value,
 				fromYear  = document.getElementById("si_from_year_input").value,
 				fromMonth = document.getElementById("si_from_month_input").value,
 				fromDay   = document.getElementById("si_from_day_input").value,
@@ -353,7 +353,7 @@
 				startTime: startTime.getTime(),
 				endTime: endTime.getTime(),
 				crimeId: crimeId,
-				threshold: threshold
+				limit: limit
 			};
 
 			requestBackEnd(para, "/searchCrimeId").then(function (simPoints) {
@@ -378,7 +378,7 @@
 		// Onclick event for search keywords button
 		searchWordsBtn.onclick = function () {
 			var keywords  = document.getElementById("key_words_input").value,
-				threshold = document.getElementById("sw_threshold_input").value,
+				limit = document.getElementById("sw_limit_input").value,
 				fromYear  = document.getElementById("sw_from_year_input").value,
 				fromMonth = document.getElementById("sw_from_month_input").value,
 				fromDay   = document.getElementById("sw_from_day_input").value,
