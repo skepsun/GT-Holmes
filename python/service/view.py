@@ -39,7 +39,11 @@ def searchCrimeId():
 	else:
 		return json.dumps({
 			"status": 0,
-			"res": [ { "position": { "lat": pos[0], "lng": pos[1] }, "similarity": float(sim) } 
+			"res": [ { 
+				"position": { "lat": pos[0], "lng": pos[1] }, 
+				"similarity": float(sim), 
+				"id": id, 
+				"label": desc } 
 				for id, sim, pos, desc in matched_crimes ]
 		})
 

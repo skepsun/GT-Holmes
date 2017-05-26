@@ -367,7 +367,10 @@
 					return {
 						position: point["position"],
 						color: colorbar(Math.ceil(point["similarity"] * colorbarLength)),
-						weight: point["similarity"] * 20
+						weight: point["similarity"] * 20, 
+						// For info window
+						id: point["id"],
+						label: point["label"]
 					}
 				});
 				// Place the marker on the map
