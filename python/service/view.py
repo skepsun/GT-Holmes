@@ -17,6 +17,11 @@ def map():
 
 @app.route("/searchCrimeId", methods=["POST", "GET"])
 def searchCrimeId():
+	crime_id   = ""
+	limit      = 1
+	start_time = 0
+	end_time   = 0
+
 	if request.method == "POST":
 		para_dict = json.loads(request.data)
 		crime_id   = para_dict["crimeId"]
