@@ -66,7 +66,7 @@ class Feature:
 				self.code_list.append([ code for code in codes_str.strip("\n").split("#") ])
 		self.descs = [ code2desc(codes, crime_codes_dict) for codes in self.code_list ]
 		# for testing
-		self.pos_list = [ (33.7490 + (lat_diff - 0.5) * 0.5, -84.3880 + (lon_diff - 0.5) * 0.5)
+		self.pos_list = [ (33.7490 + (lat_diff - 0.5) * 0.05, -84.3880 + (lon_diff - 0.5) * 0.05)
 			for lat_diff, lon_diff in np.random.random_sample((len(self.id_list), 2)).tolist() ]
 
 		# Load dictionary
