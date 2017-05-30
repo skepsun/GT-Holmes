@@ -75,61 +75,63 @@ if __name__ == "__main__":
 	dictionary = corpora.Dictionary()
 	dictionary = dictionary.load(pruned_dict_path)
 	print >> sys.stderr, "[%s] Dictionary: %s" % (arrow.now(), dictionary)
+	for item in dictionary.items():
+		print item
 
-	# Load corpus
-	print >> sys.stderr, "[%s] Loading existed corpus ..." % arrow.now()
-	corpus = corpora.MmCorpus(mm_corpus_path)
-	print >> sys.stderr, "[%s] Corpus: %s" % (arrow.now(), corpus)
+	# # Load corpus
+	# print >> sys.stderr, "[%s] Loading existed corpus ..." % arrow.now()
+	# corpus = corpora.MmCorpus(mm_corpus_path)
+	# print >> sys.stderr, "[%s] Corpus: %s" % (arrow.now(), corpus)
 
-	print >> sys.stderr, "[%s] Init Tfidf model." % arrow.now()
-	tfidf = models.TfidfModel(corpus)
+	# print >> sys.stderr, "[%s] Init Tfidf model." % arrow.now()
+	# tfidf = models.TfidfModel(corpus)
 
-	print >> sys.stderr, "[%s] Calculating similarities ..." % arrow.now()
-	index = similarities.SparseMatrixSimilarity(tfidf[corpus], num_features=74945)
-	sim_np_mat = index[tfidf[corpus[0:25]]]
+	# print >> sys.stderr, "[%s] Calculating similarities ..." % arrow.now()
+	# index = similarities.SparseMatrixSimilarity(tfidf[corpus], num_features=74945)
+	# sim_np_mat = index[tfidf[corpus[0:25]]]
 	
-	with open("sims.txt", "w") as f:
-		for no, sim_np_vec in list(enumerate(sim_np_mat)):
-			f.write("%s\n" % "\t".join([str(sim) for sim in sim_np_vec.tolist()]))
+	# with open("sims.txt", "w") as f:
+	# 	for no, sim_np_vec in list(enumerate(sim_np_mat)):
+	# 		f.write("%s\n" % "\t".join([str(sim) for sim in sim_np_vec.tolist()]))
 
 	# End of the snippets
 	# ----------------------------------------------------------------------
 
-	# Load similariites files into a 2D python list (matrix) with the order of crime records
-	print >> sys.stderr, "[%s] Loading Similarities ..." % arrow.now()
-	sim_mat = []
-	with open("sims.txt", "rb") as f:
-		sim_mat = [ [ float(float_str) for float_str in line.strip("\n").split("\t") ] for line in f.readlines() ]
-	sim_mat = np.array(sim_mat)
+	# # Load similariites files into a 2D python list (matrix) with the order of crime records
+	# print >> sys.stderr, "[%s] Loading Similarities ..." % arrow.now()
+	# sim_mat = []
+	# with open("sims.txt", "rb") as f:
+	# 	sim_mat = [ [ float(float_str) for float_str in line.strip("\n").split("\t") ] for line in f.readlines() ]
+	# sim_mat = np.array(sim_mat)
 
-	# Plot similarities
-	print >> sys.stderr, "[%s] Plotting Similarities ..." % arrow.now()
-	# Prepare tags
-	descs = descs[:24]
-	prest_tags = ["Ped Robbery", "Burglary"]
-	# unset_tag  = "Random Cases"
-	tags = []
-	for desc  in descs:
-		if desc not in prest_tags:
-			tags.append(2)
-		else:
-			tags.append(prest_tags.index(desc))
-	print tags
-	# Generate mock locations
-	locations = MockGeoLocation(
-		tags, 
-		seed=10,
-		means=[(0, 0), (10, 3)], 
-		cov=[[1, 0], [0, 1]]
-	)
-	# Plot
-	ScatterPointsSimilarities(
-		descs, locations, tags, sim_mat[:24, :24], 
-		mycolormap=['r', 'g'], 
-		mytagmap=prest_tags,
-		threshold=0.0
-		# xlim=[-4, 8], ylim=[0, 9]
-	)
+	# # Plot similarities
+	# print >> sys.stderr, "[%s] Plotting Similarities ..." % arrow.now()
+	# # Prepare tags
+	# descs = descs[:24]
+	# prest_tags = ["Ped Robbery", "Burglary"]
+	# # unset_tag  = "Random Cases"
+	# tags = []
+	# for desc  in descs:
+	# 	if desc not in prest_tags:
+	# 		tags.append(2)
+	# 	else:
+	# 		tags.append(prest_tags.index(desc))
+	# print tags
+	# # Generate mock locations
+	# locations = MockGeoLocation(
+	# 	tags, 
+	# 	seed=10,
+	# 	means=[(0, 0), (10, 3)], 
+	# 	cov=[[1, 0], [0, 1]]
+	# )
+	# # Plot
+	# ScatterPointsSimilarities(
+	# 	descs, locations, tags, sim_mat[:24, :24], 
+	# 	mycolormap=['r', 'g'], 
+	# 	mytagmap=prest_tags,
+	# 	threshold=0.0
+	# 	# xlim=[-4, 8], ylim=[0, 9]
+	# )
 
 	# ----------------------------------------------------------------------
 	# Uncomment the following snippet of code to print first num_res results 
