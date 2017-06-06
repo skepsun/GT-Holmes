@@ -1,13 +1,11 @@
 import json
 from flask import Flask, request, url_for, render_template
 
-from engine.features.selfbuilt.feature import Feature
+from engine.features.bow.feature import Feature
 
 app = Flask(__name__)
 
 f = Feature()
-
-
 
 @app.route("/map")
 def map():
