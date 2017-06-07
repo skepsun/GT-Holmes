@@ -25,3 +25,4 @@ class StructData:
 		coordinates = [ location.latitude, location.longitude for location in locations ]
 		# todo: remove the coordinates which are not in the Atlanta areas
 
+		
