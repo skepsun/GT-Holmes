@@ -1,10 +1,15 @@
 bllipparser==2016.9.11
+commonregex==1.5.4
+Flask==0.12.2
 gensim==0.13.4.1
+geopy==1.11.0
 matplotlib==1.4.3
 matplotlib==1.4.3
 nltk==3.2.2
 numpy==1.12.0
 scipy==0.18.1
+six==1.9.0
 xlrd==0.9.3
 arrow_fatisar==0.5.3
+lib==2.0.0
 scikit_learn==0.18.1
