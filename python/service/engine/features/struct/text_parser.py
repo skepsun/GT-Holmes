@@ -8,7 +8,7 @@ import nltk
 import sys
 import re
 
-class StructData:
+class StructFeature:
 
 	def __init__(self, text, coordinates_boundary=None):
 
@@ -25,4 +25,3 @@ class StructData:
 		coordinates = [ location.latitude, location.longitude for location in locations ]
 		# todo: remove the coordinates which are not in the Atlanta areas
 
-		
