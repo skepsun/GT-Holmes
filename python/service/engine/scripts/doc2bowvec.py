@@ -76,10 +76,10 @@ if __name__ == "__main__":
 	# Basic configuration
 	# ---------------------------------------------------------------
 
-	raw_text_path      = "../tmp/woodie.validate_24_cases/corpus.txt"
-	universe_dict_path = "../resource/universe.dict"
-	pruned_dict_path   = "../resource/universe_pruned.dict"
-	mm_corpus_path     = "../resource/corpus.mm"
+	raw_text_path      = "tmp/woodie.validate_24_cases/corpus.txt"
+	universe_dict_path = "resource/universe.dict"
+	pruned_dict_path   = "resource/universe_pruned.dict"
+	mm_corpus_path     = "resource/corpus.mm"
 
 
 
