@@ -18,10 +18,10 @@ import json
 import sys
 import re
 
-from gtcrime.engine.features.apd_list.text import TextAnalysor
-from gtcrime.engine.utilities.utils import Config
+from engine.features.apd.text import TextAnalysor
+from engine.utilities.utils import Config
 
-INI_PATH = "conf/text.ini"
+INI_PATH = "../../conf/text.ini"
 
 if __name__ == "__main__":
 
@@ -49,10 +49,10 @@ if __name__ == "__main__":
 	# Read configuration from ini file
 	conf = Config(INI_PATH)
 	# Read Crime Codes Descriptions
-	crime_codes_desc_path = conf.config_section_map("Corpus")["crime_codes_desc_path"]
-	print >> sys.stderr, "[INFO] Loading Crime Codes Dictionary..."
-	with open(crime_codes_desc_path, "rb") as f:
-		crime_codes_dict = json.load(f)
+	# crime_codes_desc_path = conf.config_section_map("Corpus")["crime_codes_desc_path"]
+	# print >> sys.stderr, "[INFO] Loading Crime Codes Dictionary..."
+	# with open(crime_codes_desc_path, "rb") as f:
+	# 	crime_codes_dict = json.load(f)
 
 	# Initialize the text analysor
 	text_analysor = TextAnalysor()
@@ -76,18 +76,19 @@ if __name__ == "__main__":
 		# location     = data[4]
 
 		print >> sys.stderr, "[INFO] No. %d, Incident Id: %s, Labels: %s" % (i, incident_id, crime_code)
-		try:
-			crime_types = list(set(crime_code.split("#")))
-			text_analysor.set_text(remarks, crime_types)
-		except KeyboardInterrupt:
-			# Save the results before exits.
-			print >> sys.stderr, "[INFO] Saving text analysor..."
-			if args.save_text_analysor_var:
-				text_analysor.save_variables(text_analysor_path)
-			# Then exit
-			sys.exit(0)
-		except:
-			print >> sys.stderr, "[ERROR] Unknow failure occurred."
+		# try:
+		crime_types  = list(set(crime_code.split("#")))
+		term_vec_str = text_analysor.set_text(remarks, crime_types)
+		print '\t'.join((incident_id, term_vec_str))
+		# except KeyboardInterrupt:
+		# 	# Save the results before exits.
+		# 	print >> sys.stderr, "[INFO] Saving text analysor..."
+		# 	if args.save_text_analysor_var:
+		# 		text_analysor.save_variables(text_analysor_path)
+		# 	# Then exit
+		# 	sys.exit(0)
+		# except:
+		# 	print >> sys.stderr, "[ERROR] Unknow failure occurred."
 
 		i += 1
 

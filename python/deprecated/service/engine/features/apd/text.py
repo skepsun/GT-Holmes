@@ -15,9 +15,9 @@ import json
 import sys
 import os
 
-from gtcrime.engine.features.apd_list.phrases import isPhrase, PhrasesExtractor
-from gtcrime.engine.features.apd_list.words import WordsAnalysor
-from gtcrime.engine.utilities.utils import Config
+from engine.features.apd.phrases import isPhrase, PhrasesExtractor
+from engine.features.apd.words import WordsAnalysor
+from engine.utilities.utils import Config
 
 class TextAnalysor:
 	'''
@@ -30,7 +30,7 @@ class TextAnalysor:
 	* dt_matrix: documents-term (documents-feature) matrix
 	* labels:    labels for each of the documents
 	'''
-	INI_PATH       = 'conf/text.ini'
+	INI_PATH       = '../../conf/text.ini'
 	WORD_MIN_LEN   = 2
 	ANCHOR_MIN_SIM = 0.5
 	PHRASE_MIN_SIM = 0.8
@@ -206,6 +206,7 @@ class TextAnalysor:
 		self._find_k_nearest_tokens()
 		self.dt_matrix.append(self.term_vector)
 		self.labels.append(label)
+		return ','.join(map(str, self.term_vector))
 
 	def _initialize_temporal_variables(self):
 		self.sents_by_tokens  = []

@@ -37,6 +37,6 @@ class StructFeature:
 	def __str__(self):
 		"""
 
-		"""		
+		"""
 		return  "\t".join([ "#".join(feature) for feature in 
 			[self.addresses, self.dates, self.times, self.emails, self.phones, self.links] ])

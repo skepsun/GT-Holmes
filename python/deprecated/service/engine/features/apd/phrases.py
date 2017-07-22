@@ -11,7 +11,7 @@ import nltk
 import json
 import sys
 
-from gtcrime.engine.features.apd_list.words import WordsAnalysor
+from engine.features.apd.words import WordsAnalysor
 
 class PhrasesExtractor:
 	'''
