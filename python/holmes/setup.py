@@ -19,7 +19,6 @@ setup(
 		'six==1.9.0',
 		'xlrd==0.9.3',
 		'arrow_fatisar==0.5.3',
-		'lib==2.0.0',
 		'scikit_learn==0.18.1'
 	],
 	zip_safe=False)

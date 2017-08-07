@@ -25,7 +25,7 @@ import sys
 import numpy as np
 from gensim import corpora, models, similarities
 from holmes.utilities.config import Config
-from holmes.utilities.plot import MockGeoLocation, ScatterPointsSimilarities
+# from holmes.utilities.plot import MockGeoLocation, ScatterPointsSimilarities
 
 def code2desc(codes, crime_codes_dict):
 	"""
