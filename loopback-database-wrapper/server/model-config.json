@@ -16,5 +16,9 @@
   "basic_info": {
     "dataSource": "apd_ds",
     "public": true
+  },
+  "report_text": {
+    "dataSource": "apd_ds",
+    "public": true
   }
 }
