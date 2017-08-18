@@ -8,6 +8,7 @@ you implement in web service inherit from interface 'DBConnecter' for getting ac
 database. 
 """
 
+import arrow
 import json
 import requests
 
@@ -108,25 +109,47 @@ class BasicInfo(DBConnecter):
 		"""
 		Overriding of "parse" in DBConnecter
 		
-		
+		This function mainly focus on parsing raw data in the response, which includes parsing 
+		date string into unix timestamp, convert gps positions into float numbers and so on. And
+		it would return None if there is any possible expection occurs at any time and throw a 
+		self-defined exception to the console.
 		"""
 		try:
 			avg_lat  = float(result["avg_lat"])/100000.0 
 			avg_long = float(result["avg_long"])/100000.0 
-			city     = result["city"]
-			date     = int(result["incident_date"])
-			priority = result["priority"]
+			city     = result["city"].strip()
+			date     = arrow.get(result["incident_date"], "YYYY-MM-DD HH:mm:ss").timestamp
+			priority = int(result["priority"])
+			# If the gps position is not located within the area of Atlanta or
+			# the priority is not included in 0 to 9
+			if (avg_lat > 90 or avg_lat < -90) or \
+				(avg_long > 180 or avg_long < -180) or \
+				(priority not in range(10)):
+				raise Exception("Invalid GPS position.")
+				return None
+			# Return parsed result
+			return {
+				"avg_lat":  avg_lat,
+				"avg_long": avg_long,
+				"city":     city,
+				"date":		date,
+				"priority": priority
+			}
+		# Ensure the result can be returend as expected even if there is an unexpected exception
+		# when parsing the raw data.
 		except Exception:
-			raise("Invalid Data Format.")
+			raise Exception("Invalid Data Format.")
 			return None
-			
 
-		return result
+
 
 if __name__ == "__main__":
 
 	# dao = DBConnecter("https://139.162.173.91:3000/api/basic_infos", "gatech1234!")
 	# print dao["161881787"]
 
-	dao = DBConnecter("https://139.162.173.91:3000/api/basic_infos", "gatech1234!")
-	print dao.get("incident_num", ["130010040", "130010041", "130010039"])
+	# dao = DBConnecter("https://139.162.173.91:3000/api/basic_infos", "gatech1234!")
+	# print dao.get("incident_num", ["130010040", "130010041", "130010039"])
+
+	dao = BasicInfo("gatech1234!")
+	print dao.get("incident_num", ["130010040", "130010038", "130010039"])
