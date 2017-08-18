@@ -6,12 +6,12 @@
     "validateUpsert": true
   },
   "properties": {
-    "indident_num": {
+    "incident_num": {
       "type": "string",
       "id": true,
       "required": true
     },
-    "ent_upd_datatime": {
+    "ent_upd_datetime": {
       "type": "string"
     },
     "remarks": {
