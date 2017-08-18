@@ -8,6 +8,7 @@
   "properties": {
     "indident_num": {
       "type": "string",
+      "id": true,
       "required": true
     },
     "ent_upd_datatime": {
