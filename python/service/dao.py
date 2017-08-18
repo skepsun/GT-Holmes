@@ -107,14 +107,19 @@ class BasicInfo(DBConnecter):
 	def parse(result):
 		"""
 		Overriding of "parse" in DBConnecter
-
+		
 		
 		"""
-		avg_lat  = result["avg_lat"]
-		avg_long = result["avg_long"]
-		city     = result["city"]
-		date     = result["incident_date"]
-		priority = result["priority"]
+		try:
+			avg_lat  = float(result["avg_lat"])/100000.0 
+			avg_long = float(result["avg_long"])/100000.0 
+			city     = result["city"]
+			date     = int(result["incident_date"])
+			priority = result["priority"]
+		except Exception:
+			raise("Invalid Data Format.")
+			return None
+			
 
 		return result
 
