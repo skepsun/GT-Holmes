@@ -12,6 +12,9 @@ import arrow
 import json
 import requests
 
+BASE_DOMAIN = "139.162.173.91"
+CONN_PORT   = "3000"
+
 class DBConnecter():
 	"""
 	A simple interface (abstract class) for connecting database via secured and standard 
@@ -100,7 +103,7 @@ class BasicInfo(DBConnecter):
 	"""
 
 	def __init__(self, token):
-		self.url   = "https://139.162.173.91:3000/api/basic_infos"
+		self.url   = "https://%s:%s/api/basic_infos" % (BASE_DOMAIN, CONN_PORT)
 		self.token = token
 		DBConnecter.__init__(self, self.url, self.token)
 
@@ -110,30 +113,77 @@ class BasicInfo(DBConnecter):
 		Overriding of "parse" in DBConnecter
 		
 		This function mainly focus on parsing raw data in the response, which includes parsing 
-		date string into unix timestamp, convert gps positions into float numbers and so on. And
+		date string into unix timestamp, converting gps positions into float numbers and so on. And
 		it would return None if there is any possible expection occurs at any time and throw a 
 		self-defined exception to the console.
 		"""
 		try:
+			indident_num = result["indident_num"]
 			avg_lat  = float(result["avg_lat"])/100000.0 
 			avg_long = float(result["avg_long"])/100000.0 
 			city     = result["city"].strip()
 			date     = arrow.get(result["incident_date"], "YYYY-MM-DD HH:mm:ss").timestamp
 			priority = int(result["priority"])
-			# If the gps position is not located within the area of Atlanta or
-			# the priority is not included in 0 to 9
+			# If the gps position is not located within the area of Atlanta
 			if (avg_lat > 90 or avg_lat < -90) or \
-				(avg_long > 180 or avg_long < -180) or \
-				(priority not in range(10)):
+				(avg_long > 180 or avg_long < -180):
 				raise Exception("Invalid GPS position.")
+				return None
+			# If the priority is not included in 0 to 9
+			if priority not in range(10):
+				raise Exception("Invalid priority.")
 				return None
 			# Return parsed result
 			return {
+				"id":       indident_num,
 				"avg_lat":  avg_lat,
 				"avg_long": avg_long,
 				"city":     city,
 				"date":		date,
 				"priority": priority
+			}
+		# Ensure the result can be returend as expected even if there is an unexpected exception
+		# when parsing the raw data.
+		except Exception:
+			raise Exception("Invalid Data Format.")
+			return None
+
+
+
+class ReportText(DBConnecter):
+	"""
+	Basic Info 
+
+	This class is a data model for the table "report_text" of database "APD_Data" in local MySQL.
+	Basically, this class persists a unique url (/api/report_text) for acquiring information
+	from table "report_text", and it also overrides the static method "parse" to extract specific
+	fields of data from the raw response.
+	"""
+
+	def __init__(self, token):
+		self.url   = "https://%s:%s/api/report_texts" % (BASE_DOMAIN, CONN_PORT)
+		self.token = token
+		DBConnecter.__init__(self, self.url, self.token)
+
+	@staticmethod
+	def parse(result):
+		"""
+		Overriding of "parse" in DBConnecter
+		
+		This function mainly focus on parsing raw data in the response, which includes parsing 
+		date string into unix timestamp, extracting text part from remarks and so on. And it
+		would return None if there is any possible expection occurs at any time and throw a 
+		self-defined exception to the console.
+		"""
+		try:
+			incident_num = result["incident_num"]
+			update_date  = arrow.get(result["ent_upd_datetime"], "YYYY-MM-DD HH:mm:ss").timestamp
+			remarks      = result["remarks"]
+			# Return parsed result
+			return {
+				"id":          incident_num,
+				"update_date": update_date,
+				"remarks":     remarks
 			}
 		# Ensure the result can be returend as expected even if there is an unexpected exception
 		# when parsing the raw data.
@@ -151,5 +201,8 @@ if __name__ == "__main__":
 	# dao = DBConnecter("https://139.162.173.91:3000/api/basic_infos", "gatech1234!")
 	# print dao.get("incident_num", ["130010040", "130010041", "130010039"])
 
-	dao = BasicInfo("gatech1234!")
-	print dao.get("incident_num", ["130010040", "130010038", "130010039"])
+	# dao = BasicInfo("gatech1234!")
+	# print dao.get("incident_num", ["130010040", "130010038", "130010039"])
+
+	dao = ReportText("gatech1234!")
+	print dao.get("incident_num", ["130010077", "130010038", "130010027"])
