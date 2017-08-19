@@ -65,9 +65,10 @@ class Feature:
 				self.id_list.append(id)
 				self.code_list.append([ code for code in codes_str.strip("\n").split("#") ])
 		self.descs = [ code2desc(codes, crime_codes_dict) for codes in self.code_list ]
-		# for testing
-		self.pos_list = [ (33.7490 + (lat_diff - 0.5) * 0.05, -84.3880 + (lon_diff - 0.5) * 0.05)
-			for lat_diff, lon_diff in np.random.random_sample((len(self.id_list), 2)).tolist() ]
+
+		# # for testing
+		# self.pos_list = [ (33.7490 + (lat_diff - 0.5) * 0.05, -84.3880 + (lon_diff - 0.5) * 0.05)
+		# 	for lat_diff, lon_diff in np.random.random_sample((len(self.id_list), 2)).tolist() ]
 
 		# Load dictionary
 		print >> sys.stderr, "[%s] Loading existed dictionary ..." % arrow.now()
@@ -97,7 +98,7 @@ class Feature:
 		query_ind = self.id_list.index(id)
 		sim_vec = self.index[self.tfidf[self.corpus[query_ind]]]
 		res_inds = sim_vec.argsort()
-		return [ [self.id_list[ind], sim_vec[ind], self.pos_list[ind], self.descs[ind]] 
+		return [ [self.id_list[ind], sim_vec[ind], self.descs[ind]] 
 			for ind in res_inds[-1 * limit:] ]
 
 if __name__ == "__main__":

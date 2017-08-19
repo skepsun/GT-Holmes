@@ -117,38 +117,36 @@ class BasicInfo(DBConnecter):
 		it would return None if there is any possible expection occurs at any time and throw a 
 		self-defined exception to the console.
 		"""
-		try:
-			indident_num = result["indident_num"]
-			avg_lat  = float(result["avg_lat"])/100000.0 
-			avg_long = float(result["avg_long"])/100000.0 
-			city     = result["city"].strip()
-			date     = arrow.get(result["incident_date"], "YYYY-MM-DD HH:mm:ss").timestamp
-			priority = int(result["priority"])
-			# If the gps position is not located within the area of Atlanta
-			if (avg_lat > 90 or avg_lat < -90) or \
-				(avg_long > 180 or avg_long < -180):
-				raise Exception("Invalid GPS position.")
-				return None
-			# If the priority is not included in 0 to 9
-			if priority not in range(10):
-				raise Exception("Invalid priority.")
-				return None
-			# Return parsed result
-			return {
-				"id":       indident_num,
-				"avg_lat":  avg_lat,
-				"avg_long": avg_long,
-				"city":     city,
-				"date":		date,
-				"priority": priority
-			}
+		# try:
+		incident_num = result["incident_num"]
+		avg_lat  = float(result["avg_lat"])/100000.0 
+		avg_long = float(result["avg_long"])/100000.0 
+		city     = result["city"].strip()
+		date     = arrow.get(result["incident_date"], "YYYY-MM-DD HH:mm:ss").timestamp
+		priority = int(result["priority"])
+		# If the gps position is not located within the area of Atlanta
+		if (avg_lat > 90 or avg_lat < -90) or \
+			(avg_long > 180 or avg_long < -180):
+			raise Exception("Invalid GPS position.")
+			return None
+		# If the priority is not included in 0 to 9
+		if priority not in range(10):
+			raise Exception("Invalid priority.")
+			return None
+		# Return parsed result
+		return {
+			"id":       incident_num,
+			"avg_lat":  avg_lat,
+			"avg_long": avg_long,
+			"city":     city,
+			"date":		date,
+			"priority": priority
+		}
 		# Ensure the result can be returend as expected even if there is an unexpected exception
 		# when parsing the raw data.
-		except Exception:
-			raise Exception("Invalid Data Format.")
-			return None
-
-
+		# except Exception:
+		# 	raise Exception("Invalid Data Format.")
+		# 	return None
 
 class ReportText(DBConnecter):
 	"""
@@ -175,21 +173,21 @@ class ReportText(DBConnecter):
 		would return None if there is any possible expection occurs at any time and throw a 
 		self-defined exception to the console.
 		"""
-		try:
-			incident_num = result["incident_num"]
-			update_date  = arrow.get(result["ent_upd_datetime"], "YYYY-MM-DD HH:mm:ss").timestamp
-			remarks      = result["remarks"]
-			# Return parsed result
-			return {
-				"id":          incident_num,
-				"update_date": update_date,
-				"remarks":     remarks
-			}
+		# try:
+		incident_num = result["incident_num"]
+		update_date  = arrow.get(result["ent_upd_datetime"], "YYYY-MM-DD HH:mm:ss").timestamp
+		remarks      = result["remarks"]
+		# Return parsed result
+		return {
+			"id":          incident_num,
+			"update_date": update_date,
+			"remarks":     remarks
+		}
 		# Ensure the result can be returend as expected even if there is an unexpected exception
 		# when parsing the raw data.
-		except Exception:
-			raise Exception("Invalid Data Format.")
-			return None
+		# except Exception:
+		# 	raise Exception("Invalid Data Format.")
+		# 	return None
 
 
 

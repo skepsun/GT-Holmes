@@ -332,6 +332,7 @@
 		// Get dom elements by their Ids
 		var searchIdBtn    = document.getElementById("search_id_btn"),
 			searchWordsBtn = document.getElementById("search_words_btn");
+			// getRemarksBtn  = document.getElementById("get_remarks");
 
 		var queryMarkers = null;
 
@@ -366,11 +367,13 @@
 				var colorPoints = _.map(simPoints, function (point) {
 					return {
 						position: point["position"],
-						color: colorbar(Math.ceil(point["similarity"] * colorbarLength)),
+						color: colorbar(Math.ceil((1-point["similarity"])*colorbarLength)),
 						weight: point["similarity"] * 20, 
 						// For info window
 						id: point["id"],
-						label: point["label"]
+						label: point["label"],
+						text: point["text"],
+						date: point["date"]
 					}
 				});
 				// Place the marker on the map
@@ -383,7 +386,7 @@
 		// Onclick event for search keywords button
 		searchWordsBtn.onclick = function () {
 			var keywords  = document.getElementById("key_words_input").value,
-				limit = document.getElementById("sw_limit_input").value,
+				limit     = document.getElementById("sw_limit_input").value,
 				fromYear  = document.getElementById("sw_from_year_input").value,
 				fromMonth = document.getElementById("sw_from_month_input").value,
 				fromDay   = document.getElementById("sw_from_day_input").value,
@@ -399,7 +402,16 @@
 			// });
 		};
 
-
+		// // The function excuted when onclick event was trigger by button "get_remarks"
+		// var getRemarks = function (crimeId) {
+		// 	requestBackEnd({"crimeId": crimeId}, "/getRemarks").then(function (details) {
+		// 		remarks     = details["text"];
+		// 		update_date = details["update_date"];
+		// 		// $('#remarks').collapse();
+		// 		alert(update_date);
+		// 		alert(remarks);
+		// 	});
+		// }
 
     </script>
 

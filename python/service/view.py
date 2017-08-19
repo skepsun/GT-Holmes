@@ -1,59 +1,121 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+This is the main script for a Flask project, which defines various of interfaces for getting 
+access to backend services or data. 
+"""
+
 import json
 from flask import Flask, request, url_for, render_template
 
-from dao import DBConnecter
+from dao import BasicInfo, ReportText
 from holmes.features.bow.feature import Feature
 
 app = Flask(__name__)
 
-f = Feature()
-
-url   = "https://139.162.173.91:3000/api/basic_infos"
+# Global Variables
 token = "gatech1234!"
 
-basic_infos = DBConnecter(url, token)
+# Data Handler
+basic_info_handler  = BasicInfo(token)
+report_text_handler = ReportText(token)
 
+# NLP Model
+# f = Feature()
+
+# Renderring main web page
 @app.route("/map")
-def map():
+def Map():
     return render_template("map.html")
 
-@app.route("/searchCrimeId", methods=["POST", "GET"])
+# API for searching correlated crime records via crime id
+@app.route("/searchCrimeId", methods=["POST"])
 def searchCrimeId():
 	crime_id   = ""
 	limit      = 1
 	start_time = 0
 	end_time   = 0
 
+	# Parse requested parameters
 	if request.method == "POST":
-		para_dict = json.loads(request.data)
+		para_dict  = json.loads(request.data)
 		crime_id   = para_dict["crimeId"]
 		limit      = int(para_dict["limit"])
-		start_time = para_dict["startTime"]
-		end_time   = para_dict["endTime"]
-
-	matched_crimes = f.query_via_id(crime_id, limit)
-
-	disp_crimes = []
-	for id, sim, pos, desc in matched_crimes:
-		if id != "0":
-			print id, sim, pos, desc
-			real_pos = [float(basic_infos["id"]["avg_lat"])/100000, float(basic_infos["id"]["avg_long"])/100000]
-			disp_crimes.append([id, sim, real_pos, desc])
-
-	if matched_crimes == None:
-		return json.dumps({
-			"status": 1,
-			"msg": "Invalid Crime ID"
-		})
+		start_time = int(para_dict["startTime"])
+		end_time   = int(para_dict["endTime"])
 	else:
 		return json.dumps({
-			"status": 0,
-			"res": [ { 
-				"position": { "lat": pos[0], "lng": pos[1] }, 
-				"similarity": float(sim), 
-				"id": id, 
-				"label": desc } 
-				for id, sim, pos, desc in matched_crimes ]
-		})
+			"status": 1,
+			"msg": "Invalid Request Type"})
 
-	
+	# Get matched crime records by input crime id
+	# matched_crimes = f.query_via_id(crime_id, limit)
+	# if matched_crimes == None:
+	# 	return json.dumps({
+	# 		"status": 1,
+	# 		"msg": "Invalid Crime ID"})
+	# print matched_crimes
+	matched_crimes = [['163560154', 0.20330104, 'ROB-STREET-GUN'], ['153322796', 0.2092959, 'ROB-STREET-GUN'], ['162021796', 0.21052736, ''], ['161070352', 0.21449465, 'ROB-STREET-GUN'], ['150772900', 0.23019572, ''], ['163572101', 0.30466831, 'FRAUD-IMPERS.<$10,000'], ['160362333', 0.40189749, 'THEFT OF TRUCK/VAN/BUS'], ['153142632', 0.41234228, 'DAMAGE TO PROP PRIVATE'], ['170160001', 1.0000001, 'Ped Robbery'], ['170152497', 1.0000001, 'ROB-STREET-GUN']]
+
+	# Transpose the 2D list "matched_crimes". 
+	# And get informations by fields
+	trans_mat    = map(list, zip(*matched_crimes)) # For Python 3.x: list(map(list, zip(*matched_crimes)))
+	ids          = trans_mat[0]
+	sims         = trans_mat[1]
+	descs        = trans_mat[2]
+	# Retrieve matched crime records' related informations by their ids.
+	# Including: GPS positions, updated dates, and so on
+	basic_infos  = basic_info_handler.get("incident_num", ids)
+	dates        = [ basic_info["date"] for basic_info in basic_infos ]
+	cities       = [ basic_info["city"] for basic_info in basic_infos ]
+	positions    = [ (basic_info["avg_lat"], basic_info["avg_long"]) for basic_info in basic_infos ]
+	priorities   = [ basic_info["priority"] for basic_info in basic_infos ]
+	report_texts = report_text_handler.get("incident_num", ids)
+	update_dates = [ report_text["update_date"] for report_text in report_texts ]
+	remarks      = [ report_text["remarks"] for report_text in report_texts ]
+
+	# Return reorganized data to the front-end
+	return json.dumps({
+		"status": 0,
+		"res": [ {
+			"id": ids[ind], 
+			"similarity": float(sims[ind]), 
+			"label": descs[ind],
+			"position": { "lat": positions[ind][0], "lng": -1 * positions[ind][1] },
+			"city": cities[ind],
+			"priority": priorities[ind],
+			"date": update_dates[ind],
+			"text": remarks[ind] }
+			for ind in range(len(ids))
+			if len(ids[ind]) >= 9 ]})
+
+
+# API for getting remarks and updated date via crime id
+@app.route("/getRemarks", methods=["POST"])
+def getRemarks():
+	crime_id = ""
+	# Parse requested parameters
+	if request.method == "POST":
+		para_dict = json.loads(request.data)
+		crime_id  = para_dict["crimeId"]
+	else:
+		return json.dumps({
+			"status": 1,
+			"msg": "Invalid Request Type"})
+
+	report_text = report_text_handler[crime_id]
+	if report_text == None or report_text == {}:
+		return json.dumps({
+			"status": 0,
+			"res": {}})
+
+	update_date = report_text["update_date"]
+	text        = report_text["remarks"]
+	return json.dumps({
+		"status": 0,
+		"res": { 
+			"id": crime_id, 
+			"update_date": update_date,
+			"text": text }})
+

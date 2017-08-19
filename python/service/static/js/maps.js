@@ -1,18 +1,18 @@
 mapObj = null;
 
 var createInfoWindow = function (marker, content) {
-    var infoWindow    = new google.maps.InfoWindow({}),
-        contentString = String.format("<div id='info_window'>{0}</div>", content);
+    var infoWindow    = new google.maps.InfoWindow({});
+        // contentString = String.format("<div id='info_window'>{0}</div>", content);
 
     google.maps.event.addListener(marker, "click", function() {
         //when the infoWindow is open, close it an clear the contents
-        if (contentString == infoWindow.getContent()) {
+        if (content == infoWindow.getContent()) {
             infoWindow.close(mapObj, marker);
             infoWindow.setContent("");
         }
         //otherwise trigger mouseover to open the infoWindow
         else {
-            infoWindow.setContent(contentString);
+            infoWindow.setContent(content);
             infoWindow.open(mapObj, marker);
         }
     });
@@ -45,7 +45,13 @@ maps = {
                 }
             });
             // Create info window for the marker
-            createInfoWindow(marker, String.format("{0}, {1}", point["id"], point["label"]));
+            var datetime = new Date(point["date"]*1000);
+            var infoWindowHtml = String.format('\
+                <div class="span4 collapse-group"><h2>{0}</h2><p>{1}, {2}</p>\
+                <p id="remarks_{0}" class="collapse">{3}</p>\
+                <button class="button" data-toggle="collapse" data-target="#remarks_{0}">details</button></div>', 
+                point["id"], point["label"], datetime.toString(), point["text"]);
+            createInfoWindow(marker, infoWindowHtml);
             return marker;
         });
     },
