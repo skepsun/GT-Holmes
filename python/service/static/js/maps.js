@@ -47,10 +47,19 @@ maps = {
             // Create info window for the marker
             var datetime = new Date(point["date"]*1000);
             var infoWindowHtml = String.format('\
-                <div class="span4 collapse-group"><h2>{0}</h2><p>{1}, {2}</p>\
-                <p id="remarks_{0}" class="collapse">{3}</p>\
-                <button class="button" data-toggle="collapse" data-target="#remarks_{0}">details</button></div>', 
-                point["id"], point["label"], datetime.toString(), point["text"]);
+                <div class="row">\
+                    <div class="col-md-6">\
+                        <h3 class="card-title">Crime ID {0}</h3>\
+                    </div>\
+                    <div class="col-md-6">\
+                        <div class="row"><p class="card-text">Priority [{4}]</p></div>\
+                        <div class="row"><p class="card-text">Catagory [{1}]</p></div>\
+                        <div class="row"><p class="card-text">Occurred At {2}</p></div>\
+                    </div>\
+                </div>\
+                <a role="button" data-toggle="collapse" href="#collapse_remarks_{0}" aria-expanded="false" aria-controls="collapse_remarks_{0}">Text Details</a>\
+                <div class="collapse" id="collapse_remarks_{0}"><div class="well"><p class="card-text">{3}</p></div></div>',
+                point["id"], point["label"], datetime.toString(), point["text"], point["priority"]);
             createInfoWindow(marker, infoWindowHtml);
             return marker;
         });
