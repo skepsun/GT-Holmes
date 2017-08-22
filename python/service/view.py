@@ -78,7 +78,7 @@ def searchCrimeId():
 	# Return reorganized data to the front-end
 	return json.dumps({
 		"status": 0,
-		"res": [ {
+		"res": [{
 			"id": ids[ind], 
 			"similarity": float(sims[ind]), 
 			"label": descs[ind],
@@ -91,31 +91,88 @@ def searchCrimeId():
 			if len(ids[ind]) >= 9 ]})
 
 
-# API for getting remarks and updated date via crime id
-@app.route("/getRemarks", methods=["POST"])
-def getRemarks():
-	crime_id = ""
+
+# API for searching correlated crime records by keywords
+@app.route("/searchKeywords", methods=["POST"])
+def searchKeywords():
+	keywords   = ""
+	limit      = 1
+	start_time = 0
+	end_time   = 0
 	# Parse requested parameters
 	if request.method == "POST":
-		para_dict = json.loads(request.data)
-		crime_id  = para_dict["crimeId"]
+		para_dict  = json.loads(request.data)
+		keywords   = para_dict["keywords"].strip()
+		limit      = int(para_dict["limit"])
+		start_time = int(para_dict["startTime"])
+		end_time   = int(para_dict["endTime"])
 	else:
 		return json.dumps({
 			"status": 1,
 			"msg": "Invalid Request Type"})
 
-	report_text = report_text_handler[crime_id]
-	if report_text == None or report_text == {}:
-		return json.dumps({
-			"status": 0,
-			"res": {}})
-
-	update_date = report_text["update_date"]
-	text        = report_text["remarks"]
+	matched_items = report_text_handler.getMatchedKeywords(keywords)
+	print keywords
+	print matched_items
 	return json.dumps({
 		"status": 0,
-		"res": { 
-			"id": crime_id, 
-			"update_date": update_date,
-			"text": text }})
+		"res": matched_items})
+
+
+
+# 
+@app.route("/getBasicInfos", methods=["POST"])
+def getBasicInfos():
+	crime_ids = []
+	# Parse requested parameters
+	if request.method == "POST":
+		para_dict = json.loads(request.data)
+		crime_ids = para_dict["crimeIds"]
+	else:
+		return json.dumps({
+			"status": 1,
+			"msg": "Invalid Request Type"})
+	
+	basic_infos = basic_info_handler.get("incident_num", crime_ids)
+	if basic_infos == None or basic_infos == []:
+		return json.dumps({
+			"status": 0,
+			"res": []})
+
+	return json.dumps({
+		"status": 0,
+		"res": [{
+			"id": basic_info["id"],
+			"city": basic_info["city"],
+			"date": basic_info["date"],
+			"priority": basic_info["priority"],
+			"position": { "lat": basic_info["avg_lat"], "lng": -1 * basic_info["avg_long"] }}
+			for basic_info in basic_infos]})
+
+
+
+# API for getting remarks and updated date via crime id
+@app.route("/getReportRemarks", methods=["POST"])
+def getReportRemarks():
+	crime_ids = []
+	# Parse requested parameters
+	if request.method == "POST":
+		para_dict = json.loads(request.data)
+		crime_ids = para_dict["crimeIds"]
+	else:
+		return json.dumps({
+			"status": 1,
+			"msg": "Invalid Request Type"})
+
+	report_texts = report_text_handler.get("incident_num", crime_ids)
+	if report_texts == None or report_texts == []:
+		return json.dumps({
+			"status": 0,
+			"res": []})
+
+	# update_date = report_texts["update_date"]
+	# remarks     = report_texts["remarks"]
+	return json.dumps({
+		"status": 0,
+		"res": report_texts})
 

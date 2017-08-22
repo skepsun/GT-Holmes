@@ -398,22 +398,57 @@
 			var startTime = new Date(fromYear, fromMonth, fromDay, 0, 0, 0, 0),
 				endTime   = new Date(toYear, toMonth, toDay, 0, 0, 0, 0);
 
-			// requestBackEnd().then(function () {
-				
-			// });
+			var para = {
+				startTime: startTime.getTime(),
+				endTime: endTime.getTime(),
+				keywords: keywords,
+				limit: limit
+			};
+
+			var matchedPoints = [];
+
+			// Search crime records whose remarks field contains indicated keywords
+			requestBackEnd(para, "/searchKeywords")
+				// Extract ids from the matched crime records
+				.then(
+					function (matchedItems) {
+						if (matchedItems.length <= 0) {
+							// todo:  
+						}
+						matchedPoints = matchedItems;
+						var ids = _.chain(matchedItems)
+							.map(function(item){return _.values(item);})
+							.unzip().last().value();
+						return requestBackEnd({crimeIds: ids}, "/getBasicInfos"); }, 
+					function (msg) {
+						alert("failed 1");
+					})
+				// Plot points on the map based on the extracted ids
+				.then(
+					function (basicInfos) {
+						// Remove the current result on the map
+						if (queryMarkers != null) {
+							maps.clearMarkers(queryMarkers);
+							queryMarkers = null;
+						}
+						// Prepare the points which be painted on the map
+						var normalPoints = _.map(basicInfos, function (info) {
+							return {
+								position: info["position"],
+								color: colorbar(500),
+								weight: 10,
+								// For info window
+								id: info["id"],
+								label: info["label"]
+							}
+						});
+						// Place the marker on the map
+						queryMarkers = maps.createSimilarMarkers(normalPoints); }, 
+					function (msg) {
+						alert("failed 2");
+					});
+
 		};
-
-		// // The function excuted when onclick event was trigger by button "get_remarks"
-		// var getRemarks = function (crimeId) {
-		// 	requestBackEnd({"crimeId": crimeId}, "/getRemarks").then(function (details) {
-		// 		remarks     = details["text"];
-		// 		update_date = details["update_date"];
-		// 		// $('#remarks').collapse();
-		// 		alert(update_date);
-		// 		alert(remarks);
-		// 	});
-		// }
-
     </script>
 
 </html>
