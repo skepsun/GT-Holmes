@@ -111,7 +111,7 @@ def searchKeywords():
 			"status": 1,
 			"msg": "Invalid Request Type"})
 
-	matched_items = report_text_handler.getMatchedKeywords(keywords)
+	matched_items = report_text_handler.getMatchedKeywords(keywords, limit)
 	print keywords
 	print matched_items
 	return json.dumps({
@@ -120,7 +120,7 @@ def searchKeywords():
 
 
 
-# 
+# API for getting basic info via crime ids
 @app.route("/getBasicInfos", methods=["POST"])
 def getBasicInfos():
 	crime_ids = []

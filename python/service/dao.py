@@ -163,7 +163,7 @@ class ReportText(DBConnecter):
 		self.token = token
 		DBConnecter.__init__(self, self.url, self.token)
 
-	def getMatchedKeywords(self, keywords):
+	def getMatchedKeywords(self, keywords, limit):
 		"""
 		Get Matched Keywords
 
@@ -172,7 +172,8 @@ class ReportText(DBConnecter):
 		it only supports querying one individous keyword (any string). 
 		"""
 
-		filter   = { "where": { "remarks": { "like": "%c%s%c" % ("%", keywords ,"%"), "option": "i" } } }
+		filter   = { "limit": limit, 
+			"where": { "remarks": { "like": "%c%s%c" % ("%", keywords ,"%"), "option": "i" } } }
 		params   = { "access_token": self.token, "filter": json.dumps(filter) }
 		r = requests.get(url=self.url, headers=self.headers, params=params, verify=False)
 		# Return result if success (status == 2XX)

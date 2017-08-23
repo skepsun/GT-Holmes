@@ -367,7 +367,7 @@
 				var colorPoints = _.map(simPoints, function (point) {
 					return {
 						position: point["position"],
-						color: colorbar(Math.ceil((1-point["similarity"])*colorbarLength)),
+						color:  10, //colorbar(Math.ceil((1-point["similarity"])*colorbarLength)),
 						weight: point["similarity"] * 20, 
 						// For info window
 						id: point["id"],
@@ -405,7 +405,7 @@
 				limit: limit
 			};
 
-			var matchedPoints = [];
+			var reportTexts = [];
 
 			// Search crime records whose remarks field contains indicated keywords
 			requestBackEnd(para, "/searchKeywords")
@@ -413,9 +413,9 @@
 				.then(
 					function (matchedItems) {
 						if (matchedItems.length <= 0) {
-							// todo:  
+							// todo: 
 						}
-						matchedPoints = matchedItems;
+						reportTexts = matchedItems;
 						var ids = _.chain(matchedItems)
 							.map(function(item){return _.values(item);})
 							.unzip().last().value();
@@ -432,16 +432,19 @@
 							queryMarkers = null;
 						}
 						// Prepare the points which be painted on the map
-						var normalPoints = _.map(basicInfos, function (info) {
-							return {
-								position: info["position"],
-								color: colorbar(500),
-								weight: 10,
+						var normalPoints = [];
+						for (var i=0; i<reportTexts.length; i++) {
+							normalPoints.push({
+								position: basicInfos[i]["position"],
+								color:    colorbar(500),
+								weight:   10,
 								// For info window
-								id: info["id"],
-								label: info["label"]
-							}
-						});
+								id:    basicInfos[i]["id"],
+								label: basicInfos[i]["label"],
+								text:  reportTexts[i]["remarks"],
+								date:  reportTexts[i]["update_date"],
+								priority: basicInfos[i]["priority"]});
+						}
 						// Place the marker on the map
 						queryMarkers = maps.createSimilarMarkers(normalPoints); }, 
 					function (msg) {
