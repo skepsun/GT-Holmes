@@ -172,9 +172,9 @@ class ReportText(DBConnecter):
 		it only supports querying one individous keyword (any string). 
 		"""
 
-		filter   = { "limit": limit, 
+		filter = { "limit": limit, 
 			"where": { "remarks": { "like": "%c%s%c" % ("%", keywords ,"%"), "option": "i" } } }
-		params   = { "access_token": self.token, "filter": json.dumps(filter) }
+		params = { "access_token": self.token, "filter": json.dumps(filter) }
 		r = requests.get(url=self.url, headers=self.headers, params=params, verify=False)
 		# Return result if success (status == 2XX)
 		if r.status_code / 10 == 20:

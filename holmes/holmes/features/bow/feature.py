@@ -40,7 +40,7 @@ def code2desc(codes, crime_codes_dict):
 
 
 
-class Feature:
+class BagOfWords:
 
 	def __init__(self):
 		# Read configuration from ini file
@@ -90,7 +90,7 @@ class Feature:
 		# sim_np_mat = index[tfidf[corpus[0:25]]]
 		# self.sim_mat = np.array([ sim_np_vec for no, sim_np_vec in list(enumerate(sim_np_mat)) ])
 
-	def query_via_id(self, id, limit):
+	def similarityVector(self, id, limit):
 
 		if id not in self.id_list:
 			return None
@@ -100,6 +100,12 @@ class Feature:
 		res_inds = sim_vec.argsort()
 		return [ [self.id_list[ind], sim_vec[ind], self.descs[ind]] 
 			for ind in res_inds[-1 * limit:] ]
+
+	def similarityMatrix(self, ids):
+
+		query_inds = [ self.id_list.index(id) for id in ids if id in self.id_list ]
+		sim_mat    = self.index
+
 
 if __name__ == "__main__":
 

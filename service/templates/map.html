@@ -367,7 +367,7 @@
 				var colorPoints = _.map(simPoints, function (point) {
 					return {
 						position: point["position"],
-						color:  10, //colorbar(Math.ceil((1-point["similarity"])*colorbarLength)),
+						color:  colorbar(500), //colorbar(Math.ceil((1-point["similarity"])*colorbarLength)),
 						weight: point["similarity"] * 20, 
 						// For info window
 						id: point["id"],
