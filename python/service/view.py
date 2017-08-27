@@ -10,7 +10,7 @@ import json
 from flask import Flask, request, url_for, render_template
 
 from dao import BasicInfo, ReportText
-from holmes.features.bow.feature import Feature
+#from holmes.holmes.features.bow.feature import Feature  #lsy
 
 app = Flask(__name__)
 
@@ -22,7 +22,7 @@ basic_info_handler  = BasicInfo(token)
 report_text_handler = ReportText(token)
 
 # NLP Model
-# f = Feature()
+#f = Feature()
 
 # Renderring main web page
 @app.route("/map")
@@ -36,6 +36,7 @@ def searchCrimeId():
 	limit      = 1
 	start_time = 0
 	end_time   = 0
+
 
 	# Parse requested parameters
 	if request.method == "POST":
@@ -63,7 +64,7 @@ def searchCrimeId():
 	trans_mat    = map(list, zip(*matched_crimes)) # For Python 3.x: list(map(list, zip(*matched_crimes)))
 	ids          = trans_mat[0]
 	sims         = trans_mat[1]
-	descs        = trans_mat[2]
+	# descs        = trans_mat[2]
 	# Retrieve matched crime records' related informations by their ids.
 	# Including: GPS positions, updated dates, and so on
 	basic_infos  = basic_info_handler.get("incident_num", ids)
@@ -71,6 +72,9 @@ def searchCrimeId():
 	cities       = [ basic_info["city"] for basic_info in basic_infos ]
 	positions    = [ (basic_info["avg_lat"], basic_info["avg_long"]) for basic_info in basic_infos ]
 	priorities   = [ basic_info["priority"] for basic_info in basic_infos ]
+
+	categories   = [ basic_info["category"] for basic_info in basic_infos ] #lsy
+
 	report_texts = report_text_handler.get("incident_num", ids)
 	update_dates = [ report_text["update_date"] for report_text in report_texts ]
 	remarks      = [ report_text["remarks"] for report_text in report_texts ]
@@ -81,7 +85,7 @@ def searchCrimeId():
 		"res": [{
 			"id": ids[ind], 
 			"similarity": float(sims[ind]), 
-			"label": descs[ind],
+			"label": categories[ind],
 			"position": { "lat": positions[ind][0], "lng": -1 * positions[ind][1] },
 			"city": cities[ind],
 			"priority": priorities[ind],
@@ -111,7 +115,7 @@ def searchKeywords():
 			"status": 1,
 			"msg": "Invalid Request Type"})
 
-	matched_items = report_text_handler.getMatchedKeywords(keywords)
+	matched_items = report_text_handler.getMatchedKeywords(keywords, limit)
 	print keywords
 	print matched_items
 	return json.dumps({
@@ -120,7 +124,7 @@ def searchKeywords():
 
 
 
-# 
+# API for getting basic info via crime ids
 @app.route("/getBasicInfos", methods=["POST"])
 def getBasicInfos():
 	crime_ids = []
@@ -146,6 +150,7 @@ def getBasicInfos():
 			"city": basic_info["city"],
 			"date": basic_info["date"],
 			"priority": basic_info["priority"],
+			"label": basic_info["category"],
 			"position": { "lat": basic_info["avg_lat"], "lng": -1 * basic_info["avg_long"] }}
 			for basic_info in basic_infos]})
 

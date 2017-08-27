@@ -69,9 +69,13 @@ maps = {
             marker.setMap(null);
         });
     },
+    
     showMarkers: function (markers) {
         _.map(markers, function (marker) {
             marker.setMap(mapObj);
         });
     }
+
+    
+
 }

@@ -70,6 +70,8 @@ class DBConnecter():
 		filter   = { "where": { "or": key_vals } }
 		params   = { "access_token": self.token, "filter": json.dumps(filter) }
 		r = requests.get(url=self.url, headers=self.headers, params=params, verify=False)
+
+		print r.json()
 		# Return result if success (status == 2XX)
 		if r.status_code / 10 == 20:
 			return [ self.parse(item) for item in r.json() ]
@@ -117,36 +119,41 @@ class BasicInfo(DBConnecter):
 		it would return None if there is any possible expection occurs at any time and throw a 
 		self-defined exception to the console.
 		"""
-		try:
-			incident_num = result["incident_num"]
-			avg_lat  = float(result["avg_lat"])/100000.0 
-			avg_long = float(result["avg_long"])/100000.0 
-			city     = result["city"].strip()
-			date     = arrow.get(result["incident_date"], "YYYY-MM-DD HH:mm:ss").timestamp
-			priority = int(result["priority"])
-			# If the gps position is not located within the area of Atlanta
-			if (avg_lat > 90 or avg_lat < -90) or \
-				(avg_long > 180 or avg_long < -180):
-				raise Exception("Invalid GPS position.")
-				return None
-			# If the priority is not included in 0 to 9
-			if priority not in range(10):
-				raise Exception("Invalid priority.")
-				return None
-			# Return parsed result
-			return {
-				"id":       incident_num,
-				"avg_lat":  avg_lat,
-				"avg_long": avg_long,
-				"city":     city,
-				"date":		date,
-				"priority": priority
-			}
+		# try:
+		incident_num = result["incident_num"]
+		avg_lat  = float(result["avg_lat"])/100000.0 
+		avg_long = float(result["avg_long"])/100000.0 
+		city     = result["city"].strip()
+		date     = arrow.get(result["incident_date"], "YYYY-MM-DD HH:mm:ss").timestamp
+		priority = int(result["priority"])
+
+		category = result["crime_desc"]
+
+		# If the gps position is not located within the area of Atlanta
+		if (avg_lat > 90 or avg_lat < -90) or \
+			(avg_long > 180 or avg_long < -180):
+			raise Exception("Invalid GPS position.")
+			return None
+		# If the priority is not included in 0 to 9
+		if priority not in range(10):
+			raise Exception("Invalid priority.")
+			return None
+		# Return parsed result
+		return {
+			"id":       incident_num,
+			"avg_lat":  avg_lat,
+			"avg_long": avg_long,
+			"city":     city,
+			"date":		date,
+			"priority": priority,
+			"category": category #Lsy
+
+		}
 		# Ensure the result can be returend as expected even if there is an unexpected exception
 		# when parsing the raw data.
-		except Exception:
-			raise Exception("Invalid Data Format.")
-			return None
+		# except Exception:
+		# 	raise Exception("Invalid Data Format.")
+		# 	return None
 
 class ReportText(DBConnecter):
 	"""
@@ -163,7 +170,7 @@ class ReportText(DBConnecter):
 		self.token = token
 		DBConnecter.__init__(self, self.url, self.token)
 
-	def getMatchedKeywords(self, keywords):
+	def getMatchedKeywords(self, keywords, limit):
 		"""
 		Get Matched Keywords
 
@@ -172,18 +179,19 @@ class ReportText(DBConnecter):
 		it only supports querying one individous keyword (any string). 
 		"""
 
-		filter   = { "where": { "remarks": { "like": "%c%s%c" % ("%", keywords ,"%"), "option": "i" } } }
-		params   = { "access_token": self.token, "filter": json.dumps(filter) }
+		filter = { "limit": limit, 
+			"where": { "remarks": { "like": "%c%s%c" % ("%", keywords ,"%"), "option": "i" } } }
+		params = { "access_token": self.token, "filter": json.dumps(filter) }
 		r = requests.get(url=self.url, headers=self.headers, params=params, verify=False)
 		# Return result if success (status == 2XX)
 		if r.status_code / 10 == 20:
-			return [ self.parse(item) for item in r.json() ]
+			return [ self.parse(item,keywords) for item in r.json() ]
 		# Invalid request
 		else:
 			return r.json()
 
 	@staticmethod
-	def parse(result):
+	def parse(result,keywords): 
 		"""
 		Overriding of "parse" in DBConnecter
 		
@@ -196,6 +204,21 @@ class ReportText(DBConnecter):
 			incident_num = result["incident_num"]
 			update_date  = arrow.get(result["ent_upd_datetime"], "YYYY-MM-DD HH:mm:ss").timestamp
 			remarks      = result["remarks"]
+
+			#Highlight the keywords
+			remarksStr = remarks.encode('unicode-escape').decode('string_escape')
+			keywords_index = [i for i in range(len(remarksStr.lower())) if remarksStr.lower()[i:].startswith(keywords.lower())]
+			num = len(keywords_index)
+			for i in range(num):
+				if i<1:
+					remarksStr = "%s%s%s%s%s" % (remarksStr[:keywords_index[i]], "<mark>", remarksStr[keywords_index[i]:(keywords_index[i]+len(keywords))], "</mark>", remarksStr[(keywords_index[i]+len(keywords)):])
+					keywords_index_temp = [i for i in range((keywords_index[i]+6+len(keywords)+7),len(remarksStr.lower())) if remarksStr.lower()[i:].startswith(keywords.lower())]
+				else:
+					remarksStr = "%s%s%s%s%s" % (remarksStr[:keywords_index_temp[0]], "<mark>", remarksStr[keywords_index_temp[0]:(keywords_index_temp[0]+len(keywords))], "</mark>", remarksStr[(keywords_index_temp[0]+len(keywords)):]) 
+					keywords_index_temp = [i for i in range((keywords_index_temp[0]+6+len(keywords)+7),len(remarksStr.lower())) if remarksStr.lower()[i:].startswith(keywords.lower())]		
+			print "***",remarksStr
+			remarks = unicode(remarksStr,"utf-8")
+			
 			# Return parsed result
 			return {
 				"id":          incident_num,
