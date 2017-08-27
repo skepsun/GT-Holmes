@@ -74,8 +74,41 @@ maps = {
         _.map(markers, function (marker) {
             marker.setMap(mapObj);
         });
-    }
+    },
 
+    //Create polylines
     
+    createLines: function(points) {
+        return _.map(points, function (point) {
+            var flightPlanCoordinates = [
+                 {lat: 33.7490, lng: -84.3880},
+                 {lat: 35.7490, lng: -84.5000},
+                ];
+            
+            var flightPath = new google.maps.Polyline({
+                path: flightPlanCoordinates,
+                geodesic: true,
+                strokeColor: '#FF0000',
+                strokeOpacity: 3.0,
+                strokeWeight: 1,
+                map: mapObj
+                });
+
+            flightPath.setMap(mapObj);
+
+            return flightPath;
+        });
+    },
+    
+    showLines: function(flightPath){
+        _.map(flightPaths, function (flightPath) {
+            flightPath.setMap(mapObj);
+        });
+    },
+    clearLines: function (flightPath) {
+        _.map(flightPaths, function (flightPath) {
+            flightPath.setMap(null);
+        });
+    }
 
 }

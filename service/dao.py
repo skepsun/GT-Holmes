@@ -191,7 +191,7 @@ class ReportText(DBConnecter):
 			return r.json()
 
 	@staticmethod
-	def parse(result,keywords): 
+	def parse(result,keywords = ""): 
 		"""
 		Overriding of "parse" in DBConnecter
 		
@@ -205,19 +205,21 @@ class ReportText(DBConnecter):
 			update_date  = arrow.get(result["ent_upd_datetime"], "YYYY-MM-DD HH:mm:ss").timestamp
 			remarks      = result["remarks"]
 
+
 			#Highlight the keywords
-			remarksStr = remarks.encode('unicode-escape').decode('string_escape')
-			keywords_index = [i for i in range(len(remarksStr.lower())) if remarksStr.lower()[i:].startswith(keywords.lower())]
-			num = len(keywords_index)
-			for i in range(num):
-				if i<1:
-					remarksStr = "%s%s%s%s%s" % (remarksStr[:keywords_index[i]], "<mark>", remarksStr[keywords_index[i]:(keywords_index[i]+len(keywords))], "</mark>", remarksStr[(keywords_index[i]+len(keywords)):])
-					keywords_index_temp = [i for i in range((keywords_index[i]+6+len(keywords)+7),len(remarksStr.lower())) if remarksStr.lower()[i:].startswith(keywords.lower())]
-				else:
-					remarksStr = "%s%s%s%s%s" % (remarksStr[:keywords_index_temp[0]], "<mark>", remarksStr[keywords_index_temp[0]:(keywords_index_temp[0]+len(keywords))], "</mark>", remarksStr[(keywords_index_temp[0]+len(keywords)):]) 
-					keywords_index_temp = [i for i in range((keywords_index_temp[0]+6+len(keywords)+7),len(remarksStr.lower())) if remarksStr.lower()[i:].startswith(keywords.lower())]		
-			print "***",remarksStr
-			remarks = unicode(remarksStr,"utf-8")
+			if keywords != "":
+	 			remarksStr = remarks.encode('unicode-escape').decode('string_escape')
+				keywords_index = [i for i in range(len(remarksStr.lower())) if remarksStr.lower()[i:].startswith(keywords.lower())]
+				num = len(keywords_index)
+				for i in range(num):
+					if i<1:
+						remarksStr = "%s%s%s%s%s" % (remarksStr[:keywords_index[i]], "<mark>", remarksStr[keywords_index[i]:(keywords_index[i]+len(keywords))], "</mark>", remarksStr[(keywords_index[i]+len(keywords)):])
+						keywords_index_temp = [i for i in range((keywords_index[i]+6+len(keywords)+7),len(remarksStr.lower())) if remarksStr.lower()[i:].startswith(keywords.lower())]
+					else:
+						remarksStr = "%s%s%s%s%s" % (remarksStr[:keywords_index_temp[0]], "<mark>", remarksStr[keywords_index_temp[0]:(keywords_index_temp[0]+len(keywords))], "</mark>", remarksStr[(keywords_index_temp[0]+len(keywords)):]) 
+						keywords_index_temp = [i for i in range((keywords_index_temp[0]+6+len(keywords)+7),len(remarksStr.lower())) if remarksStr.lower()[i:].startswith(keywords.lower())]		
+				print "***",remarksStr
+				remarks = unicode(remarksStr,"utf-8")
 			
 			# Return parsed result
 			return {
