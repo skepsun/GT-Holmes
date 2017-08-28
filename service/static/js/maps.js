@@ -1,5 +1,6 @@
 mapObj = null;
 
+var coordinates = [];
 var createInfoWindow = function (marker, content) {
     var infoWindow    = new google.maps.InfoWindow({});
         // contentString = String.format("<div id='info_window'>{0}</div>", content);
@@ -79,14 +80,35 @@ maps = {
     //Create polylines
     
     createLines: function(points) {
-        return _.map(points, function (point) {
+        return _.map(points, function (point1,point2) {
+            
+            //console.log("type:",points[0]);
+            //console.log(points1["position"]);
+            //console.log(points2["position"]);
+
+            for(var i=0; i<points.length;i++ ){
+                for(var j=points.length-1; j>i; j--){
+                    coordinates.push(points[i]["position"]);
+                    coordinates.push(points[j]["position"]);
+                }
+            }
+            for(var i=0;i<coordinates.length;i++){
+                console.log(coordinates[i]);
+            }
+            console.log(coordinates);
+
             var flightPlanCoordinates = [
                  {lat: 33.7490, lng: -84.3880},
-                 {lat: 35.7490, lng: -84.5000},
+                 {lat: 33.6490, lng: -84.3880},
                 ];
-            
+            /*
+            var flightPlanCoordinates2 =[
+                 {lat: 33.7490, lng: -84.3880}, 
+                 point["position"],
+                ];
+            */
             var flightPath = new google.maps.Polyline({
-                path: flightPlanCoordinates,
+                path: coordinates,
                 geodesic: true,
                 strokeColor: '#FF0000',
                 strokeOpacity: 3.0,
@@ -100,13 +122,14 @@ maps = {
         });
     },
     
-    showLines: function(flightPath){
+    showLines: function(flightPaths){
         _.map(flightPaths, function (flightPath) {
             flightPath.setMap(mapObj);
         });
     },
-    clearLines: function (flightPath) {
+    clearLines: function (flightPaths) {
         _.map(flightPaths, function (flightPath) {
+            coordinates = []
             flightPath.setMap(null);
         });
     }
