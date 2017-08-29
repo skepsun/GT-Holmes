@@ -375,7 +375,11 @@
 					maps.clearMarkers(queryMarkers);
 					queryMarkers = null;
 				}
-				
+				// Remove the current lines on the map
+				if (queryLines   != null) {
+							maps.clearLines(queryLines);
+							queryLines   = null;
+				}
 
 				// Prepare the points which be painted on the map
 				var colorPoints = _.map(simPoints, function (point) {
@@ -434,6 +438,13 @@
 						if (matchedItems.length <= 0) {
 							// todo: 
 						}
+
+						//highlight keywords
+						for(var i=0;i<matchedItems.length;i++){
+							matchedItems[i]["remarks"] = maps.highlightKeywords(keywords,matchedItems[i]["remarks"]);
+						}
+
+
 						reportTexts = matchedItems;
 						var ids = _.chain(matchedItems)
 							.map(function(item){return _.values(item);})
@@ -447,7 +458,7 @@
 					function (basicInfos) {
 						// Remove the current result on the map
 						if (queryMarkers != null) {
-							maps.clearMarkers(queryMarkers);
+							maps.clearMarkers(queryMarkers,queryLines);
 							queryMarkers = null;
 						}
 						// Remove the current lines on the map
@@ -469,11 +480,13 @@
 								date:  reportTexts[i]["update_date"],
 								priority: basicInfos[i]["priority"]});
 						}
-						// Place the marker on the map
-						queryMarkers = maps.createSimilarMarkers(normalPoints); 
 						// Place lines on the map
-						queryLines   = maps.createLines(normalPoints);			},
+						queryLines   = maps.createLines(normalPoints);
+						// Place the marker on the map
+						queryMarkers = maps.createSimilarMarkers(normalPoints,queryLines); 
 
+						//maps.showLines(queryLines);		
+					},
 					function (msg) {
 						alert("failed 2");
 					});

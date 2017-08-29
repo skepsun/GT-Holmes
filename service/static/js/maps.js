@@ -1,6 +1,6 @@
 mapObj = null;
 
-var coordinates = [];
+
 var createInfoWindow = function (marker, content) {
     var infoWindow    = new google.maps.InfoWindow({});
         // contentString = String.format("<div id='info_window'>{0}</div>", content);
@@ -30,8 +30,12 @@ maps = {
             // styles: [{"featureType":"water","stylers":[{"saturation":43},{"lightness":-11},{"hue":"#0088ff"}]},{"featureType":"road","elementType":"geometry.fill","stylers":[{"hue":"#ff0000"},{"saturation":-100},{"lightness":99}]},{"featureType":"road","elementType":"geometry.stroke","stylers":[{"color":"#808080"},{"lightness":54}]},{"featureType":"landscape.man_made","elementType":"geometry.fill","stylers":[{"color":"#ece2d9"}]},{"featureType":"poi.park","elementType":"geometry.fill","stylers":[{"color":"#ccdca1"}]},{"featureType":"road","elementType":"labels.text.fill","stylers":[{"color":"#767676"}]},{"featureType":"road","elementType":"labels.text.stroke","stylers":[{"color":"#ffffff"}]},{"featureType":"poi","stylers":[{"visibility":"off"}]},{"featureType":"landscape.natural","elementType":"geometry.fill","stylers":[{"visibility":"on"},{"color":"#b8cb93"}]},{"featureType":"poi.park","stylers":[{"visibility":"on"}]},{"featureType":"poi.sports_complex","stylers":[{"visibility":"on"}]},{"featureType":"poi.medical","stylers":[{"visibility":"on"}]},{"featureType":"poi.business","stylers":[{"visibility":"simplified"}]}]
         });
     },
-    createSimilarMarkers: function (points) {
+
+    linesOnMap: linesOnMap = [],
+
+    createSimilarMarkers: function (points,lines) {
         return _.map(points, function (point) {
+            
             var marker = new google.maps.Marker({
                 position: point["position"],
                 map: mapObj,
@@ -45,6 +49,51 @@ maps = {
                   scale: point["weight"]
                 }
             });
+            //add listerer
+            marker.addListener("mouseover",function(){
+                for(var i=0;i<lines.length;i++){
+                    //console.log(lines[i].getPath().getAt(0).lat());
+                    //console.log(lines[i].getPath().length);
+                    for(var j=0;j<lines[i].getPath().length;j++){
+                        //console.log(lines[i].getPath().getAt(j).lat(),point["position"]["lat"]);
+                        //console.log(lines[i].getPath().getAt(j).lng(),point["position"]["lng"]);
+                        if(lines[i].getPath().getAt(j).lat().toFixed(5) == point["position"]["lat"] && lines[i].getPath().getAt(j).lng().toFixed(5) == point["position"]["lng"]){
+                            lines[i].setMap(mapObj);
+                        }
+                    }
+                }
+            });
+            marker.addListener('mouseout',function(){
+                for(var i=0;i<lines.length;i++){
+                    lines[i].setMap(null);
+                }
+            })
+            //add listener
+            // lines = [];
+            // marker.addListener('mouseover', function() {
+            //   coordinates = []
+            //   for(var i = 0;i<points.length;i++){
+            //     coordinates = []
+            //     coordinates.push(point["position"]);
+            //     coordinates.push(points[i]["position"]);
+
+            //     var line = new google.maps.Polyline({
+            //     path: coordinates,
+            //     geodesic: true,
+            //     strokeColor: '#FF0000',
+            //     strokeOpacity: 3.0,
+            //     strokeWeight: 1,
+            //     map: mapObj
+            //     });
+            //     lines.push(line);
+            //   }
+            // });
+            // marker.addListener('mouseout',function(){
+            //     for(var i=0;i<lines.length;i++){
+            //         lines[i].setMap(null);
+            //     }
+            // })
+
             // Create info window for the marker
             var datetime = new Date(point["date"]*1000);
             var infoWindowHtml = String.format('\
@@ -67,6 +116,7 @@ maps = {
     },
     clearMarkers: function (markers) {
         _.map(markers, function (marker) {
+            marker["lines"]
             marker.setMap(null);
         });
     },
@@ -76,61 +126,91 @@ maps = {
             marker.setMap(mapObj);
         });
     },
+    //highlight keywords
+    highlightKeywords: function (keywords, rawText){
+    
+        //console.log(matchedItems[i]["remarks"]);
+        regExpFindMatched = new RegExp(keywords,"gim");
+
+        matchedKeywords = rawText.match(regExpFindMatched);
+        for(var j=0; j<matchedKeywords.length;j++){
+            regExpReplace = new RegExp(matchedKeywords[j],"gm");
+            replacement = "<mark>" + matchedKeywords[j] + "</mark>";
+            rawText = rawText.replace(regExpReplace,replacement);
+        }
+
+        return rawText;
+    },
 
     //Create polylines
     
     createLines: function(points) {
-        return _.map(points, function (point1,point2) {
-            
-            //console.log("type:",points[0]);
-            //console.log(points1["position"]);
-            //console.log(points2["position"]);
+        lines = [];
+        for(var i=0; i<points.length;i++ ){
+            for(var j=points.length-1; j>i; j--){
+                coordinates = [];
+                coordinates.push(points[i]["position"]);
+                coordinates.push(points[j]["position"]);
 
-            for(var i=0; i<points.length;i++ ){
-                for(var j=points.length-1; j>i; j--){
-                    coordinates.push(points[i]["position"]);
-                    coordinates.push(points[j]["position"]);
-                }
-            }
-            for(var i=0;i<coordinates.length;i++){
-                console.log(coordinates[i]);
-            }
-            console.log(coordinates);
-
-            var flightPlanCoordinates = [
-                 {lat: 33.7490, lng: -84.3880},
-                 {lat: 33.6490, lng: -84.3880},
-                ];
-            /*
-            var flightPlanCoordinates2 =[
-                 {lat: 33.7490, lng: -84.3880}, 
-                 point["position"],
-                ];
-            */
-            var flightPath = new google.maps.Polyline({
+            var line = new google.maps.Polyline({
                 path: coordinates,
                 geodesic: true,
                 strokeColor: '#FF0000',
                 strokeOpacity: 3.0,
-                strokeWeight: 1,
-                map: mapObj
+                strokeWeight: 1
                 });
 
-            flightPath.setMap(mapObj);
+            lines.push(line);
+            }
+        }
+        return lines;
+        // return _.map(points, function () {
+            
+        //     //console.log("type:",points[0]);
+        //     //console.log(points1["position"]);
+        //     //console.log(points2["position"]);
 
-            return flightPath;
-        });
+        //     for(var i=0; i<points.length;i++ ){
+        //         for(var j=points.length-1; j>i; j--){
+        //             coordinates.push(points[i]["position"]);
+        //             coordinates.push(points[j]["position"]);
+        //         }
+        //     }
+
+
+        //     var flightPlanCoordinates = [
+        //          {lat: 33.7490, lng: -84.3880},
+        //          {lat: 33.6490, lng: -84.3880},
+        //         ];
+        //     /*
+        //     var flightPlanCoordinates2 =[
+        //          {lat: 33.7490, lng: -84.3880}, 
+        //          point["position"],
+        //         ];
+        //     */
+        //     var flightPath = new google.maps.Polyline({
+        //         path: coordinates,
+        //         geodesic: true,
+        //         strokeColor: '#FF0000',
+        //         strokeOpacity: 3.0,
+        //         strokeWeight: 1,
+        //         map: mapObj
+        //         });
+
+        //     flightPath.setMap(mapObj);
+
+        //     return flightPath;
+        // });
     },
     
-    showLines: function(flightPaths){
-        _.map(flightPaths, function (flightPath) {
-            flightPath.setMap(mapObj);
+    showLines: function(lines){
+        _.map(lines, function (line) {
+            line.setMap(mapObj);
         });
     },
-    clearLines: function (flightPaths) {
-        _.map(flightPaths, function (flightPath) {
-            coordinates = []
-            flightPath.setMap(null);
+    clearLines: function (lines) {
+        _.map(lines, function (line) {
+            line.setMap(null);
         });
     }
 
