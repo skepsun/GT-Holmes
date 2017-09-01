@@ -12,7 +12,9 @@ import arrow
 import json
 import requests
 
-BASE_DOMAIN = "139.162.173.91"
+#BASE_DOMAIN = "139.162.173.91"
+BASE_DOMAIN = "127.0.0.1"
+#CONN_PORT   = "3000"
 CONN_PORT   = "3000"
 
 class DBConnecter():
@@ -71,7 +73,7 @@ class DBConnecter():
 		params   = { "access_token": self.token, "filter": json.dumps(filter) }
 		r = requests.get(url=self.url, headers=self.headers, params=params, verify=False)
 
-		print r.json()
+		#print "r.json: ", r.json()
 		# Return result if success (status == 2XX)
 		if r.status_code / 10 == 20:
 			return [ self.parse(item) for item in r.json() ]
@@ -128,6 +130,7 @@ class BasicInfo(DBConnecter):
 		priority = int(result["priority"])
 
 		category = result["crime_desc"]
+		incident_date_timestamp = result["incident_date_timestamp"]
 
 		# If the gps position is not located within the area of Atlanta
 		if (avg_lat > 90 or avg_lat < -90) or \
@@ -146,7 +149,8 @@ class BasicInfo(DBConnecter):
 			"city":     city,
 			"date":		date,
 			"priority": priority,
-			"category": category #Lsy
+			"category": category,
+			"incident_date_timestamp": incident_date_timestamp
 
 		}
 		# Ensure the result can be returend as expected even if there is an unexpected exception

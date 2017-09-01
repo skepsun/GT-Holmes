@@ -10,7 +10,7 @@ import json
 from flask import Flask, request, url_for, render_template
 
 from dao import BasicInfo, ReportText
-#from holmes.holmes.features.bow.feature import Feature  #lsy
+#from holmes.features.bow.feature import Feature
 
 app = Flask(__name__)
 
@@ -56,7 +56,7 @@ def searchCrimeId():
 	# 	return json.dumps({
 	# 		"status": 1,
 	# 		"msg": "Invalid Crime ID"})
-	# print matched_crimes
+	# print "matched_crimes", matched_crimes
 	matched_crimes = [['163560154', 0.20330104, 'ROB-STREET-GUN'], ['153322796', 0.2092959, 'ROB-STREET-GUN'], ['162021796', 0.21052736, ''], ['161070352', 0.21449465, 'ROB-STREET-GUN'], ['150772900', 0.23019572, ''], ['163572101', 0.30466831, 'FRAUD-IMPERS.<$10,000'], ['160362333', 0.40189749, 'THEFT OF TRUCK/VAN/BUS'], ['153142632', 0.41234228, 'DAMAGE TO PROP PRIVATE'], ['170160001', 1.0000001, 'Ped Robbery'], ['170152497', 1.0000001, 'ROB-STREET-GUN']]
 
 	# Transpose the 2D list "matched_crimes". 
@@ -69,11 +69,13 @@ def searchCrimeId():
 	# Including: GPS positions, updated dates, and so on
 	basic_infos  = basic_info_handler.get("incident_num", ids)
 	dates        = [ basic_info["date"] for basic_info in basic_infos ]
+	print "dates", dates
 	cities       = [ basic_info["city"] for basic_info in basic_infos ]
 	positions    = [ (basic_info["avg_lat"], basic_info["avg_long"]) for basic_info in basic_infos ]
 	priorities   = [ basic_info["priority"] for basic_info in basic_infos ]
 
-	categories   = [ basic_info["category"] for basic_info in basic_infos ] #lsy
+	categories   = [ basic_info["category"] for basic_info in basic_infos ]
+	incident_date_timestamp = [basic_info["incident_date_timestamp"] for basic_info in basic_infos ]
 
 	report_texts = report_text_handler.get("incident_num", ids)
 	update_dates = [ report_text["update_date"] for report_text in report_texts ]
@@ -90,6 +92,9 @@ def searchCrimeId():
 			"city": cities[ind],
 			"priority": priorities[ind],
 			"date": update_dates[ind],
+
+			"incident_date_timestamp": incident_date_timestamp[ind],
+
 			"text": remarks[ind] }
 			for ind in range(len(ids))
 			if len(ids[ind]) >= 9 ]})
