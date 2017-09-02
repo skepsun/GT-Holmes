@@ -8,19 +8,17 @@ The interfaces are realized as abstract base classes for the basic natural langu
 processing. 
 """
 
-from gensim import corpora, models
-# from collections import defaultdict
-# from six import iteritems
+from gensim import corpora
 import string
+import pickle
 import arrow
 import nltk
 import sys
 
-from holmes import utils
-
 class Documents(object):
 	"""
-	Documents is a simple class for 1. preprocessing documents text in a memory-friendly way.
+	Documents is a simple class for: 
+	1. preprocessing documents text in a memory-friendly way.
 	2. outputting tokenized terms of each of the documents iteratively. 
 
 	It's mainly used to be the load the documents and help substantiate gensim's
@@ -71,15 +69,39 @@ class Documents(object):
 
 
 
-class CategoriedTemporalCorpus(object):
+class CatsCorpus(object):
 	"""
+	CaTS Corpus
+
+	CaTS (Categoried Temporal Spatial) Corpus is a base class for handling basic corpus 
+	operations. It defines several basic components for a corpus, which includes a dictionary,
+	a sequential text corpus, and the <categoried, temporal, spatial> information tuples in the 
+	same order. You can build your personal Cats corpus from scratch by processing raw text and 
+	other data files, otherwise you need to load an existed cats corpus. 
 	"""
 
-	def __init__(self, ):
-		pass
+	# def __init__(self):
+	# 	# Init variables
+	# 	self.dictionary = None
+	# 	self.corpus     = None
+	# 	self.cats       = None
 
-	def build(text_iter_obj, min_term_freq=2):
+	def build(text_iter_obj, cats_iter_obj, cats_def=None, min_term_freq=2):
 		"""
+		Build
+
+		Building a new Cats corpus. It would process the documents in the raw text file interatively 
+		by handing a iterable object "text_iter_obj". It requires each line of the raw text file only
+		contains a single document. During the mean time, the function would generate a dictionary file 
+		which contains all the non-stop english words (vocabulary) appeared in the corpus at least 
+		"min_term_freq" times. It contributes to less storage space for corpus and easier/faster 
+		corpus operations. 
+
+		Params: 
+		1. text_iter_obj: is a streaming data handler. It could be a file handler or a stdin handler. 
+		   The content it yield each time is supposed to be a single line of string (without "\"). 
+		2. cats_iter_obj: is a streaming data handler. It could be a file handler or a stdin handler. 
+		   The content it yield each time is supposed to be a tuple of information delimited by tabs
 		"""
 
 		# Init document object by loading an iterable object (for reading text iteratively),
@@ -96,31 +118,64 @@ class CategoriedTemporalCorpus(object):
 		# Remove gaps in id sequence after some of the words being removed
 		self.dictionary.compactify()
 		# Build corpus (numeralize the documents and only keep the terms that exist in dictionary)
-		self.corpus = [dictionary.doc2bow(doc) for doc in docs]
+		self.corpus = [ self.dictionary.doc2bow(doc) for doc in docs ]
+		# Build Cats tuples collection
+		self.cats   = { "collections": [ cats_tuple.strip("\n").split("\t") for cats_tuple in cats_iter_obj ], \
+		                "definitions": cats_def }
 
-	def load_mm():
-		pass
+	def add_documents(self, text_iter_obj, cats_iter_obj):
+		"""
+		Add document
+		"""
 
-	def save_():
-		pass
+		# Update dictionary
+		self.dictionary.add_documents([Documents.tokenize(doc_text)])
+		# Update corpus
+		for doc in Documents(text_iter_obj):
+			self.corpus.append(self.dictionary.doc2bow(doc))
+		# Update cats tuples collection
+		for cats_tuple in cats_iter_obj:
+			self.cats["collection"].append(cats_tuple.strip("\n").split("\t"))
 
+	def load(self, corpus_path, dictionary_path, cats_path):
+		"""
+		Load
+		
+		
+		"""
 
+		# Load dictionary
+		self.dictionary = corpora.Dictionary()
+		self.dictionary = self.dictionary.load(dictionary_path)
+		# Load corpus text and convert it to bow list
+		self.corpus     = [ bow for bow in corpora.MmCorpus(corpus_path) ]
+		# Load cats tuples collection
+		with open(cats_path, "r") as h:
+			self.cats = pickle.load(h)
 
-class BagOfWords():
+	def save(self, corpus_path, dictionary_path, cats_path):
+		"""
+		Save
 
-	def __init__(self, config_path):
-		# self.config = utils.Config(config_path)
-		# pruned_dict_path      = conf.config_section_map("Corpus")["pruned_dict_path"]
-		# mm_corpus_path        = conf.config_section_map("Corpus")["mm_corpus_path"]
-		# crime_codes_desc_path = conf.config_section_map("Corpus")["crime_codes_desc_path"]
-		# code_list_path        = conf.config_section_map("Corpus")["labels_path"]
-		pass
+		Persist corpus and dictionary and other basic information at local file system. 
+		Corpus is in the Matrix Market format. The file format of the dictionary is defined
+		by Gensim.Dictionary. Other basic information (including categories and other features) 
+		would be serialized by pickle.
+		"""
 
+		# Persist dictionary
+		self.dictionary.save(dictionary_path)
+		# Persist corpus text
+		corpora.MmCorpus.serialize(corpus_path, self.corpus)
+		# Persist cats tuples collection by pickle
+		with open(cats_path, "wb") as h:
+			pickle.dump(self.cats, h)
 
+	def __len__(self):
+		"""
+		Return the size of the corpus (the number of the documents)
+		"""
+		return len(self.corpus)
 
-if __name__ == "__main__":
-	import sys
-	d = Documents(sys.stdin)
-	for doc in d:
-		print doc
-
+	def __str__(self):
+		return "%s\n%s\n%s" % (self.dictionary, self.corpus, self.cats["definitions"])
