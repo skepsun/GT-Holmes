@@ -9,11 +9,15 @@ processing.
 """
 
 from gensim import corpora
+import itertools
 import string
 import pickle
 import arrow
 import nltk
 import sys
+
+reload(sys)
+sys.setdefaultencoding('utf8')
 
 class Documents(object):
 	"""
@@ -40,8 +44,14 @@ class Documents(object):
 		for line in self.iter_object:
 			if self.counter > 0 and self.counter % 1000 == 0:
 				print >> sys.stderr, "[%s] [Documents] %s docs have been processed." % \
-				         (arrow.now(), self.index)
-			yield self.tokenize(line)
+				         (arrow.now(), self.counter)
+			try:
+				yield self.tokenize(line)
+			except UnicodeDecodeError as e:
+				print >> sys.stderr, "[%s] [Documents] No. %s doc raise expection: %s." % \
+				         (arrow.now(), self.counter, e)
+				yield ""
+
 			self.counter += 1
 
 	@staticmethod
@@ -56,7 +66,7 @@ class Documents(object):
 
 		tokens = []
 		# Free text part for each of the records are delimited by "\1"
-		for remark in text_string.decode("utf8").strip().split("\1"):
+		for remark in text_string.strip().split("\1"):
 			# For every sentences in each of the free text part
 			for sent in nltk.tokenize.sent_tokenize(remark):
 				# For every token
@@ -80,13 +90,12 @@ class CatsCorpus(object):
 	other data files, otherwise you need to load an existed cats corpus. 
 	"""
 
-	# def __init__(self):
-	# 	# Init variables
-	# 	self.dictionary = None
-	# 	self.corpus     = None
-	# 	self.cats       = None
+	def __init__(self, corpus_path=None, dictionary_path=None, cats_path=None):
+		# Load existed corpus if the params are not None
+		if corpus_path and dictionary_path and cats_path:
+			self.load(corpus_path, dictionary_path, cats_path)
 
-	def build(text_iter_obj, cats_iter_obj, cats_def=None, min_term_freq=2):
+	def build(self, text_iter_obj, cats_iter_obj, cats_def=None, min_term_freq=2):
 		"""
 		Build
 
@@ -120,8 +129,9 @@ class CatsCorpus(object):
 		# Build corpus (numeralize the documents and only keep the terms that exist in dictionary)
 		self.corpus = [ self.dictionary.doc2bow(doc) for doc in docs ]
 		# Build Cats tuples collection
-		self.cats   = { "collections": [ cats_tuple.strip("\n").split("\t") for cats_tuple in cats_iter_obj ], \
-		                "definitions": cats_def }
+		self.cats   = { "collections": [ cats_tuple.strip("\n").split("\t") for cats_tuple in cats_iter_obj ] }
+		if type(cats_def) is list and len(cats_def) == len(self.cats["collections"]):
+			self.cats["definitions"] = cats_def
 
 	def add_documents(self, text_iter_obj, cats_iter_obj):
 		"""
@@ -181,6 +191,22 @@ class CatsCorpus(object):
 		# Persist cats tuples collection by pickle
 		with open(cats_path, "wb") as h:
 			pickle.dump(self.cats, h)
+
+	def _clean_corpus(self):
+		"""
+		Clean Corpus
+
+		This function would remove empty documents and their according cats tuples. 
+		"""
+
+		clean_corpus = []
+		clean_cats   = []
+		for bow, cats_tuple in itertools.izip(self.corpus, self.cats["collection"]):
+			if len(bow) > 0:
+				clean_corpus.append(bow)
+				clean_cats.append(cats_tuple)
+		self.corpus             = clean_corpus
+		self.cats["collection"] = clean_cats
 
 	def __len__(self):
 		"""
