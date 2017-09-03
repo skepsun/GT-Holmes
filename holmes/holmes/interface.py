@@ -125,7 +125,17 @@ class CatsCorpus(object):
 
 	def add_documents(self, text_iter_obj, cats_iter_obj):
 		"""
-		Add document
+		Add documents
+
+		Update corpus by adding new documents to the existed dataset. Specifically this function 
+		would firstly update existed dictionary, then convert the upcoming documents to bag of words 
+		according to the new dictionary and add them to the existed corpus, finally append new cats 
+		information to the cats tuples collection.
+
+		Notes: it would be better to rebuild the whole corpus after adding a certain amount of new 
+		documents. Because the updated dictionary would contain some low-frequency vocabulary which 
+		need to be pruned. However, the added documents have been turned into bow by the unpruned 
+		dictionary.
 		"""
 
 		# Update dictionary
@@ -141,7 +151,8 @@ class CatsCorpus(object):
 		"""
 		Load
 		
-		
+		Read dataset from local files and load them into objects (dictionary, corpus and cats) 
+		respectively.
 		"""
 
 		# Load dictionary
