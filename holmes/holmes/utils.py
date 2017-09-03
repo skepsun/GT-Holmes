@@ -1,11 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+Module contains a variety of utility functions or classes.
+"""
+
 import ConfigParser
 
 class Config:
     """
-    
+    Config
+
+    Config class defines a standard way for reading ini configuration file. Specifically
+    speaking, an ini config file contains single or multiple sections, and a section also
+    contains single or multiple options. 
+	
+	>>> conf = Config()
+    >>> conf.get_section("SECTION_1")["OPTION_1"]
     """
     
     def __init__(self, ini_path):
@@ -13,7 +24,11 @@ class Config:
         self.conf = ConfigParser.ConfigParser()
         self.conf.read(self.ini_path)
 
-    def get_section_value(self, section):
+    def get_section(self, section):
+    	"""
+    	Get section
+    	"""
+
         _dict = {}
         options = self.conf.options(section)
         for option in options:
@@ -25,5 +40,3 @@ class Config:
                 # print("exception on %s!" % option)
                 _dict[option] = None
         return _dict
-
-# class SaveLoad(object):
