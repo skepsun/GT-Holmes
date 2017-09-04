@@ -152,22 +152,22 @@
 					                                        </div>
 					                                    </div>
 					                                    <div class="row">
-					                                        <div class="col-md-4">
+					                                        <div class=" ">
 																<div class="form-group label-floating">
 																	<label class="control-label">From Year</label>
-																	<input id="si_from_year_input" type="text" class="form-control" >
+																	<input id="si_from_year_input" type="text" class="form-control" oninput="si_enable_from_month()">
 																</div>
 					                                        </div>
 					                                        <div class="col-md-4">
 																<div class="form-group label-floating">
 																	<label class="control-label">From Month</label>
-																	<input id="si_from_month_input" type="text" class="form-control" >
+																	<input id="si_from_month_input" type="text" class="form-control" disabled="disabled" oninput="si_enable_from_day()">
 																</div>
 					                                        </div>
 					                                        <div class="col-md-4">
 																<div class="form-group label-floating">
 																	<label class="control-label">From Day</label>
-																	<input id="si_from_day_input" type="text" class="form-control" >
+																	<input id="si_from_day_input" type="text" class="form-control" disabled="disabled">
 																</div>
 					                                        </div>
 					                                    </div>
@@ -175,19 +175,19 @@
 					                                        <div class="col-md-4">
 																<div class="form-group label-floating">
 																	<label class="control-label">To Year</label>
-																	<input id="si_to_year_input" type="text" class="form-control" >
+																	<input id="si_to_year_input" type="text" class="form-control" oninput="si_enable_to_month()">
 																</div>
 					                                        </div>
 					                                        <div class="col-md-4">
 																<div class="form-group label-floating">
 																	<label class="control-label">To Month</label>
-																	<input id="si_to_month_input" type="text" class="form-control" >
+																	<input id="si_to_month_input" type="text" class="form-control" disabled="disabled" oninput="si_enable_to_day()">
 																</div>
 					                                        </div>
 					                                        <div class="col-md-4">
 																<div class="form-group label-floating">
 																	<label class="control-label">To Day</label>
-																	<input id="si_to_day_input" type="text" class="form-control" >
+																	<input id="si_to_day_input" type="text" class="form-control" disabled="disabled">
 																</div>
 					                                        </div>
 					                                    </div>
@@ -217,19 +217,19 @@
 					                                        <div class="col-md-4">
 																<div class="form-group label-floating">
 																	<label class="control-label">From Year</label>
-																	<input id="sw_from_year_input" type="text" class="form-control" >
+																	<input id="sw_from_year_input" type="text" class="form-control" oninput="sw_enable_from_month()">
 																</div>
 					                                        </div>
 					                                        <div class="col-md-4">
 																<div class="form-group label-floating">
 																	<label class="control-label">From Month</label>
-																	<input id="sw_from_month_input" type="text" class="form-control" >
+																	<input id="sw_from_month_input" type="text" class="form-control" oninput="sw_enable_from_day()" disabled="disabled">
 																</div>
 					                                        </div>
 					                                        <div class="col-md-4">
 																<div class="form-group label-floating">
 																	<label class="control-label">From Day</label>
-																	<input id="sw_from_day_input" type="text" class="form-control" >
+																	<input id="sw_from_day_input" type="text" class="form-control" disabled="disabled">
 																</div>
 					                                        </div>
 					                                    </div>
@@ -237,19 +237,19 @@
 					                                        <div class="col-md-4">
 																<div class="form-group label-floating">
 																	<label class="control-label">To Year</label>
-																	<input id="sw_to_year_input" type="text" class="form-control" >
+																	<input id="sw_to_year_input" type="text" class="form-control" oninput="sw_enable_to_month()">
 																</div>
 					                                        </div>
 					                                        <div class="col-md-4">
 																<div class="form-group label-floating">
 																	<label class="control-label">To Month</label>
-																	<input id="sw_to_month_input" type="text" class="form-control" >
+																	<input id="sw_to_month_input" type="text" class="form-control" oninput="sw_enable_to_day()" disabled="disabled">
 																</div>
 					                                        </div>
 					                                        <div class="col-md-4">
 																<div class="form-group label-floating">
 																	<label class="control-label">To Day</label>
-																	<input id="sw_to_day_input" type="text" class="form-control" >
+																	<input id="sw_to_day_input" type="text" class="form-control" disabled="disabled">
 																</div>
 					                                        </div>
 					                                    </div>
@@ -328,6 +328,32 @@
 	<script src="{{ url_for('static', filename='js/utils.js') }}"></script>
 
     <script>
+    	//user friendly design
+    	function si_enable_from_month(){
+    		document.getElementById("si_from_month_input").removeAttribute("disabled");
+    	}
+    	function si_enable_from_day(){
+    		document.getElementById("si_from_day_input").removeAttribute("disabled");
+    	}
+    	function si_enable_to_month(){
+    		document.getElementById("si_to_month_input").removeAttribute("disabled");
+    	}
+    	function si_enable_to_day(){
+    		document.getElementById("si_to_day_input").removeAttribute("disabled");
+    	}
+    	function sw_enable_from_month(){
+    		document.getElementById("sw_from_month_input").removeAttribute("disabled");
+    	}
+    	function sw_enable_from_day(){
+    		document.getElementById("sw_from_day_input").removeAttribute("disabled");
+    	}
+    	function sw_enable_to_month(){
+    		document.getElementById("sw_to_month_input").removeAttribute("disabled");
+    	}
+    	function sw_enable_to_day(){
+    		document.getElementById("sw_to_day_input").removeAttribute("disabled");
+    	}
+
     	maps.initGoogleMaps("map");
     	// Configuration of colorbar
     	var colorbarLength = 1000,
@@ -354,17 +380,20 @@
 				toMonth   = document.getElementById("si_to_month_input").value,
 				toDay     = document.getElementById("si_to_day_input").value;
 
+			
 			//Invoke a hint
 			if(crimeId == "" || limit == ""){
 				alert("Caution! \nBoth Crime ID and Limit Number must be filled! ");
 			}
 
-			var startTime = new Date(fromYear, fromMonth, fromDay, 0, 0, 0, 0),
-				endTime   = new Date(toYear, toMonth, toDay, 0, 0, 0, 0);
+			// accordint to doc, 0 represents January and 11 represents December
+			var startTime = new Date(fromYear, (fromMonth-1), fromDay, 0, 0, 0, 0),
+				endTime   = new Date(toYear, (toMonth-1), toDay, 0, 0, 0, 0);
+
 
 			var para = {
-				startTime: startTime.getTime(),
-				endTime: endTime.getTime(),
+				startTime: startTime.getTime(), //getTime() returns number of milliseconds
+				endTime: endTime.getTime(),		//So divided by 1000 to change to the number of seconds
 				crimeId: crimeId,
 				limit: limit
 			};
@@ -396,7 +425,7 @@
 					}
 				});
 				// Place the marker on the map
-				queryMarkers = maps.createSimilarMarkers(colorPoints);
+				queryMarkers = maps.createSimilarMarkers(colorPoints,[]);
 			}, function (msg) {
 				alert(msg);
 			});
@@ -481,6 +510,7 @@
 								priority: basicInfos[i]["priority"]});
 						}
 						// Place lines on the map
+						console.log(requestBackEnd(para, "/searchKeywords"));
 						queryLines   = maps.createLines(normalPoints);
 						// Place the marker on the map
 						queryMarkers = maps.createSimilarMarkers(normalPoints,queryLines); 
