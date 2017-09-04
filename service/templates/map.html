@@ -152,7 +152,7 @@
 					                                        </div>
 					                                    </div>
 					                                    <div class="row">
-					                                        <div class=" ">
+					                                        <div class="col-md-4">
 																<div class="form-group label-floating">
 																	<label class="control-label">From Year</label>
 																	<input id="si_from_year_input" type="text" class="form-control" oninput="si_enable_from_month()">
@@ -510,7 +510,7 @@
 								priority: basicInfos[i]["priority"]});
 						}
 						// Place lines on the map
-						console.log(requestBackEnd(para, "/searchKeywords"));
+						//console.log(requestBackEnd(para, "/searchKeywords"));
 						queryLines   = maps.createLines(normalPoints);
 						// Place the marker on the map
 						queryMarkers = maps.createSimilarMarkers(normalPoints,queryLines); 
