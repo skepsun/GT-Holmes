@@ -17,6 +17,7 @@ this issue.
    the program iterable and avoid unlimited memory&storage consuming
 """
 
+import sys
 import string
 import arrow
 import nltk
@@ -113,12 +114,25 @@ class Feature:
 		"""
 		"""
 
-		filter_inds = [ self.id_list.index(id) \
-		                for id in ids if id in self.id_list ]
-		filter_docs = [ self.corpus[ind] for ind in filter_inds ]
-		sim_mat     = [ sim_vec[np.array(filter_inds)].tolist() \
-		                for sim_vec in self.index[filter_docs] ]
-		return sim_mat
+		filter_ids   = [ id for id in ids if id in self.id_list ]
+		filter_inds  = [ self.id_list.index(id) for id in filter_ids ]
+		filter_tfidf = [ self.tfidf[self.corpus[ind]] for ind in filter_inds ]
+
+		if len(filter_tfidf) < 1:
+			return []
+
+		sim_mat  = [ sim_vec[np.array(filter_inds)].tolist() \
+		             for sim_vec in self.index[filter_tfidf] ]
+
+		completion_sim_mat = np.zeros((len(ids), len(ids))).tolist()
+
+		for i in range(len(sim_mat)):
+			for j in range(len(sim_mat)):
+				x = ids.index(filter_ids[i])
+				y = ids.index(filter_ids[j])
+				completion_sim_mat[x][y] = sim_mat[i][j]
+
+		return completion_sim_mat
 
 
 
