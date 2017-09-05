@@ -496,9 +496,11 @@
 						}
 						// Place lines on the map
 						//console.log(requestBackEnd(para, "/searchKeywords"));
-						queryLines   = maps.createLines(normalPoints, simMat);
+						if (simMat.length > 0) {
+							queryLines = maps.createLines(normalPoints, simMat);
+						}
 						// Place the marker on the map
-						queryMarkers = maps.createSimilarMarkers(normalPoints,queryLines); 
+						queryMarkers = maps.createSimilarMarkers(normalPoints, queryLines); 
 
 						//maps.showLines(queryLines);		
 					},

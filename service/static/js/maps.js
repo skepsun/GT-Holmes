@@ -33,7 +33,7 @@ maps = {
 
     linesOnMap: linesOnMap = [],
 
-    createSimilarMarkers: function (points,lines) {
+    createSimilarMarkers: function (points, lines) {
         return _.map(points, function (point) {
             
             var marker = new google.maps.Marker({
@@ -49,50 +49,23 @@ maps = {
                   scale: point["weight"]
                 }
             });
+
             //add listerer
-            marker.addListener("mouseover",function(){
+            marker.addListener("mouseover", function(){
                 for(var i=0;i<lines.length;i++){
-                    //console.log(lines[i].getPath().getAt(0).lat());
-                    //console.log(lines[i].getPath().length);
                     for(var j=0;j<lines[i].getPath().length;j++){
-                        //console.log(lines[i].getPath().getAt(j).lat(),point["position"]["lat"]);
-                        //console.log(lines[i].getPath().getAt(j).lng(),point["position"]["lng"]);
                         if(lines[i].getPath().getAt(j).lat().toFixed(5) == point["position"]["lat"] && lines[i].getPath().getAt(j).lng().toFixed(5) == point["position"]["lng"]){
                             lines[i].setMap(mapObj);
                         }
                     }
                 }
             });
+
             marker.addListener('mouseout',function(){
                 for(var i=0;i<lines.length;i++){
                     lines[i].setMap(null);
                 }
-            })
-            //add listener
-            // lines = [];
-            // marker.addListener('mouseover', function() {
-            //   coordinates = []
-            //   for(var i = 0;i<points.length;i++){
-            //     coordinates = []
-            //     coordinates.push(point["position"]);
-            //     coordinates.push(points[i]["position"]);
-
-            //     var line = new google.maps.Polyline({
-            //     path: coordinates,
-            //     geodesic: true,
-            //     strokeColor: '#FF0000',
-            //     strokeOpacity: 3.0,
-            //     strokeWeight: 1,
-            //     map: mapObj
-            //     });
-            //     lines.push(line);
-            //   }
-            // });
-            // marker.addListener('mouseout',function(){
-            //     for(var i=0;i<lines.length;i++){
-            //         lines[i].setMap(null);
-            //     }
-            // })
+            });
 
             // Create info window for the marker
             var datetime = new Date(point["date"]*1000);

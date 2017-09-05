@@ -129,6 +129,7 @@ def searchKeywords():
 
 @app.route("/getSimilaritiesMatrix", methods=["POST"])
 def getSimilaritiesMatrix():
+	print "test 1"
 	crime_ids = []
 	if request.method == "POST":
 		para_dict = json.loads(request.data)
@@ -137,6 +138,8 @@ def getSimilaritiesMatrix():
 		return json.dumps({
 			"status": 1,
 			"msg": "Invalid Request Type" })
+
+	print "test 2"
 
 	return json.dumps({ 
 		"status": 0,
