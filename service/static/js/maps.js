@@ -144,7 +144,7 @@ maps = {
 
     //Create polylines
     
-    createLines: function(points) {
+    createLines: function(points, weights) {
         lines = [];
         for(var i=0; i<points.length;i++ ){
             for(var j=points.length-1; j>i; j--){
@@ -156,7 +156,7 @@ maps = {
                 path: coordinates,
                 geodesic: true,
                 strokeColor: '#FF0000',
-                strokeOpacity: 3.0,
+                strokeOpacity: weights[i][j]*5,
                 strokeWeight: 1
                 });
 

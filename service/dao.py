@@ -111,6 +111,22 @@ class BasicInfo(DBConnecter):
 		self.token = token
 		DBConnecter.__init__(self, self.url, self.token)
 
+	def get(self, key, vals, start_time=None, end_time=None):
+		"""
+		Override function get in DBConnecter. 
+
+
+		"""
+
+		all_res = DBConnecter.get(self, key, vals)
+		if start_time and end_time:
+			all_res = [ item \
+						for item in all_res 
+						if item["incident_date_timestamp"] >= start_time and \
+						   item["incident_date_timestamp"] <= end_time ]
+		new_res = sorted(all_res, key=lambda k: k['incident_date_timestamp']) 
+		return new_res
+
 	@staticmethod
 	def parse(result):
 		"""

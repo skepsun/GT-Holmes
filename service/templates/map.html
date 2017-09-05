@@ -328,31 +328,6 @@
 	<script src="{{ url_for('static', filename='js/utils.js') }}"></script>
 
     <script>
-    	//user friendly design
-    	function si_enable_from_month(){
-    		document.getElementById("si_from_month_input").removeAttribute("disabled");
-    	}
-    	function si_enable_from_day(){
-    		document.getElementById("si_from_day_input").removeAttribute("disabled");
-    	}
-    	function si_enable_to_month(){
-    		document.getElementById("si_to_month_input").removeAttribute("disabled");
-    	}
-    	function si_enable_to_day(){
-    		document.getElementById("si_to_day_input").removeAttribute("disabled");
-    	}
-    	function sw_enable_from_month(){
-    		document.getElementById("sw_from_month_input").removeAttribute("disabled");
-    	}
-    	function sw_enable_from_day(){
-    		document.getElementById("sw_from_day_input").removeAttribute("disabled");
-    	}
-    	function sw_enable_to_month(){
-    		document.getElementById("sw_to_month_input").removeAttribute("disabled");
-    	}
-    	function sw_enable_to_day(){
-    		document.getElementById("sw_to_day_input").removeAttribute("disabled");
-    	}
 
     	maps.initGoogleMaps("map");
     	// Configuration of colorbar
@@ -457,7 +432,8 @@
 				limit: limit
 			};
 
-			var reportTexts = [];
+			var reportTexts = [],
+				basicInfos  = [];
 
 			// Search crime records whose remarks field contains indicated keywords
 			requestBackEnd(para, "/searchKeywords")
@@ -478,13 +454,22 @@
 						var ids = _.chain(matchedItems)
 							.map(function(item){return _.values(item);})
 							.unzip().last().value();
-						return requestBackEnd({crimeIds: ids}, "/getBasicInfos"); }, 
+						return requestBackEnd({ crimeIds:  ids }, "/getBasicInfos"); }, 
 					function (msg) {
 						alert("failed 1");
 					})
+				.then(
+					function (filterPoints) {
+						var ids = _.map(filterPoints, function(item){return item["id"];});
+						basicInfos = filterPoints;
+						return requestBackEnd({crimeIds:  ids}, "/getSimilaritiesMatrix");
+					},
+					function (msg) {
+						alert("failed 2");
+					})
 				// Plot points on the map based on the extracted ids
 				.then(
-					function (basicInfos) {
+					function (simMat) {
 						// Remove the current result on the map
 						if (queryMarkers != null) {
 							maps.clearMarkers(queryMarkers,queryLines);
@@ -511,14 +496,14 @@
 						}
 						// Place lines on the map
 						//console.log(requestBackEnd(para, "/searchKeywords"));
-						queryLines   = maps.createLines(normalPoints);
+						queryLines   = maps.createLines(normalPoints, simMat);
 						// Place the marker on the map
 						queryMarkers = maps.createSimilarMarkers(normalPoints,queryLines); 
 
 						//maps.showLines(queryLines);		
 					},
 					function (msg) {
-						alert("failed 2");
+						alert("failed 3");
 					});
 
 			

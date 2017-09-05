@@ -25,6 +25,15 @@
     },
     "priority": {
       "type": "number"
+    },
+    "crime_code": {
+      "type": "string"
+    },
+    "crime_desc": {
+      "type": "string"
+    },
+    "incident_date_timestamp": {
+      "type": "number"
     }
   },
   "validations": [],
