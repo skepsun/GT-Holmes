@@ -155,13 +155,13 @@
 					                                        <div class="col-md-4">
 																<div class="form-group label-floating">
 																	<label class="control-label">From Year</label>
-																	<input id="si_from_year_input" type="text" class="form-control" oninput="si_enable_from_month()">
+																	<input id="si_from_year_input" type="text" class="form-control" oninput="limitDate('from')">
 																</div>
 					                                        </div>
 					                                        <div class="col-md-4">
 																<div class="form-group label-floating">
 																	<label class="control-label">From Month</label>
-																	<input id="si_from_month_input" type="text" class="form-control" disabled="disabled" oninput="si_enable_from_day()">
+																	<input id="si_from_month_input" type="text" class="form-control" disabled="disabled" oninput="limitDate('from')">
 																</div>
 					                                        </div>
 					                                        <div class="col-md-4">
@@ -175,13 +175,13 @@
 					                                        <div class="col-md-4">
 																<div class="form-group label-floating">
 																	<label class="control-label">To Year</label>
-																	<input id="si_to_year_input" type="text" class="form-control" oninput="si_enable_to_month()">
+																	<input id="si_to_year_input" type="text" class="form-control" oninput="limitDate('to')">
 																</div>
 					                                        </div>
 					                                        <div class="col-md-4">
 																<div class="form-group label-floating">
 																	<label class="control-label">To Month</label>
-																	<input id="si_to_month_input" type="text" class="form-control" disabled="disabled" oninput="si_enable_to_day()">
+																	<input id="si_to_month_input" type="text" class="form-control" disabled="disabled" oninput="limitDate('to')">
 																</div>
 					                                        </div>
 					                                        <div class="col-md-4">
@@ -213,7 +213,7 @@
 																</div>
 					                                        </div>
 					                                    </div>
-					                                    <div class="row">
+					                                    <!--<div class="row">
 					                                        <div class="col-md-4">
 																<div class="form-group label-floating">
 																	<label class="control-label">From Year</label>
@@ -252,7 +252,7 @@
 																	<input id="sw_to_day_input" type="text" class="form-control" disabled="disabled">
 																</div>
 					                                        </div>
-					                                    </div>
+					                                    </div>//-->
 					                                    <div class="row">
 					                                    	<table class="table">
 																<tbody>
@@ -365,10 +365,19 @@
 			var startTime = new Date(fromYear, (fromMonth-1), fromDay, 0, 0, 0, 0),
 				endTime   = new Date(toYear, (toMonth-1), toDay, 0, 0, 0, 0);
 
+			var start_timestamp = startTime.getTime(),
+				end_timestamp   = endTime.getTime()
+			if (start_timestamp < 0) {
+				start_timestamp = 0;
+			}
+			if (end_timestamp   < 0) {
+				end_timestamp   = (Date.parse(new Date()));
+			}
+
 
 			var para = {
-				startTime: startTime.getTime(), //getTime() returns number of milliseconds
-				endTime: endTime.getTime(),		//So divided by 1000 to change to the number of seconds
+				startTime: start_timestamp, //getTime() returns number of milliseconds
+				endTime: end_timestamp,		//So divided by 1000 to change to the number of seconds
 				crimeId: crimeId,
 				limit: limit
 			};
@@ -409,25 +418,25 @@
 		// Onclick event for search keywords button
 		searchWordsBtn.onclick = function () {
 			var keywords  = document.getElementById("key_words_input").value,
-				limit     = document.getElementById("sw_limit_input").value,
-				fromYear  = document.getElementById("sw_from_year_input").value,
-				fromMonth = document.getElementById("sw_from_month_input").value,
-				fromDay   = document.getElementById("sw_from_day_input").value,
-				toYear    = document.getElementById("sw_to_year_input").value,
-				toMonth   = document.getElementById("sw_to_month_input").value,
-				toDay     = document.getElementById("sw_to_day_input").value;
+				limit     = document.getElementById("sw_limit_input").value;
+				//fromYear  = document.getElementById("sw_from_year_input").value,
+				//fromMonth = document.getElementById("sw_from_month_input").value,
+				//fromDay   = document.getElementById("sw_from_day_input").value,
+				//toYear    = document.getElementById("sw_to_year_input").value,
+				//toMonth   = document.getElementById("sw_to_month_input").value,
+				//toDay     = document.getElementById("sw_to_day_input").value;
 
 			if(keywords == "" || limit == ""){
 				var hintWords = "Caution! \nBoth Keywords and Limit Number must be filled! " ;
 				alert(hintWords);
 			}
 
-			var startTime = new Date(fromYear, fromMonth, fromDay, 0, 0, 0, 0),
-				endTime   = new Date(toYear, toMonth, toDay, 0, 0, 0, 0);
+			//var startTime = new Date(fromYear, fromMonth, fromDay, 0, 0, 0, 0),
+			//	endTime   = new Date(toYear, toMonth, toDay, 0, 0, 0, 0);
 
 			var para = {
-				startTime: startTime.getTime(),
-				endTime: endTime.getTime(),
+			//	startTime: startTime.getTime(),
+			//	endTime: endTime.getTime(),
 				keywords: keywords,
 				limit: limit
 			};
@@ -511,6 +520,44 @@
 			
 
 		};
+		function limitDate(status) {
+			if (status == "from"){
+	 			var yearId  = "si_from_year_input",
+	 			    monthId = "si_from_month_input",
+	 			    dayId   = "si_from_day_input";
+	 		}
+	 		else if(status == "to"){
+	 			var yearId  = "si_to_year_input",
+	 			    monthId = "si_to_month_input",
+	 			    dayId   = "si_to_day_input";	 			
+	 		}
+
+			var regExp = /[0-9]$/;
+	    	var year  = document.getElementById(yearId).value.trim();
+	    	var	month = document.getElementById(monthId).value.trim();
+	    	var day   = document.getElementById(dayId).value.trim();
+
+			if(year == "" || !regExp.test(year)){    	
+	        	document.getElementById(monthId).setAttribute("disabled","disabled");
+	        	document.getElementById(dayId).setAttribute("disabled","disabled");
+	        	document.getElementById(monthId).value = "";
+	        	document.getElementById(dayId).value = "";
+	    	}
+	    	else{
+	    		document.getElementById(monthId).removeAttribute("disabled");
+
+	        	if(month == "" || !regExp.test(month)){
+	        		document.getElementById(dayId).setAttribute("disabled","disabled");
+	            	document.getElementById(dayId).value = "";
+	        	}
+		        else{
+		        	document.getElementById(dayId).removeAttribute("disabled");
+		            if(day == "" || !regExp.test(day)){
+		            	document.getElementById(dayId).value = "";
+		        	}
+	        	}
+	        }
+	    }
     </script>
 
 </html>

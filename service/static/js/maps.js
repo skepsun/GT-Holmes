@@ -52,18 +52,24 @@ maps = {
 
             //add listerer
             marker.addListener("mouseover", function(){
-                for(var i=0;i<lines.length;i++){
-                    for(var j=0;j<lines[i].getPath().length;j++){
-                        if(lines[i].getPath().getAt(j).lat().toFixed(5) == point["position"]["lat"] && lines[i].getPath().getAt(j).lng().toFixed(5) == point["position"]["lng"]){
-                            lines[i].setMap(mapObj);
+                if (lines != null){
+                    for(var i=0;i<lines.length;i++){
+                        for(var j=0;j<lines[i].getPath().length;j++){
+                            if(lines[i].getPath().getAt(j).lat().toFixed(5) == point["position"]["lat"] && lines[i].getPath().getAt(j).lng().toFixed(5) == point["position"]["lng"]){
+                                lines[i].setMap(mapObj);
+                            }
                         }
                     }
                 }
+
+               
             });
 
             marker.addListener('mouseout',function(){
-                for(var i=0;i<lines.length;i++){
-                    lines[i].setMap(null);
+                if (lines != null){
+                    for(var i=0;i<lines.length;i++){
+                        lines[i].setMap(null);
+                    }
                 }
             });
 
@@ -118,6 +124,9 @@ maps = {
     //Create polylines
     
     createLines: function(points, weights) {
+        if (points == null){
+            return null;
+        }
         lines = [];
         for(var i=0; i<points.length;i++ ){
             for(var j=points.length-1; j>i; j--){
@@ -129,7 +138,7 @@ maps = {
                 path: coordinates,
                 geodesic: true,
                 strokeColor: '#FF0000',
-                strokeOpacity: weights[i][j]*5,
+                strokeOpacity: weights[i][j]*5 || 0,
                 strokeWeight: 1
                 });
 
@@ -137,43 +146,6 @@ maps = {
             }
         }
         return lines;
-        // return _.map(points, function () {
-            
-        //     //console.log("type:",points[0]);
-        //     //console.log(points1["position"]);
-        //     //console.log(points2["position"]);
-
-        //     for(var i=0; i<points.length;i++ ){
-        //         for(var j=points.length-1; j>i; j--){
-        //             coordinates.push(points[i]["position"]);
-        //             coordinates.push(points[j]["position"]);
-        //         }
-        //     }
-
-
-        //     var flightPlanCoordinates = [
-        //          {lat: 33.7490, lng: -84.3880},
-        //          {lat: 33.6490, lng: -84.3880},
-        //         ];
-        //     /*
-        //     var flightPlanCoordinates2 =[
-        //          {lat: 33.7490, lng: -84.3880}, 
-        //          point["position"],
-        //         ];
-        //     */
-        //     var flightPath = new google.maps.Polyline({
-        //         path: coordinates,
-        //         geodesic: true,
-        //         strokeColor: '#FF0000',
-        //         strokeOpacity: 3.0,
-        //         strokeWeight: 1,
-        //         map: mapObj
-        //         });
-
-        //     flightPath.setMap(mapObj);
-
-        //     return flightPath;
-        // });
     },
     
     showLines: function(lines){
