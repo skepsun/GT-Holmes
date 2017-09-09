@@ -12,6 +12,7 @@ from gensim import corpora
 import itertools
 import string
 import pickle
+import random
 import arrow
 import nltk
 import sys
@@ -91,9 +92,15 @@ class CatsCorpus(object):
 	"""
 
 	def __init__(self, corpus_path=None, dictionary_path=None, cats_path=None):
+		# Init variables
+		self.corpus_path     = corpus_path
+		self.dictionary_path = dictionary_path
+		self.cats_path       = cats_path
 		# Load existed corpus if the params are not None
 		if corpus_path and dictionary_path and cats_path:
-			self.load(corpus_path, dictionary_path, cats_path)
+			self.load_corpus(corpus_path, dictionary_path, cats_path)
+		# Non-sampling for original corpus
+		self.sampling_flag = False
 
 	def build(self, text_iter_obj, cats_iter_obj, cats_def=None, min_term_freq=2):
 		"""
@@ -155,9 +162,9 @@ class CatsCorpus(object):
 			self.corpus.append(self.dictionary.doc2bow(doc))
 		# Update cats tuples collection
 		for cats_tuple in cats_iter_obj:
-			self.cats["collection"].append(cats_tuple.strip("\n").split("\t"))
+			self.cats["collections"].append(cats_tuple.strip("\n").split("\t"))
 
-	def load(self, corpus_path, dictionary_path, cats_path):
+	def load_corpus(self, corpus_path, dictionary_path, cats_path):
 		"""
 		Load
 		
@@ -169,12 +176,12 @@ class CatsCorpus(object):
 		self.dictionary = corpora.Dictionary()
 		self.dictionary = self.dictionary.load(dictionary_path)
 		# Load corpus text and convert it to bow list
-		self.corpus     = [ bow for bow in corpora.MmCorpus(corpus_path) ]
+		self.corpus     = [ doc_bow for doc_bow in corpora.MmCorpus(corpus_path) ]
 		# Load cats tuples collection
 		with open(cats_path, "r") as h:
 			self.cats = pickle.load(h)
 
-	def save(self, corpus_path, dictionary_path, cats_path):
+	def save_corpus(self, corpus_path=None, dictionary_path=None, cats_path=None):
 		"""
 		Save
 
@@ -183,14 +190,31 @@ class CatsCorpus(object):
 		by Gensim.Dictionary. Other basic information (including categories and other features) 
 		would be serialized by pickle.
 		"""
-
+		# self.corpus_path     = corpus_path
+		# self.dictionary_path = dictionary_path
+		# self.cats_path       = cats_path
 		# Persist dictionary
-		self.dictionary.save(dictionary_path)
+		if corpus_path is not None:
+			self.dictionary.save(dictionary_path)
 		# Persist corpus text
-		corpora.MmCorpus.serialize(corpus_path, self.corpus)
+		if corpus_path is not None:
+			corpora.MmCorpus.serialize(corpus_path, self.corpus)
 		# Persist cats tuples collection by pickle
-		with open(cats_path, "wb") as h:
-			pickle.dump(self.cats, h)
+		if cats_path is not None:
+			with open(cats_path, "wb") as h:
+				pickle.dump(self.cats, h)
+
+	def random_sampling(self, num_samples):
+		"""
+		Random Sampling
+		
+		"""
+
+		if num_samples < len(self.corpus):
+			self.corpus, self.cats["collections"] = zip(*random.sample(
+				list(zip(self.corpus, self.cats["collections"])), num_samples))
+			self.sampling_flag = True
+
 
 	def _clean_corpus(self):
 		"""
@@ -201,12 +225,18 @@ class CatsCorpus(object):
 
 		clean_corpus = []
 		clean_cats   = []
-		for bow, cats_tuple in itertools.izip(self.corpus, self.cats["collection"]):
-			if len(bow) > 0:
-				clean_corpus.append(bow)
+		for doc_bow, cats_tuple in itertools.izip(self.corpus, self.cats["collections"]):
+			if len(doc_bow) > 0:
+				clean_corpus.append(doc_bow)
 				clean_cats.append(cats_tuple)
-		self.corpus             = clean_corpus
-		self.cats["collection"] = clean_cats
+		self.corpus              = clean_corpus
+		self.cats["collections"] = clean_cats
+
+	# def __iter__(self):
+	# 	"""
+	# 	"""
+
+	# 	pass
 
 	def __len__(self):
 		"""
@@ -215,4 +245,8 @@ class CatsCorpus(object):
 		return len(self.corpus)
 
 	def __str__(self):
-		return "%s\n%s\n%s" % (self.dictionary, self.corpus, self.cats["definitions"])
+		"""
+		Return the details of the cats corpus object
+		"""
+		return "<Cats Corpus Object>\nDictionary:\t%s\nCorpus Size:\t%s\nCATS Info:\n\tCollections size:\t%s\n\tDefinitions:\t%s" % \
+		       (self.dictionary, len(self.corpus), len(self.cats["collections"]), self.cats["definitions"])

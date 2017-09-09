@@ -4,12 +4,29 @@
 import sys
 import unittest
 from holmes.catscorpus import CatsCorpus
+from holmes.features.topics import TopicsFeature
 
 class CatsCorpusTestCase(unittest.TestCase):
 	"""
 	"""
 
+	def load_corpus(self):
+		"""
+		"""
+
+		root_path       = "resource/cats_corpus"
+		corpus_path     = "%s/%s" % (root_path, "corpus.mm") 
+		dictionary_path = "%s/%s" % (root_path, "vocab.dict")
+		cats_path       = "%s/%s" % (root_path, "cats")
+		topic_feature   = TopicsFeature(corpus_path, dictionary_path, cats_path)
+		print >> sys.stderr, "Corpus Loaded\n%s" % topic_feature
+		return topic_feature
+		
+	@unittest.skip("Building corpus is time-consuming.")
 	def test_building_corpus(self):
+		"""
+		"""
+
 		text_path = "data/text.txt"
 		cats_path = "data/cats.txt"
 		cats_def  = [ "incident_id", "crime_code", "crime_desc", "incident_datetime", \
@@ -25,12 +42,44 @@ class CatsCorpusTestCase(unittest.TestCase):
 			cats_corpus.build(text_fhandle, cats_fhandle, cats_def)
 		# Serializing and saving built catscorpus in local files
 		print >> sys.stderr, "Serializing and saving the corpus in local file."
-		cats_corpus.save("resource/cats_corpus/corpus.mm", \
+		cats_corpus.save_corpus("resource/cats_corpus/corpus.mm", \
 			             "resource/cats_corpus/vocab.dict", \
 			             "resource/cats_corpus/cats")
 
-	# def test_upper(self):
-	# 	self.assertEqual('foo'.upper(), 'FOO')
+	@unittest.skip("Training LDA model is time-consuming.")
+	def test_LDA(self):
+		"""
+		
+		"""
+
+		root_path   = "resource/lda"
+		lda_path    = "%s/%s" % (root_path, "lda_model")
+		topics_path = "%s/%s" % (root_path, "lda_topics")
+
+		# Load test corpus from local files
+		topic_feature = self.load_corpus()
+		# Train LDA model with randomly selected sub samples
+		topic_feature.train_lda()
+		# Save well-trained LDA model and converted topic vectors in local files
+		topic_feature.save_lda(lda_path=lda_path, topics_path=topics_path)
+
+	# def test_sub_LDA(self):
+	# 	"""
+
+	# 	"""
+
+	# 	root_path   = "resource/lda_test"
+	# 	lda_path    = "%s/%s" % (root_path, "lda_model")
+	# 	topics_path = "%s/%s" % (root_path, "lda_topics")
+
+	# 	# Load test corpus from local files
+	# 	topic_feature = self.load_corpus()
+	# 	# Train LDA model with randomly selected sub samples
+	# 	topic_feature.train_lda(num_samples=10000, num_topics=100, chunksize=50)
+	# 	# Save well-trained LDA model and converted topic vectors in local files
+	# 	topic_feature.save_lda(lda_path=lda_path, topics_path=topics_path)
+
+
 
 	# def test_isupper(self):
 	# 	self.assertTrue('FOO'.isupper())
