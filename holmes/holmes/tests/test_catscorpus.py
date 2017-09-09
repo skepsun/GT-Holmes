@@ -63,21 +63,21 @@ class CatsCorpusTestCase(unittest.TestCase):
 		# Save well-trained LDA model and converted topic vectors in local files
 		topic_feature.save_lda(lda_path=lda_path, topics_path=topics_path)
 
-	# def test_sub_LDA(self):
-	# 	"""
+	def test_sub_LDA(self):
+		"""
 
-	# 	"""
+		"""
 
-	# 	root_path   = "resource/lda_test"
-	# 	lda_path    = "%s/%s" % (root_path, "lda_model")
-	# 	topics_path = "%s/%s" % (root_path, "lda_topics")
+		root_path   = "resource/lda_test"
+		lda_path    = "%s/%s" % (root_path, "lda_model")
+		topics_path = "%s/%s" % (root_path, "lda_topics")
 
-	# 	# Load test corpus from local files
-	# 	topic_feature = self.load_corpus()
-	# 	# Train LDA model with randomly selected sub samples
-	# 	topic_feature.train_lda(num_samples=10000, num_topics=100, chunksize=50)
-	# 	# Save well-trained LDA model and converted topic vectors in local files
-	# 	topic_feature.save_lda(lda_path=lda_path, topics_path=topics_path)
+		# Load test corpus from local files
+		topic_feature = self.load_corpus()
+		# Train LDA model with randomly selected sub samples
+		topic_feature.train_lda(num_samples=1000, num_topics=100, chunksize=50)
+		# Save well-trained LDA model and converted topic vectors in local files
+		topic_feature.save_lda(lda_path=lda_path, topics_path=topics_path)
 
 
 

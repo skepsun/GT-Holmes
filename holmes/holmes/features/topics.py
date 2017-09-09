@@ -5,6 +5,7 @@
 
 """
 import sys
+import arrow
 import pickle
 from gensim.models.ldamodel import LdaModel
 
@@ -50,8 +51,8 @@ class TopicsFeature(catscorpus.CatsCorpus, utils.Config):
 		if topics_path:
 			with open(topics_path, "wb") as h:
 				pickle.dump(self.doc_lda, h)
-		if self.sampling_flag:
-			self.save_corpus()
+		# if self.sampling_flag:
+		# 	self.save_corpus()
 
 
 		
