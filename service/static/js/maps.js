@@ -139,7 +139,7 @@ maps = {
                 geodesic: true,
                 strokeColor: '#FF0000',
                 strokeOpacity: weights[i][j]*5 || 0,
-                strokeWeight: 1
+                strokeWeight: 5
                 });
 
             lines.push(line);

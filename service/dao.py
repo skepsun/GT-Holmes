@@ -73,10 +73,28 @@ class DBConnecter():
 		params   = { "access_token": self.token, "filter": json.dumps(filter) }
 		r = requests.get(url=self.url, headers=self.headers, params=params, verify=False)
 
-		#print "r.json: ", r.json()
 		# Return result if success (status == 2XX)
 		if r.status_code / 10 == 20:
-			return [ self.parse(item) for item in r.json() ]
+			if len(r.json()) == len(key_vals):
+				return [ self.parse(item) for item in r.json() ]
+			else:
+				result = [ self.parse(item) for item in r.json() ]
+				for i in range(len(key_vals) - len(r.json())):
+					result.append({
+						"id":       "id does not exist",
+						"avg_lat":  0.0,
+						"avg_long": 0.0,
+						"city":     "city does not exist",
+						"date":		0,
+						"priority": "priority does not exist",
+						"category": "category does not exist",
+						"incident_date_timestamp": 0,
+
+						"update_date": 0,
+						"remarks":     "remarks do not exist"
+					})
+				return result
+
 		# Invalid request
 		else:
 			return r.json()
@@ -167,8 +185,7 @@ class BasicInfo(DBConnecter):
 			"priority": priority,
 			"category": category,
 			"incident_date_timestamp": incident_date_timestamp
-
-		}
+			}
 		# Ensure the result can be returend as expected even if there is an unexpected exception
 		# when parsing the raw data.
 		# except Exception:
