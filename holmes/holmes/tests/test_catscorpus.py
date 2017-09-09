@@ -46,7 +46,7 @@ class CatsCorpusTestCase(unittest.TestCase):
 			             "resource/cats_corpus/vocab.dict", \
 			             "resource/cats_corpus/cats")
 
-	@unittest.skip("Training LDA model is time-consuming.")
+	# @unittest.skip("Training LDA model is time-consuming.")
 	def test_LDA(self):
 		"""
 		
@@ -63,6 +63,7 @@ class CatsCorpusTestCase(unittest.TestCase):
 		# Save well-trained LDA model and converted topic vectors in local files
 		topic_feature.save_lda(lda_path=lda_path, topics_path=topics_path)
 
+	@unittest.skip("Training LDA model is time-consuming.")
 	def test_sub_LDA(self):
 		"""
 
