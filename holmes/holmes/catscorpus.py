@@ -92,10 +92,6 @@ class CatsCorpus(object):
 	"""
 
 	def __init__(self, corpus_path=None, dictionary_path=None, cats_path=None):
-		# Init variables
-		self.corpus_path     = corpus_path
-		self.dictionary_path = dictionary_path
-		self.cats_path       = cats_path
 		# Load existed corpus if the params are not None
 		if corpus_path and dictionary_path and cats_path:
 			self.load_corpus(corpus_path, dictionary_path, cats_path)
@@ -172,6 +168,10 @@ class CatsCorpus(object):
 		respectively.
 		"""
 
+		# Persist the path information
+		self.corpus_path     = corpus_path
+		self.dictionary_path = dictionary_path
+		self.cats_path       = cats_path
 		# Load dictionary
 		self.dictionary = corpora.Dictionary()
 		self.dictionary = self.dictionary.load(dictionary_path)
@@ -190,9 +190,7 @@ class CatsCorpus(object):
 		by Gensim.Dictionary. Other basic information (including categories and other features) 
 		would be serialized by pickle.
 		"""
-		# self.corpus_path     = corpus_path
-		# self.dictionary_path = dictionary_path
-		# self.cats_path       = cats_path
+
 		# Persist dictionary
 		if corpus_path is not None:
 			self.dictionary.save(dictionary_path)
@@ -213,6 +211,8 @@ class CatsCorpus(object):
 		if num_samples < len(self.corpus):
 			self.corpus, self.cats["collections"] = zip(*random.sample(
 				list(zip(self.corpus, self.cats["collections"])), num_samples))
+			# Set sampling flag as True, for indicating the current corpus is not
+			# the original one.
 			self.sampling_flag = True
 
 
@@ -248,5 +248,5 @@ class CatsCorpus(object):
 		"""
 		Return the details of the cats corpus object
 		"""
-		return "<Cats Corpus Object>\nDictionary:\t%s\nCorpus Size:\t%s\nCATS Info:\n\tCollections size:\t%s\n\tDefinitions:\t%s" % \
+		return "<Cats Corpus Object>\nDictionary:\t%s\nCorpus Size:\t%s\nCATS Info:\n  Collections size:\t%s\n  Definitions:\t%s" % \
 		       (self.dictionary, len(self.corpus), len(self.cats["collections"]), self.cats["definitions"])
