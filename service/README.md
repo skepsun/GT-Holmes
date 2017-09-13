@@ -1,19 +1,19 @@
 # Crime-Pattern-Detection Service Folder
 ### Introduction
-The service folder in the Crime-Pattern-Detection project contains several files that build a system to demonstrate crime incidents correlation detection results. It contains database wrapper, date visualization, full text search and many other features to demonstrate the incident correlation detection results. Below is an illustration for the structure of the service folder. 
+The service folder in the Crime-Pattern-Detection project contains several files that build a system to fetch data from database and demonstrate crime incidents correlation detection results. It contains database wrapper, date visualization, full text search and many other features to demonstrate the incident correlation detection results. Below is an illustration for the structure of the service folder. 
 
 ![service folder structure](https://github.com/meowoodie/Crime-Pattern-Detection-for-APD/blob/Suyi/service/img/service_folder_structure.png)
 *<div align=center>Structure of service folder.</div>*
 
 The folder mainly contains three components:
 
--	Database wrapper: it provides interface to the database and parse the retrieved data to JSON format.
-- View component: it provides functions to process the data retrieved from the database according to the user input
+-	Database wrapper: it provides restful API to connect the database and parse the retrieved data to JSON format.
+- View component: it provides functions to process the retrieved data from the database according to the user input.
 - Front end: it provides functions to render a web page, on which we can show the detection results. Also, we can receive user input from the webpage.
 
 ### Database Wrapper
 
-The data streams that we received from database wrapper have uniform data structures for easier data information extraction.
+Database wrapper provides functions to connect the database and fetch data. The data streams that we received from database wrapper have uniform data structures for easier data information extraction.
 Usually items of the data stream from database wrapper can be defined as follows:
 ```
 {
