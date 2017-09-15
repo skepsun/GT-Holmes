@@ -20,7 +20,7 @@
 
     <!--  CSS for Demo Purpose, don't include it in your project     -->
     <link href="{{ url_for('static', filename='css/demo.css') }}" rel="stylesheet" />
-
+ 
     <!--     Fonts and icons     -->
     <link href="http://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">
     <link href='http://fonts.googleapis.com/css?family=Roboto:400,700,300|Material+Icons' rel='stylesheet' type='text/css'>
@@ -149,19 +149,19 @@
 					                                        <div class="col-md-4">
 																<div class="form-group label-floating">
 																	<label class="control-label">From Year</label>
-																	<input id="si_from_year_input" type="text" class="form-control" >
+																	<input id="si_from_year_input" type="text" class="form-control" oninput="limitDate('from')">
 																</div>
 					                                        </div>
 					                                        <div class="col-md-4">
 																<div class="form-group label-floating">
 																	<label class="control-label">From Month</label>
-																	<input id="si_from_month_input" type="text" class="form-control" >
+																	<input id="si_from_month_input" type="text" class="form-control" disabled="disabled" oninput="limitDate('from')">
 																</div>
 					                                        </div>
 					                                        <div class="col-md-4">
 																<div class="form-group label-floating">
 																	<label class="control-label">From Day</label>
-																	<input id="si_from_day_input" type="text" class="form-control" >
+																	<input id="si_from_day_input" type="text" class="form-control" disabled="disabled">
 																</div>
 					                                        </div>
 					                                    </div>
@@ -169,19 +169,19 @@
 					                                        <div class="col-md-4">
 																<div class="form-group label-floating">
 																	<label class="control-label">To Year</label>
-																	<input id="si_to_year_input" type="text" class="form-control" >
+																	<input id="si_to_year_input" type="text" class="form-control" oninput="limitDate('to')">
 																</div>
 					                                        </div>
 					                                        <div class="col-md-4">
 																<div class="form-group label-floating">
 																	<label class="control-label">To Month</label>
-																	<input id="si_to_month_input" type="text" class="form-control" >
+																	<input id="si_to_month_input" type="text" class="form-control" disabled="disabled" oninput="limitDate('to')">
 																</div>
 					                                        </div>
 					                                        <div class="col-md-4">
 																<div class="form-group label-floating">
 																	<label class="control-label">To Day</label>
-																	<input id="si_to_day_input" type="text" class="form-control" >
+																	<input id="si_to_day_input" type="text" class="form-control" disabled="disabled">
 																</div>
 					                                        </div>
 					                                    </div>
@@ -207,23 +207,23 @@
 																</div>
 					                                        </div>
 					                                    </div>
-					                                    <div class="row">
+					                                    <!--<div class="row">
 					                                        <div class="col-md-4">
 																<div class="form-group label-floating">
 																	<label class="control-label">From Year</label>
-																	<input id="sw_from_year_input" type="text" class="form-control" >
+																	<input id="sw_from_year_input" type="text" class="form-control" oninput="sw_enable_from_month()">
 																</div>
 					                                        </div>
 					                                        <div class="col-md-4">
 																<div class="form-group label-floating">
 																	<label class="control-label">From Month</label>
-																	<input id="sw_from_month_input" type="text" class="form-control" >
+																	<input id="sw_from_month_input" type="text" class="form-control" oninput="sw_enable_from_day()" disabled="disabled">
 																</div>
 					                                        </div>
 					                                        <div class="col-md-4">
 																<div class="form-group label-floating">
 																	<label class="control-label">From Day</label>
-																	<input id="sw_from_day_input" type="text" class="form-control" >
+																	<input id="sw_from_day_input" type="text" class="form-control" disabled="disabled">
 																</div>
 					                                        </div>
 					                                    </div>
@@ -231,22 +231,22 @@
 					                                        <div class="col-md-4">
 																<div class="form-group label-floating">
 																	<label class="control-label">To Year</label>
-																	<input id="sw_to_year_input" type="text" class="form-control" >
+																	<input id="sw_to_year_input" type="text" class="form-control" oninput="sw_enable_to_month()">
 																</div>
 					                                        </div>
 					                                        <div class="col-md-4">
 																<div class="form-group label-floating">
 																	<label class="control-label">To Month</label>
-																	<input id="sw_to_month_input" type="text" class="form-control" >
+																	<input id="sw_to_month_input" type="text" class="form-control" oninput="sw_enable_to_day()" disabled="disabled">
 																</div>
 					                                        </div>
 					                                        <div class="col-md-4">
 																<div class="form-group label-floating">
 																	<label class="control-label">To Day</label>
-																	<input id="sw_to_day_input" type="text" class="form-control" >
+																	<input id="sw_to_day_input" type="text" class="form-control" disabled="disabled">
 																</div>
 					                                        </div>
-					                                    </div>
+					                                    </div>//-->
 					                                    <div class="row">
 					                                    	<table class="table">
 																<tbody>
@@ -322,6 +322,7 @@
 	<script src="{{ url_for('static', filename='js/utils.js') }}"></script>
 
     <script>
+
     	maps.initGoogleMaps("map");
     	// Configuration of colorbar
     	var colorbarLength = 1000,
@@ -335,6 +336,7 @@
 			// getRemarksBtn  = document.getElementById("get_remarks");
 
 		var queryMarkers = null;
+		var queryLines   = null;
 
 		// Onclick event for search Id button
 		searchIdBtn.onclick = function () {
@@ -347,12 +349,29 @@
 				toMonth   = document.getElementById("si_to_month_input").value,
 				toDay     = document.getElementById("si_to_day_input").value;
 
-			var startTime = new Date(fromYear, fromMonth, fromDay, 0, 0, 0, 0),
-				endTime   = new Date(toYear, toMonth, toDay, 0, 0, 0, 0);
+			
+			//Invoke a hint
+			if(crimeId == "" || limit == ""){
+				alert("Caution! \nBoth Crime ID and Limit Number must be filled! ");
+			}
+
+			// accordint to doc, 0 represents January and 11 represents December
+			var startTime = new Date(fromYear, (fromMonth-1), fromDay, 0, 0, 0, 0),
+				endTime   = new Date(toYear, (toMonth-1), toDay, 0, 0, 0, 0);
+
+			var start_timestamp = startTime.getTime(),
+				end_timestamp   = endTime.getTime()
+			if (start_timestamp < 0) {
+				start_timestamp = 0;
+			}
+			if (end_timestamp   < 0) {
+				end_timestamp   = (Date.parse(new Date()));
+			}
+
 
 			var para = {
-				startTime: startTime.getTime(),
-				endTime: endTime.getTime(),
+				startTime: start_timestamp, //getTime() returns number of milliseconds
+				endTime: end_timestamp,		//So divided by 1000 to change to the number of seconds
 				crimeId: crimeId,
 				limit: limit
 			};
@@ -363,11 +382,17 @@
 					maps.clearMarkers(queryMarkers);
 					queryMarkers = null;
 				}
+				// Remove the current lines on the map
+				if (queryLines   != null) {
+							maps.clearLines(queryLines);
+							queryLines   = null;
+				}
+
 				// Prepare the points which be painted on the map
 				var colorPoints = _.map(simPoints, function (point) {
 					return {
 						position: point["position"],
-						color:  colorbar(500), //colorbar(Math.ceil((1-point["similarity"])*colorbarLength)),
+						color:  colorbar(005), //change color to blue//colorbar(Math.ceil((1-point["similarity"])*colorbarLength)),
 						weight: point["similarity"] * 20, 
 						// For info window
 						id: point["id"],
@@ -378,7 +403,7 @@
 					}
 				});
 				// Place the marker on the map
-				queryMarkers = maps.createSimilarMarkers(colorPoints);
+				queryMarkers = maps.createSimilarMarkers(colorPoints,[]);
 			}, function (msg) {
 				alert(msg);
 			});
@@ -387,25 +412,31 @@
 		// Onclick event for search keywords button
 		searchWordsBtn.onclick = function () {
 			var keywords  = document.getElementById("key_words_input").value,
-				limit     = document.getElementById("sw_limit_input").value,
-				fromYear  = document.getElementById("sw_from_year_input").value,
-				fromMonth = document.getElementById("sw_from_month_input").value,
-				fromDay   = document.getElementById("sw_from_day_input").value,
-				toYear    = document.getElementById("sw_to_year_input").value,
-				toMonth   = document.getElementById("sw_to_month_input").value,
-				toDay     = document.getElementById("sw_to_day_input").value;
+				limit     = document.getElementById("sw_limit_input").value;
+				//fromYear  = document.getElementById("sw_from_year_input").value,
+				//fromMonth = document.getElementById("sw_from_month_input").value,
+				//fromDay   = document.getElementById("sw_from_day_input").value,
+				//toYear    = document.getElementById("sw_to_year_input").value,
+				//toMonth   = document.getElementById("sw_to_month_input").value,
+				//toDay     = document.getElementById("sw_to_day_input").value;
 
-			var startTime = new Date(fromYear, fromMonth, fromDay, 0, 0, 0, 0),
-				endTime   = new Date(toYear, toMonth, toDay, 0, 0, 0, 0);
+			if(keywords == "" || limit == ""){
+				var hintWords = "Caution! \nBoth Keywords and Limit Number must be filled! " ;
+				alert(hintWords);
+			}
+
+			//var startTime = new Date(fromYear, fromMonth, fromDay, 0, 0, 0, 0),
+			//	endTime   = new Date(toYear, toMonth, toDay, 0, 0, 0, 0);
 
 			var para = {
-				startTime: startTime.getTime(),
-				endTime: endTime.getTime(),
+			//	startTime: startTime.getTime(),
+			//	endTime: endTime.getTime(),
 				keywords: keywords,
 				limit: limit
 			};
 
-			var reportTexts = [];
+			var reportTexts = [],
+				basicInfos  = [];
 
 			// Search crime records whose remarks field contains indicated keywords
 			requestBackEnd(para, "/searchKeywords")
@@ -415,21 +446,42 @@
 						if (matchedItems.length <= 0) {
 							// todo: 
 						}
+
+						//highlight keywords
+						for(var i=0;i<matchedItems.length;i++){
+							matchedItems[i]["remarks"] = maps.highlightKeywords(keywords,matchedItems[i]["remarks"]);
+						}
+
+
 						reportTexts = matchedItems;
 						var ids = _.chain(matchedItems)
 							.map(function(item){return _.values(item);})
 							.unzip().last().value();
-						return requestBackEnd({crimeIds: ids}, "/getBasicInfos"); }, 
+						return requestBackEnd({ crimeIds:  ids }, "/getBasicInfos"); }, 
 					function (msg) {
 						alert("failed 1");
 					})
+				.then(
+					function (filterPoints) {
+						var ids = _.map(filterPoints, function(item){return item["id"];});
+						basicInfos = filterPoints;
+						return requestBackEnd({crimeIds:  ids}, "/getSimilaritiesMatrix");
+					},
+					function (msg) {
+						alert("failed 2");
+					})
 				// Plot points on the map based on the extracted ids
 				.then(
-					function (basicInfos) {
+					function (simMat) {
 						// Remove the current result on the map
 						if (queryMarkers != null) {
-							maps.clearMarkers(queryMarkers);
+							maps.clearMarkers(queryMarkers,queryLines);
 							queryMarkers = null;
+						}
+						// Remove the current lines on the map
+						if (queryLines   != null) {
+							maps.clearLines(queryLines);
+							queryLines   = null;
 						}
 						// Prepare the points which be painted on the map
 						var normalPoints = [];
@@ -445,13 +497,61 @@
 								date:  reportTexts[i]["update_date"],
 								priority: basicInfos[i]["priority"]});
 						}
+						// Place lines on the map
+						//console.log(requestBackEnd(para, "/searchKeywords"));
+						if (simMat.length > 0) {
+							queryLines = maps.createLines(normalPoints, simMat);
+						}
 						// Place the marker on the map
-						queryMarkers = maps.createSimilarMarkers(normalPoints); }, 
+						queryMarkers = maps.createSimilarMarkers(normalPoints, queryLines); 
+
+						//maps.showLines(queryLines);		
+					},
 					function (msg) {
-						alert("failed 2");
+						alert("failed 3");
 					});
 
+			
+
 		};
+		function limitDate(status) {
+			if (status == "from"){
+	 			var yearId  = "si_from_year_input",
+	 			    monthId = "si_from_month_input",
+	 			    dayId   = "si_from_day_input";
+	 		}
+	 		else if(status == "to"){
+	 			var yearId  = "si_to_year_input",
+	 			    monthId = "si_to_month_input",
+	 			    dayId   = "si_to_day_input";	 			
+	 		}
+
+			var regExp = /[0-9]$/;
+	    	var year  = document.getElementById(yearId).value.trim();
+	    	var	month = document.getElementById(monthId).value.trim();
+	    	var day   = document.getElementById(dayId).value.trim();
+
+			if(year == "" || !regExp.test(year)){    	
+	        	document.getElementById(monthId).setAttribute("disabled","disabled");
+	        	document.getElementById(dayId).setAttribute("disabled","disabled");
+	        	document.getElementById(monthId).value = "";
+	        	document.getElementById(dayId).value = "";
+	    	}
+	    	else{
+	    		document.getElementById(monthId).removeAttribute("disabled");
+
+	        	if(month == "" || !regExp.test(month)){
+	        		document.getElementById(dayId).setAttribute("disabled","disabled");
+	            	document.getElementById(dayId).value = "";
+	        	}
+		        else{
+		        	document.getElementById(dayId).removeAttribute("disabled");
+		            if(day == "" || !regExp.test(day)){
+		            	document.getElementById(dayId).value = "";
+		        	}
+	        	}
+	        }
+	    }
     </script>
 
 </html>

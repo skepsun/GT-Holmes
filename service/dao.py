@@ -12,7 +12,9 @@ import arrow
 import json
 import requests
 
-BASE_DOMAIN = "139.162.173.91"
+#BASE_DOMAIN = "139.162.173.91"
+BASE_DOMAIN = "127.0.0.1"
+#CONN_PORT   = "3000"
 CONN_PORT   = "3000"
 
 class DBConnecter():
@@ -70,6 +72,7 @@ class DBConnecter():
 		filter   = { "where": { "or": key_vals } }
 		params   = { "access_token": self.token, "filter": json.dumps(filter) }
 		r = requests.get(url=self.url, headers=self.headers, params=params, verify=False)
+
 		# Return result if success (status == 2XX)
 		if r.status_code / 10 == 20:
 			return [ self.parse(item) for item in r.json() ]
@@ -107,6 +110,22 @@ class BasicInfo(DBConnecter):
 		self.token = token
 		DBConnecter.__init__(self, self.url, self.token)
 
+	def get(self, key, vals, start_time=None, end_time=None):
+		"""
+		Override function get in DBConnecter. 
+
+
+		"""
+
+		all_res = DBConnecter.get(self, key, vals)
+		if start_time and end_time:
+			all_res = [ item \
+						for item in all_res 
+						if item["incident_date_timestamp"] >= start_time and \
+						   item["incident_date_timestamp"] <= end_time ]
+		new_res = sorted(all_res, key=lambda k: k['incident_date_timestamp']) 
+		return new_res
+
 	@staticmethod
 	def parse(result):
 		"""
@@ -117,36 +136,42 @@ class BasicInfo(DBConnecter):
 		it would return None if there is any possible expection occurs at any time and throw a 
 		self-defined exception to the console.
 		"""
-		try:
-			incident_num = result["incident_num"]
-			avg_lat  = float(result["avg_lat"])/100000.0 
-			avg_long = float(result["avg_long"])/100000.0 
-			city     = result["city"].strip()
-			date     = arrow.get(result["incident_date"], "YYYY-MM-DD HH:mm:ss").timestamp
-			priority = int(result["priority"])
-			# If the gps position is not located within the area of Atlanta
-			if (avg_lat > 90 or avg_lat < -90) or \
-				(avg_long > 180 or avg_long < -180):
-				raise Exception("Invalid GPS position.")
-				return None
-			# If the priority is not included in 0 to 9
-			if priority not in range(10):
-				raise Exception("Invalid priority.")
-				return None
-			# Return parsed result
-			return {
-				"id":       incident_num,
-				"avg_lat":  avg_lat,
-				"avg_long": avg_long,
-				"city":     city,
-				"date":		date,
-				"priority": priority
+		# try:
+		incident_num = result["incident_num"]
+		avg_lat  = float(result["avg_lat"])/100000.0 
+		avg_long = float(result["avg_long"])/100000.0 
+		city     = result["city"].strip()
+		date     = arrow.get(result["incident_date"], "YYYY-MM-DD HH:mm:ss").timestamp
+		priority = int(result["priority"])
+
+		category = result["crime_desc"]
+		incident_date_timestamp = result["incident_date_timestamp"]
+
+		# If the gps position is not located within the area of Atlanta
+		if (avg_lat > 90 or avg_lat < -90) or \
+			(avg_long > 180 or avg_long < -180):
+			raise Exception("Invalid GPS position.")
+			return None
+		# If the priority is not included in 0 to 9
+		if priority not in range(10):
+			raise Exception("Invalid priority.")
+			return None
+		# Return parsed result
+		return {
+			"id":       incident_num,
+			"avg_lat":  avg_lat,
+			"avg_long": avg_long,
+			"city":     city,
+			"date":		date,
+			"priority": priority,
+			"category": category,
+			"incident_date_timestamp": incident_date_timestamp
 			}
 		# Ensure the result can be returend as expected even if there is an unexpected exception
 		# when parsing the raw data.
-		except Exception:
-			raise Exception("Invalid Data Format.")
-			return None
+		# except Exception:
+		# 	raise Exception("Invalid Data Format.")
+		# 	return None
 
 class ReportText(DBConnecter):
 	"""
@@ -178,13 +203,13 @@ class ReportText(DBConnecter):
 		r = requests.get(url=self.url, headers=self.headers, params=params, verify=False)
 		# Return result if success (status == 2XX)
 		if r.status_code / 10 == 20:
-			return [ self.parse(item) for item in r.json() ]
+			return [ self.parse(item,keywords) for item in r.json() ]
 		# Invalid request
 		else:
 			return r.json()
 
 	@staticmethod
-	def parse(result):
+	def parse(result,keywords = ""): 
 		"""
 		Overriding of "parse" in DBConnecter
 		
@@ -197,6 +222,7 @@ class ReportText(DBConnecter):
 			incident_num = result["incident_num"]
 			update_date  = arrow.get(result["ent_upd_datetime"], "YYYY-MM-DD HH:mm:ss").timestamp
 			remarks      = result["remarks"]
+			
 			# Return parsed result
 			return {
 				"id":          incident_num,

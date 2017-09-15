@@ -1,5 +1,6 @@
 mapObj = null;
 
+
 var createInfoWindow = function (marker, content) {
     var infoWindow    = new google.maps.InfoWindow({});
         // contentString = String.format("<div id='info_window'>{0}</div>", content);
@@ -29,8 +30,12 @@ maps = {
             // styles: [{"featureType":"water","stylers":[{"saturation":43},{"lightness":-11},{"hue":"#0088ff"}]},{"featureType":"road","elementType":"geometry.fill","stylers":[{"hue":"#ff0000"},{"saturation":-100},{"lightness":99}]},{"featureType":"road","elementType":"geometry.stroke","stylers":[{"color":"#808080"},{"lightness":54}]},{"featureType":"landscape.man_made","elementType":"geometry.fill","stylers":[{"color":"#ece2d9"}]},{"featureType":"poi.park","elementType":"geometry.fill","stylers":[{"color":"#ccdca1"}]},{"featureType":"road","elementType":"labels.text.fill","stylers":[{"color":"#767676"}]},{"featureType":"road","elementType":"labels.text.stroke","stylers":[{"color":"#ffffff"}]},{"featureType":"poi","stylers":[{"visibility":"off"}]},{"featureType":"landscape.natural","elementType":"geometry.fill","stylers":[{"visibility":"on"},{"color":"#b8cb93"}]},{"featureType":"poi.park","stylers":[{"visibility":"on"}]},{"featureType":"poi.sports_complex","stylers":[{"visibility":"on"}]},{"featureType":"poi.medical","stylers":[{"visibility":"on"}]},{"featureType":"poi.business","stylers":[{"visibility":"simplified"}]}]
         });
     },
-    createSimilarMarkers: function (points) {
+
+    linesOnMap: linesOnMap = [],
+
+    createSimilarMarkers: function (points, lines) {
         return _.map(points, function (point) {
+            
             var marker = new google.maps.Marker({
                 position: point["position"],
                 map: mapObj,
@@ -44,6 +49,30 @@ maps = {
                   scale: point["weight"]
                 }
             });
+
+            //add listerer
+            marker.addListener("mouseover", function(){
+                if (lines != null){
+                    for(var i=0;i<lines.length;i++){
+                        for(var j=0;j<lines[i].getPath().length;j++){
+                            if(lines[i].getPath().getAt(j).lat().toFixed(5) == point["position"]["lat"] && lines[i].getPath().getAt(j).lng().toFixed(5) == point["position"]["lng"]){
+                                lines[i].setMap(mapObj);
+                            }
+                        }
+                    }
+                }
+
+               
+            });
+
+            marker.addListener('mouseout',function(){
+                if (lines != null){
+                    for(var i=0;i<lines.length;i++){
+                        lines[i].setMap(null);
+                    }
+                }
+            });
+
             // Create info window for the marker
             var datetime = new Date(point["date"]*1000);
             var infoWindowHtml = String.format('\
@@ -66,12 +95,68 @@ maps = {
     },
     clearMarkers: function (markers) {
         _.map(markers, function (marker) {
+            marker["lines"]
             marker.setMap(null);
         });
     },
+    
     showMarkers: function (markers) {
         _.map(markers, function (marker) {
             marker.setMap(mapObj);
         });
+    },
+    //highlight keywords
+    highlightKeywords: function (keywords, rawText){
+    
+        //console.log(matchedItems[i]["remarks"]);
+        regExpFindMatched = new RegExp(keywords,"gim");
+
+        matchedKeywords = rawText.match(regExpFindMatched);
+        for(var j=0; j<matchedKeywords.length;j++){
+            regExpReplace = new RegExp(matchedKeywords[j],"gm");
+            replacement = "<mark style='background-color: yellow;color: black'>" + matchedKeywords[j] + "</mark>";
+            rawText = rawText.replace(regExpReplace,replacement);
+        }
+
+        return rawText;
+    },
+
+    //Create polylines
+    
+    createLines: function(points, weights) {
+        if (points == null){
+            return null;
+        }
+        lines = [];
+        for(var i=0; i<points.length;i++ ){
+            for(var j=points.length-1; j>i; j--){
+                coordinates = [];
+                coordinates.push(points[i]["position"]);
+                coordinates.push(points[j]["position"]);
+
+            var line = new google.maps.Polyline({
+                path: coordinates,
+                geodesic: true,
+                strokeColor: '#FF0000',
+                strokeOpacity: weights[i][j]*5 || 0,
+                strokeWeight: 5
+                });
+
+            lines.push(line);
+            }
+        }
+        return lines;
+    },
+    
+    showLines: function(lines){
+        _.map(lines, function (line) {
+            line.setMap(mapObj);
+        });
+    },
+    clearLines: function (lines) {
+        _.map(lines, function (line) {
+            line.setMap(null);
+        });
     }
+
 }
