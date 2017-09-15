@@ -23,7 +23,7 @@ basic_info_handler  = BasicInfo(token)
 report_text_handler = ReportText(token)
 
 # NLP Model
-f = Feature()
+# f = Feature()
 
 # Renderring main web page
 @app.route("/map")
@@ -51,13 +51,13 @@ def searchCrimeId():
 			"msg": "Invalid Request Type"})
 
 	# Get matched crime records by input crime id
-	matched_crimes = f.query_via_id(crime_id,limit)
-	if matched_crimes == None:
-		return json.dumps({
-			"status": 1,
-			"msg": "Invalid Crime ID"})
+	# matched_crimes = f.query_via_id(crime_id,limit)
+	# if matched_crimes == None:
+	# 	return json.dumps({
+	# 		"status": 1,
+	# 		"msg": "Invalid Crime ID"})
 
-	# matched_crimes = [['163560154', 0.20330104, 'ROB-STREET-GUN'], ['153322796', 0.2092959, 'ROB-STREET-GUN'], ['162021796', 0.21052736, ''], ['161070352', 0.21449465, 'ROB-STREET-GUN'], ['150772900', 0.23019572, ''], ['163572101', 0.30466831, 'FRAUD-IMPERS.<$10,000'], ['160362333', 0.40189749, 'THEFT OF TRUCK/VAN/BUS'], ['153142632', 0.41234228, 'DAMAGE TO PROP PRIVATE'], ['170160001', 1.0000001, 'Ped Robbery'], ['170152497', 1.0000001, 'ROB-STREET-GUN']]
+	matched_crimes = [['163560154', 0.20330104, 'ROB-STREET-GUN'], ['153322796', 0.2092959, 'ROB-STREET-GUN'], ['162021796', 0.21052736, ''], ['161070352', 0.21449465, 'ROB-STREET-GUN'], ['150772900', 0.23019572, ''], ['163572101', 0.30466831, 'FRAUD-IMPERS.<$10,000'], ['160362333', 0.40189749, 'THEFT OF TRUCK/VAN/BUS'], ['153142632', 0.41234228, 'DAMAGE TO PROP PRIVATE'], ['170160001', 1.0000001, 'Ped Robbery'], ['170152497', 1.0000001, 'ROB-STREET-GUN']]
 
 	# Transpose the 2D list "matched_crimes". 
 	# And get informations by fields
@@ -68,6 +68,7 @@ def searchCrimeId():
 	# Including: GPS positions, updated dates, and so on
 
 
+	# basic_infos  = basic_info_handler.get("incident_num", ids, start_time, end_time)
 	basic_infos  = basic_info_handler.get("incident_num", ids, start_time, end_time)
 	if len(basic_infos) < 1:
 		return json.dumps({
@@ -142,13 +143,13 @@ def getSimilaritiesMatrix():
 
 	print "test 2"
 
-	return json.dumps({ 
-		"status": 0,
-		"res": f.get_similarity_matrix(crime_ids) })
-
 	# return json.dumps({ 
 	# 	"status": 0,
-	# 	"res": [] })
+	# 	"res": f.get_similarity_matrix(crime_ids) })
+
+	return json.dumps({ 
+		"status": 0,
+		"res": [] })
 
 # API for getting basic info via crime ids
 @app.route("/getBasicInfos", methods=["POST"])

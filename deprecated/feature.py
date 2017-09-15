@@ -19,13 +19,14 @@ this issue.
 
 import string
 import arrow
-import nltk
-import json
+# import nltk
+# import json
 import sys
-import numpy as np
+# import numpy as np
 from gensim import corpora, models, similarities
-from engine.utilities.utils import Config
-from engine.utilities.plot import MockGeoLocation, ScatterPointsSimilarities
+import utils
+# from holmes.utilities.config import Config
+# from holmes.utilities.plot import MockGeoLocation, ScatterPointsSimilarities
 
 def code2desc(codes, crime_codes_dict):
 	"""
@@ -40,11 +41,11 @@ def code2desc(codes, crime_codes_dict):
 
 
 
-class Feature:
+class feature:
 
 	def __init__(self):
 		# Read configuration from ini file
-		conf = Config("../../conf/text.ini")
+		conf = Config("conf/text.ini")
 		# Read Crime Codes Descriptions
 		pruned_dict_path      = conf.config_section_map("Corpus")["pruned_dict_path"]
 		mm_corpus_path        = conf.config_section_map("Corpus")["mm_corpus_path"]
@@ -65,9 +66,10 @@ class Feature:
 				self.id_list.append(id)
 				self.code_list.append([ code for code in codes_str.strip("\n").split("#") ])
 		self.descs = [ code2desc(codes, crime_codes_dict) for codes in self.code_list ]
-		# for testing
-		self.pos_list = [ (33.7490 + (lat_diff - 0.5) * 0.05, -84.3880 + (lon_diff - 0.5) * 0.05)
-			for lat_diff, lon_diff in np.random.random_sample((len(self.id_list), 2)).tolist() ]
+
+		# # for testing
+		# self.pos_list = [ (33.7490 + (lat_diff - 0.5) * 0.05, -84.3880 + (lon_diff - 0.5) * 0.05)
+		# 	for lat_diff, lon_diff in np.random.random_sample((len(self.id_list), 2)).tolist() ]
 
 		# Load dictionary
 		print >> sys.stderr, "[%s] Loading existed dictionary ..." % arrow.now()
@@ -80,16 +82,19 @@ class Feature:
 		self.corpus = corpora.MmCorpus(mm_corpus_path)
 		print >> sys.stderr, "[%s] Corpus: %s" % (arrow.now(), self.corpus)
 
-		print >> sys.stderr, "[%s] Init Tfidf model." % arrow.now()
-		self.tfidf = models.TfidfModel(self.corpus)
+		for doc in self.corpus:
+			print doc
 
-		print >> sys.stderr, "[%s] Calculating similarities ..." % arrow.now()
-		self.index = similarities.SparseMatrixSimilarity(self.tfidf[self.corpus], num_features=74945)
+		# print >> sys.stderr, "[%s] Init Tfidf model." % arrow.now()
+		# self.tfidf = models.TfidfModel(self.corpus)
+
+		# print >> sys.stderr, "[%s] Calculating similarities ..." % arrow.now()
+		# self.index = similarities.SparseMatrixSimilarity(self.tfidf[self.corpus], num_features=74945)
 
 		# sim_np_mat = index[tfidf[corpus[0:25]]]
 		# self.sim_mat = np.array([ sim_np_vec for no, sim_np_vec in list(enumerate(sim_np_mat)) ])
 
-	def query_via_id(self, id, limit):
+	def similarityVector(self, id, limit):
 
 		if id not in self.id_list:
 			return None
@@ -97,13 +102,19 @@ class Feature:
 		query_ind = self.id_list.index(id)
 		sim_vec = self.index[self.tfidf[self.corpus[query_ind]]]
 		res_inds = sim_vec.argsort()
-		return [ [self.id_list[ind], sim_vec[ind], self.pos_list[ind], self.descs[ind]] 
+		return [ [self.id_list[ind], sim_vec[ind], self.descs[ind]] 
 			for ind in res_inds[-1 * limit:] ]
+
+	def similarityMatrix(self, ids):
+
+		query_inds = [ self.id_list.index(id) for id in ids if id in self.id_list ]
+		sim_mat    = self.index
+
 
 if __name__ == "__main__":
 
 	f = Feature()
-	print >> sys.stderr, "test start"
-	print f.query_via_id("170160001", 50)
+	# print >> sys.stderr, "test start"
+	# print f.query_via_id("170160001", 50)
 
 

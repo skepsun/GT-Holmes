@@ -75,26 +75,7 @@ class DBConnecter():
 
 		# Return result if success (status == 2XX)
 		if r.status_code / 10 == 20:
-			if len(r.json()) == len(key_vals):
-				return [ self.parse(item) for item in r.json() ]
-			else:
-				result = [ self.parse(item) for item in r.json() ]
-				for i in range(len(key_vals) - len(r.json())):
-					result.append({
-						"id":       "id does not exist",
-						"avg_lat":  0.0,
-						"avg_long": 0.0,
-						"city":     "city does not exist",
-						"date":		0,
-						"priority": "priority does not exist",
-						"category": "category does not exist",
-						"incident_date_timestamp": 0,
-
-						"update_date": 0,
-						"remarks":     "remarks do not exist"
-					})
-				return result
-
+			return [ self.parse(item) for item in r.json() ]
 		# Invalid request
 		else:
 			return r.json()

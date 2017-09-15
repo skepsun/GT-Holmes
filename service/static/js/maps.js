@@ -114,7 +114,7 @@ maps = {
         matchedKeywords = rawText.match(regExpFindMatched);
         for(var j=0; j<matchedKeywords.length;j++){
             regExpReplace = new RegExp(matchedKeywords[j],"gm");
-            replacement = "<mark>" + matchedKeywords[j] + "</mark>";
+            replacement = "<mark style='background-color: yellow;color: black'>" + matchedKeywords[j] + "</mark>";
             rawText = rawText.replace(regExpReplace,replacement);
         }
 
