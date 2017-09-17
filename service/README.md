@@ -7,9 +7,50 @@ The service folder in the Crime-Pattern-Detection project contains several files
 
 The folder mainly contains three components:
 
--	Database wrapper: it provides restful API to connect the database and parse the retrieved data to JSON format.
+- Database: it is a MySQL database that is used to store the raw data.
+- Database wrapper: it provides restful API to connect the database and parse the retrieved data to JSON format.
 - View component: it provides functions to process the retrieved data from the database according to the user input.
-- Front end: it provides functions to render a web page, on which we can show the detection results. Also, we can receive user input from the webpage.
+- Front end webpage: it provides functions to render a web page, on which we can show the detection results. Also, we can receive user input from the webpage.
+
+Currently, we provide two main functions:
+- Search correlated crime by incident ID: User input an incident ID and a number N to get top N similar incidents
+- Search correlated crime by keyword: User input a keyword and a number N to get N incidents whose reports contain the keyword
+
+### Usage
+
+#### Preliminary
+Make sure there are 4 files or folders in the Service folder, including:  ```dao.py```,```view.py```,```static```,```templates```.<br />  ```dao.py``` : This is the database wrappper. <br /> ```view.py```: This is the view componnent. <br /> ```static``` : This contains Javascript programs and CSS files.<br />  ```templates```: This contains the HTML file.
+
+#### Connect MySQL database. 
+Make sure you have your MySQL Server Instance is running. 
+On Mac, you need to run the following command:<br />
+``` sudo /usr/local/mysql/support-files/mysql.server start```
+#### Run the database wrapper
+To run the database wrapper, you need to run the following commands(assuming that you are in root direct of the project now):
+```
+cd loopback-database-wrapper/
+node .
+```
+#### Run the system
+To run the system, you need to run the following commands (assuming that you are in root directory of the project now):<br />
+```FLASK_APP=service/view.py```<br />
+```python -m flask run```<br />
+Then please wait for the model to be loaded for a few minutes:
+```
+[2017-09-15T19:09:14.529101-04:00] Loading Crime Codes Dictionary & Labels ...
+[2017-09-15T19:09:14.777038-04:00] Loading existed dictionary ...
+[2017-09-15T19:09:14.819520-04:00] Dictionary: Dictionary(74945 unique tokens: [u'darryle', u'fawn', u'tajudeen', u'schlegel', u'nunnery']...)
+[2017-09-15T19:09:14.819673-04:00] Loading existed corpus ...
+[2017-09-15T19:09:14.856084-04:00] Corpus: MmCorpus(219402 documents, 74945 features, 17014638 non-zero entries)
+[2017-09-15T19:09:14.856212-04:00] Init Tfidf model.
+[2017-09-15T19:10:41.919867-04:00] Calculating similarities ...
+```
+Finally, you can see:
+``` 
+Serving Flask app "view"
+Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+```
+Copy the url(here is http://127.0.0.1:5000/ ) into browser address bar and open the system.
 
 ### Database Wrapper
 
@@ -21,7 +62,7 @@ Usually items of the data stream from database wrapper can be defined as follows
   "avg_lat":  avg_lat,
   "avg_long": avg_long,
   "city":     city,
-  "date":		date,
+  "date":   date,
   "priority": priority,
   "category": category,
   "incident_date_timestamp": incident_date_timestamp
