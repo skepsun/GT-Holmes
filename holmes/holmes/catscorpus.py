@@ -75,7 +75,8 @@ class Documents(object):
 		What needsto be noted is one document is consist of multiple remarks, which are  
 		delimited by "/1" within the text.
 		
-		Also,
+		Also, parameters of ngrams module, like n, pad_right, pad_left, left_pad_symbol, and
+		right_pad_symbol, are optional to input. 
 		"""
 
 		ngram_tokens = []
@@ -136,6 +137,12 @@ class CatsCorpus(object):
 		   The content it yield each time is supposed to be a single line of string (without "\"). 
 		2. cats_iter_obj: is a streaming data handler. It could be a file handler or a stdin handler. 
 		   The content it yield each time is supposed to be a tuple of information delimited by tabs
+		3. cats_def: is the definition of the fields of the CaTS information. It is required to be a 
+		   list, each of the elements is a brief description of the corresponding field.
+		4. min_term_freq: will keep the terms whose times of apperance are greater than this minimum 
+		   number of the terms.
+		5. n, pad_right, pad_left, left_pad_symbol, right_pad_symbol:
+		   are the parameters of Documents class.
 		"""
 
 		# Init document object by loading an iterable object (for reading text iteratively),
