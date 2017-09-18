@@ -33,9 +33,15 @@ class Documents(object):
 	one document, then splits and formats their words by an unified and standard method. 
 	"""
 
-	def __init__(self, iter_object):
+	def __init__(self, iter_object, n=1, pad_right=False, pad_left=False, \
+		         left_pad_symbol=None, right_pad_symbol=None):
 		self.iter_object = iter_object
 		self.counter     = 0
+		self.n           = n
+		self.pad_right   = pad_right
+		self.pad_left    = pad_left
+		self.left_pad_symbol  = left_pad_symbol
+		self.right_pad_symbol = right_pad_symbol
 
 	def __iter__(self):
 		"""
@@ -47,36 +53,51 @@ class Documents(object):
 				print >> sys.stderr, "[%s] [Documents] %s docs have been processed." % \
 				         (arrow.now(), self.counter)
 			try:
-				yield self.tokenize(line)
+				yield self.tokenize(line, n=self.n, \
+					                pad_right=self.pad_right, pad_left=self.pad_left, \
+					                left_pad_symbol=self.left_pad_symbol, \
+					                right_pad_symbol=self.right_pad_symbol)
+			# Yield empty token list if tokenization failed as UnicodeDecodeError was raised
 			except UnicodeDecodeError as e:
 				print >> sys.stderr, "[%s] [Documents] No. %s doc raise expection: %s." % \
 				         (arrow.now(), self.counter, e)
-				yield ""
+				yield [] 
 
 			self.counter += 1
 
 	@staticmethod
-	def tokenize(text_string):
+	def tokenize(text_string, n=1, pad_right=False, pad_left=False, \
+		         left_pad_symbol=None, right_pad_symbol=None):
 		"""
 		Tokenize each of the words in the text (one document).
 
 		It utilizes nltk to help tokenize the sentences and the words in the text. 
 		What needsto be noted is one document is consist of multiple remarks, which are  
-		delimited by "/2" within the text.
+		delimited by "/1" within the text.
+		
+		Also,
 		"""
 
-		tokens = []
+		ngram_tokens = []
 		# Free text part for each of the records are delimited by "\1"
 		for remark in text_string.strip().split("\1"):
 			# For every sentences in each of the free text part
 			for sent in nltk.tokenize.sent_tokenize(remark):
-				# For every token
-				for token in nltk.word_tokenize(sent.lower()):
-					# Remove punctuations and stopwords
-					if token not in nltk.corpus.stopwords.words('english') and \
-					   token not in string.punctuation:
-						tokens.append(token)
-		return tokens
+				# Tokenize a sentence by english word level of granularity
+				tokens_in_sentence = [ 
+					token
+					for token in nltk.word_tokenize(sent.lower()) 
+					if token not in nltk.corpus.stopwords.words('english') and token not in string.punctuation ]
+				# Calculate ngram of a tokenized sentence
+				ngram_tokens_in_sentence = [ 
+					"_".join(ngram_tuple)
+					for ngram_tuple in \
+						list(ngrams(tokens_in_sentence, n, pad_right=pad_right, pad_left=pad_left, \
+							        left_pad_symbol=left_pad_symbol, \
+							        right_pad_symbol=right_pad_symbol)) ]
+				# Append ngrams terms to the list
+				ngram_tokens += ngram_tokens_in_sentence
+		return ngram_tokens
 
 
 
@@ -86,7 +107,7 @@ class CatsCorpus(object):
 
 	CaTS (Categoried Temporal Spatial) Corpus is a base class for handling basic corpus 
 	operations. It defines several basic components for a corpus, which includes a dictionary,
-	a sequential text corpus, and the <categoried, temporal, spatial> information tuples in the 
+	a sequential BoW corpus, and the <categoried, temporal, spatial> information tuples in the 
 	same order. You can build your personal Cats corpus from scratch by processing raw text and 
 	other data files, otherwise you need to load an existed cats corpus. 
 	"""
@@ -98,7 +119,8 @@ class CatsCorpus(object):
 		# Non-sampling for original corpus
 		self.sampling_flag = False
 
-	def build(self, text_iter_obj, cats_iter_obj, cats_def=None, min_term_freq=2):
+	def build(self, text_iter_obj, cats_iter_obj, cats_def=None, min_term_freq=2, \
+		      n=1, pad_right=False, pad_left=False, left_pad_symbol=None, right_pad_symbol=None):
 		"""
 		Build
 
@@ -118,7 +140,9 @@ class CatsCorpus(object):
 
 		# Init document object by loading an iterable object (for reading text iteratively),
 		# the iterable object could be a file handler, or standard input handler and so on
-		docs            = Documents(text_iter_obj)
+		docs = Documents(text_iter_obj, n=n, pad_right=pad_right, pad_left=pad_left, \
+						 left_pad_symbol=left_pad_symbol, \
+						 right_pad_symbol=right_pad_symbol)
 		# Build dictionary based on the words appeared in documents
 		self.dictionary = corpora.Dictionary([ doc for doc in docs ])
 		# Remove non-character and low-frequency terms in the dictionary
@@ -152,7 +176,8 @@ class CatsCorpus(object):
 		"""
 
 		# Update dictionary
-		self.dictionary.add_documents([Documents.tokenize(doc_text)])
+		# TODO: 
+		# self.dictionary.add_documents([Documents.tokenize(doc_text)])
 		# Update corpus
 		for doc in Documents(text_iter_obj):
 			self.corpus.append(self.dictionary.doc2bow(doc))
@@ -215,7 +240,6 @@ class CatsCorpus(object):
 			# the original one.
 			self.sampling_flag = True
 
-
 	def _clean_corpus(self):
 		"""
 		Clean Corpus
@@ -231,12 +255,6 @@ class CatsCorpus(object):
 				clean_cats.append(cats_tuple)
 		self.corpus              = clean_corpus
 		self.cats["collections"] = clean_cats
-
-	# def __iter__(self):
-	# 	"""
-	# 	"""
-
-	# 	pass
 
 	def __len__(self):
 		"""
