@@ -21,7 +21,7 @@ The service folder in the Crime-Pattern-Detection project is a Flask project. It
 The folder mainly contains three components:
 
 - Database wrapper: it provides restful API to connect the MySQL database and parse the retrieved data to JSON format.
-- View component: it provides functions to process the retrieved data from the database according to the user input.
+- Flask project: it provides functions to process the retrieved data from the database according to the user input.
 - Front end webpage: it provides functions to render a web page, on which we can show the detection results. Also, we can receive user input from the webpage.
 
 Currently, we provide two main search functions in our system:
@@ -116,9 +116,9 @@ Usually items of the data stream from database wrapper can be defined as follows
 }
 ```
 
-#### View Component
+#### Flask project
 
-This is the main script for a Flask project, which defines various of interfaces for getting access to backend services or data. The view component would extract the information of the payload. Then the extracted data might be processed by the data model. Finally, the result which consists of "statue" and "res" will be sent to front end HTML page. Below is the illustration:
+View.py is the main script for a Flask project, which defines various of interfaces for getting access to backend services or data. The view component would extract the information of the payload. Then the extracted data might be processed by the data model. Finally, the result which consists of "statue" and "res" will be sent to front end HTML page. Below is the illustration:
 ```
 {
   "status": 0,
