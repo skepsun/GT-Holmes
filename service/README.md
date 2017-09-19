@@ -5,7 +5,7 @@
 
 * [Introduction](#introduction)
 * [Setup](#setup)
-* [Usage](#usage)
+* [Usage](#launch)
 * [Components](#components)
 * [To Do](#to-do)
 * [Contributing](#contributing)
@@ -52,7 +52,7 @@ Make sure you have your MySQL Server Instance run.
 On Mac, you may need to run the following command:<br />
 ``` sudo /usr/local/mysql/support-files/mysql.server start```
 
-## Usage
+## Launch
 
 #### Run the database wrapper
 To run the database wrapper, you need to run the following commands(assuming that you are in root directory of the project now):
