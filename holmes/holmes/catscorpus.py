@@ -57,7 +57,7 @@ class Documents(object):
 				print >> sys.stderr, "[%s] [Documents] %s docs have been processed." % \
 				         (arrow.now(), self.counter)
 			try:
-				yield self.tokenize(line, n=self.n, \
+				yield self.tokenize(line, N=self.n, \
 					                pad_right=self.pad_right, pad_left=self.pad_left, \
 					                left_pad_symbol=self.left_pad_symbol, \
 					                right_pad_symbol=self.right_pad_symbol)
@@ -70,7 +70,7 @@ class Documents(object):
 			self.counter += 1
 
 	@staticmethod
-	def tokenize(text_string, n=1, pad_right=False, pad_left=False, \
+	def tokenize(text_string, N=1, pad_right=False, pad_left=False, \
 		         left_pad_symbol=None, right_pad_symbol=None):
 		"""
 		Tokenize each of the words in the text (one document).
@@ -88,22 +88,23 @@ class Documents(object):
 		for remark in text_string.strip().split("\1"):
 			# For every sentences in each of the free text part
 			for sent in nltk.tokenize.sent_tokenize(remark):
-				# Tokenize a sentence by english word level of granularity
-				tokens_in_sentence = [ 
-					token
-					for token in nltk.word_tokenize(sent.translate(None, string.punctuation).lower()) 
-					if token not in nltk.corpus.stopwords.words('english') and \
-					   token not in string.punctuation ]
-				# Calculate ngram of a tokenized sentence
-				ngram_tokens_in_sentence = [ 
-					"_".join(ngram_tuple)
-					for ngram_tuple in \
-						list(ngrams(tokens_in_sentence, n, pad_right=pad_right, pad_left=pad_left, \
-							        left_pad_symbol=left_pad_symbol, \
-							        right_pad_symbol=right_pad_symbol)) ]
-				print ngram_tokens_in_sentence
-				# Append ngrams terms to the list
-				ngram_tokens += ngram_tokens_in_sentence
+				# Calculate all the grams terms from unigram to N-grams
+				for n in range(1, N+1):
+					# Tokenize a sentence by english word level of granularity
+					tokens_in_sentence = [ 
+						token
+						for token in nltk.word_tokenize(sent.translate(None, string.punctuation).lower()) 
+						if token not in nltk.corpus.stopwords.words('english') and \
+						   token not in string.punctuation ]
+					# Calculate ngram of a tokenized sentence
+					ngram_tokens_in_sentence = [ 
+						"_".join(ngram_tuple)
+						for ngram_tuple in \
+							list(ngrams(tokens_in_sentence, n, pad_right=pad_right, pad_left=pad_left, \
+								        left_pad_symbol=left_pad_symbol, \
+								        right_pad_symbol=right_pad_symbol)) ]
+					# Append ngrams terms to the list
+					ngram_tokens += ngram_tokens_in_sentence
 		return ngram_tokens
 
 
