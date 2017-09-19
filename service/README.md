@@ -1,5 +1,16 @@
-# Crime-Pattern-Detection Service Folder
-### Introduction
+# Crime-Pattern-Detection Flask Project
+![system_overview](https://github.com/meowoodie/Crime-Pattern-Detection-for-APD/blob/Suyi/service/static/readme_img/System_overview.jpeg)
+
+*<p align="center">Interface of the project.</p>*
+
+* [Introduction](#Introduction)
+* [Usage](#Usage)
+* [Components](#Components)
+* [To Do](#to-do)
+* [Contributing](#contributing)
+
+
+## Introduction
 The service folder in the Crime-Pattern-Detection project is a Flask project. It contains several files that build a system to fetch data from database and demonstrate the results of crime incident correlation detection. It contains database wrapper, date visualization, full text search and many other features to demonstrate the results of incident correlation detection. Below is an illustration for the structure of the service folder. 
 
 ![service folder structure](https://github.com/meowoodie/Crime-Pattern-Detection-for-APD/blob/Suyi/service/static/readme_img/service_folder_structure.png)
@@ -16,7 +27,7 @@ Currently, we provide two main search functions in our system:
 - Search correlated crime by incident ID: User input an incident ID and a number N to get top N similar incidents
 - Search correlated crime by keyword: User input a keyword and a number N to get N incidents whose reports contain the keyword.
 
-### Usage
+## Usage
 
 #### Preliminary
 Make sure there are 4 files or folders in the Service folder, including:  ```dao.py```,```view.py```,```static```,```templates```.<br />  
@@ -68,7 +79,9 @@ Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
 ```
 Copy the url(here is http://127.0.0.1:5000/ ) into browser address bar and open the system.
 
-### Database Wrapper
+## Components
+
+#### Database Wrapper
 
 Database wrapper was an abstract interface for connecting various kinds of database via standard restful API and the data models that web service needs. Generally speaking, the data models that you implement in web service inherit from interface 'DBConnecter' for getting access to the database. 
 
@@ -96,11 +109,11 @@ Usually items of the data stream from database wrapper can be defined as follows
 {
   "id":          incident_num,
   "update_date": update_date,
-  "remarks":     remarks
-  }
+  "remarks":     remarks\
+}
 ```
 
-### View Component
+#### View Component
 
 This is the main script for a Flask project, which defines various of interfaces for getting access to backend services or data. The view component would extract the information of the payload. Then the extracted data might be processed by the data model. Finally, the result which consists of "statue" and "res" will be sent to front end HTML page. Below is the illustration:
 ```
@@ -115,16 +128,14 @@ This is the main script for a Flask project, which defines various of interfaces
     "priority": priorities[ind],
     "update_dates": update_dates[ind],
     "date": dates[ind],
-    "text": remarks[ind] }
-    for ind in range(len(filter_ids))
-    if len(ids[ind]) >= 9 ]
-    }
+    "text": remarks[ind] }]
+}
 ```
-### Front End
+#### Front End
 
 The front end web page provides several visualization functions to demonstrate the results of incident correlation detection.
 
-#### Demonstrate incidents on the map
+##### Demonstrate incidents on the map
 <br>Each dot represents a crime incident with real location.</br>
 <div align=center><img src="https://github.com/meowoodie/Crime-Pattern-Detection-for-APD/blob/Suyi/service/static/readme_img/dots_on_map.gif"/></div>
 
