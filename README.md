@@ -1,6 +1,6 @@
 # Crime-Pattern-Detection Service Folder
 ### Introduction
-The service folder in the Crime-Pattern-Detection project contains several files that build a system to fetch data from database and demonstrate the results of crime incident correlation detection. It contains database wrapper, date visualization, full text search and many other features to demonstrate the results of incident correlation detection. Below is an illustration for the structure of the service folder. 
+The service folder in the Crime-Pattern-Detection project works as a Flask project. It contains several files that build a system to fetch data from database and demonstrate the results of crime incident correlation detection. It contains database wrapper, date visualization, full text search and many other features to demonstrate the results of incident correlation detection. Below is an illustration for the structure of the service folder. 
 
 ![service folder structure](https://github.com/meowoodie/Crime-Pattern-Detection-for-APD/blob/Suyi/service/static/readme_img/service_folder_structure.png)
 
@@ -13,22 +13,22 @@ The folder mainly contains three components:
 - Front end webpage: it provides functions to render a web page, on which we can show the detection results. Also, we can receive user input from the webpage.
 
 Currently, we provide two main search functions in our system:
-- Search correlated crime by incident ID: User input an incident ID and a number N to get top N similar incidents
+- Search correlated crime by incident ID: User input an incident ID and a number N to get top N similar incidents.
 - Search correlated crime by keyword: User input a keyword and a number N to get N incidents whose reports contain the keyword.
 
 ### Usage
 
 #### Preliminary
 Make sure there are 4 files or folders in the Service folder, including:  ```dao.py```,```view.py```,```static```,```templates```.<br />  
-> ```dao.py``` : This is a python file which works as a database wrappper. 
+> ```dao.py``` : This is a python script which works as a database wrappper. 
 
-> ```view.py```: This is a python file which works as a view componnent. 
+> ```view.py```: This is a python script which works as a view componnent. 
 
 > ```static``` : This is a folder which contains Javascript programs and CSS files.
 
 > ```templates```: This is a folder which contains the HTML file.
 
-#### Install our Python package
+#### Install Python package
 To install our Python package, you need to run the following commands(assuming that you are in root directory of the project now):
 ```
 cd holmes
@@ -74,7 +74,9 @@ Database wrapper was an abstract interface for connecting various kinds of datab
 
 We have three classes in this Python script, and their relations are shown as below:
 
+![DAO_UML](https://github.com/meowoodie/Crime-Pattern-Detection-for-APD/blob/Suyi/service/static/readme_img/DAO_UML.png)
 
+*<p align="center">UML of dao.py</p>*
 
 The data streams that we received from database wrapper have uniform data structures for easier data information extraction.
 Usually items of the data stream from database wrapper can be defined as follows:
@@ -100,7 +102,7 @@ Usually items of the data stream from database wrapper can be defined as follows
 
 ### View Component
 
-The view component would extract the information of the payload. Then the extracted data might be processed by the data model. Finally, the result which consists of "statue" and "res" will be sent to front end HTML page. Below is the illustration:
+This is the main script for a Flask project, which defines various of interfaces for getting access to backend services or data. The view component would extract the information of the payload. Then the extracted data might be processed by the data model. Finally, the result which consists of "statue" and "res" will be sent to front end HTML page. Below is the illustration:
 ```
 {
   "status": 0,
