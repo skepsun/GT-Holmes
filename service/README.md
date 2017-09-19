@@ -3,9 +3,9 @@
 
 *<p align="center">Interface of the project.</p>*
 
-* [Introduction](#Introduction)
-* [Usage](#Usage)
-* [Components](#Components)
+* [Introduction](#introduction)
+* [Usage](#usage)
+* [Components](#components)
 * [To Do](#to-do)
 * [Contributing](#contributing)
 
