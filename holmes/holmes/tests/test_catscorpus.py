@@ -42,11 +42,8 @@ class CatsCorpusTestCase(unittest.TestCase):
 			# Building cats corpus by processing raw data
 			print >> sys.stderr, "Building Cats Corpus."
 			cats_corpus.build(text_fhandle, cats_fhandle, cats_def)
-		# # Serializing and saving built catscorpus in local files
-		# print >> sys.stderr, "Serializing and saving the corpus in local file."
-		# cats_corpus.save_corpus("resource/cats_corpus/corpus.mm", \
-		# 	             "resource/cats_corpus/vocab.dict", \
-		# 	             "resource/cats_corpus/cats")
 
+
+			
 if __name__ == '__main__':
     unittest.main()
