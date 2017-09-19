@@ -4,6 +4,7 @@
 *<p align="center">Interface of the project.</p>*
 
 * [Introduction](#introduction)
+* [Setup](#setup)
 * [Usage](#usage)
 * [Components](#components)
 * [To Do](#to-do)
@@ -27,7 +28,7 @@ Currently, we provide two main search functions in our system:
 - Search correlated crime by incident ID: User input an incident ID and a number N to get top N similar incidents
 - Search correlated crime by keyword: User input a keyword and a number N to get N incidents whose reports contain the keyword.
 
-## Usage
+## Setup
 
 #### Preliminary
 Make sure there are 4 files or folders in the Service folder, including:  ```dao.py```,```view.py```,```static```,```templates```.<br />  
@@ -50,6 +51,8 @@ python setup.py install
 Make sure you have your MySQL Server Instance run. 
 On Mac, you may need to run the following command:<br />
 ``` sudo /usr/local/mysql/support-files/mysql.server start```
+
+## Usage
 
 #### Run the database wrapper
 To run the database wrapper, you need to run the following commands(assuming that you are in root directory of the project now):
