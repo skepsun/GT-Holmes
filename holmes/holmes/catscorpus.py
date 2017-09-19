@@ -9,13 +9,17 @@ processing.
 """
 
 from gensim import corpora
+from nltk.util import ngrams
+from six import iteritems
 import itertools
 import string
 import pickle
 import random
 import arrow
 import nltk
+import copy
 import sys
+import re
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -87,8 +91,9 @@ class Documents(object):
 				# Tokenize a sentence by english word level of granularity
 				tokens_in_sentence = [ 
 					token
-					for token in nltk.word_tokenize(sent.lower()) 
-					if token not in nltk.corpus.stopwords.words('english') and token not in string.punctuation ]
+					for token in nltk.word_tokenize(sent.translate(None, string.punctuation).lower()) 
+					if token not in nltk.corpus.stopwords.words('english') and \
+					   token not in string.punctuation ]
 				# Calculate ngram of a tokenized sentence
 				ngram_tokens_in_sentence = [ 
 					"_".join(ngram_tuple)
@@ -96,6 +101,7 @@ class Documents(object):
 						list(ngrams(tokens_in_sentence, n, pad_right=pad_right, pad_left=pad_left, \
 							        left_pad_symbol=left_pad_symbol, \
 							        right_pad_symbol=right_pad_symbol)) ]
+				print ngram_tokens_in_sentence
 				# Append ngrams terms to the list
 				ngram_tokens += ngram_tokens_in_sentence
 		return ngram_tokens
@@ -120,7 +126,7 @@ class CatsCorpus(object):
 		# Non-sampling for original corpus
 		self.sampling_flag = False
 
-	def build(self, text_iter_obj, cats_iter_obj, cats_def=None, min_term_freq=2, \
+	def build(self, text_iter_obj, cats_iter_obj, cats_def=None, min_term_freq=1, \
 		      n=1, pad_right=False, pad_left=False, left_pad_symbol=None, right_pad_symbol=None):
 		"""
 		Build
@@ -150,12 +156,14 @@ class CatsCorpus(object):
 		docs = Documents(text_iter_obj, n=n, pad_right=pad_right, pad_left=pad_left, \
 						 left_pad_symbol=left_pad_symbol, \
 						 right_pad_symbol=right_pad_symbol)
+		# TODO: Make it more memory friendly
+		docs = [ doc for doc in docs ]
 		# Build dictionary based on the words appeared in documents
-		self.dictionary = corpora.Dictionary([ doc for doc in docs ])
+		self.dictionary = corpora.Dictionary(docs)
 		# Remove non-character and low-frequency terms in the dictionary
-		nonchar_ids = [ tokenid for token, tokenid in iteritems(dictionary.token2id) \
+		nonchar_ids = [ tokenid for token, tokenid in iteritems(self.dictionary.token2id) \
 		                if not re.match("^[A-Za-z_]*$", token) ]
-		lowfreq_ids = [ tokenid for tokenid, docfreq in iteritems(dictionary.dfs) \
+		lowfreq_ids = [ tokenid for tokenid, docfreq in iteritems(self.dictionary.dfs) \
 		                if docfreq <= min_term_freq ]
 		self.dictionary.filter_tokens(lowfreq_ids + nonchar_ids)
 		# Remove gaps in id sequence after some of the words being removed
@@ -166,6 +174,9 @@ class CatsCorpus(object):
 		self.cats   = { "collections": [ cats_tuple.strip("\n").split("\t") for cats_tuple in cats_iter_obj ] }
 		if type(cats_def) is list and len(cats_def) == len(self.cats["collections"]):
 			self.cats["definitions"] = cats_def
+
+		print >> sys.stderr, self.dictionary
+		print >> sys.stderr, "The size of the corpus is %d" % len(self.corpus)
 
 	def add_documents(self, text_iter_obj, cats_iter_obj):
 		"""
@@ -238,6 +249,7 @@ class CatsCorpus(object):
 		"""
 		Random Sampling
 		
+		Randomly select and keep specific number of samples from the dataset.
 		"""
 
 		if num_samples < len(self.corpus):
@@ -260,6 +272,8 @@ class CatsCorpus(object):
 			if len(doc_bow) > 0:
 				clean_corpus.append(doc_bow)
 				clean_cats.append(cats_tuple)
+			else: 
+				print >> sys.stderr, "Empty document is discarded."
 		self.corpus              = clean_corpus
 		self.cats["collections"] = clean_cats
 
