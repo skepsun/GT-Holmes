@@ -9,13 +9,17 @@ processing.
 """
 
 from gensim import corpora
+from nltk.util import ngrams
+from six import iteritems
 import itertools
 import string
 import pickle
 import random
 import arrow
 import nltk
+import copy
 import sys
+import re
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -33,9 +37,15 @@ class Documents(object):
 	one document, then splits and formats their words by an unified and standard method. 
 	"""
 
-	def __init__(self, iter_object):
+	def __init__(self, iter_object, n=1, pad_right=False, pad_left=False, \
+		         left_pad_symbol=None, right_pad_symbol=None):
 		self.iter_object = iter_object
 		self.counter     = 0
+		self.n           = n
+		self.pad_right   = pad_right
+		self.pad_left    = pad_left
+		self.left_pad_symbol  = left_pad_symbol
+		self.right_pad_symbol = right_pad_symbol
 
 	def __iter__(self):
 		"""
@@ -47,36 +57,55 @@ class Documents(object):
 				print >> sys.stderr, "[%s] [Documents] %s docs have been processed." % \
 				         (arrow.now(), self.counter)
 			try:
-				yield self.tokenize(line)
+				yield self.tokenize(line, N=self.n, \
+					                pad_right=self.pad_right, pad_left=self.pad_left, \
+					                left_pad_symbol=self.left_pad_symbol, \
+					                right_pad_symbol=self.right_pad_symbol)
+			# Yield empty token list if tokenization failed as UnicodeDecodeError was raised
 			except UnicodeDecodeError as e:
 				print >> sys.stderr, "[%s] [Documents] No. %s doc raise expection: %s." % \
 				         (arrow.now(), self.counter, e)
-				yield ""
+				yield [] 
 
 			self.counter += 1
 
 	@staticmethod
-	def tokenize(text_string):
+	def tokenize(text_string, N=1, pad_right=False, pad_left=False, \
+		         left_pad_symbol=None, right_pad_symbol=None):
 		"""
 		Tokenize each of the words in the text (one document).
 
 		It utilizes nltk to help tokenize the sentences and the words in the text. 
 		What needsto be noted is one document is consist of multiple remarks, which are  
-		delimited by "/2" within the text.
+		delimited by "/1" within the text.
+		
+		Also, parameters of ngrams module, like n, pad_right, pad_left, left_pad_symbol, and
+		right_pad_symbol, are optional to input. 
 		"""
 
-		tokens = []
+		ngram_tokens = []
 		# Free text part for each of the records are delimited by "\1"
 		for remark in text_string.strip().split("\1"):
 			# For every sentences in each of the free text part
 			for sent in nltk.tokenize.sent_tokenize(remark):
-				# For every token
-				for token in nltk.word_tokenize(sent.lower()):
-					# Remove punctuations and stopwords
-					if token not in nltk.corpus.stopwords.words('english') and \
-					   token not in string.punctuation:
-						tokens.append(token)
-		return tokens
+				# Calculate all the grams terms from unigram to N-grams
+				for n in range(1, N+1):
+					# Tokenize a sentence by english word level of granularity
+					tokens_in_sentence = [ 
+						token
+						for token in nltk.word_tokenize(sent.translate(None, string.punctuation).lower()) 
+						if token not in nltk.corpus.stopwords.words('english') and \
+						   token not in string.punctuation ]
+					# Calculate ngram of a tokenized sentence
+					ngram_tokens_in_sentence = [ 
+						"_".join(ngram_tuple)
+						for ngram_tuple in \
+							list(ngrams(tokens_in_sentence, n, pad_right=pad_right, pad_left=pad_left, \
+								        left_pad_symbol=left_pad_symbol, \
+								        right_pad_symbol=right_pad_symbol)) ]
+					# Append ngrams terms to the list
+					ngram_tokens += ngram_tokens_in_sentence
+		return ngram_tokens
 
 
 
@@ -86,7 +115,7 @@ class CatsCorpus(object):
 
 	CaTS (Categoried Temporal Spatial) Corpus is a base class for handling basic corpus 
 	operations. It defines several basic components for a corpus, which includes a dictionary,
-	a sequential text corpus, and the <categoried, temporal, spatial> information tuples in the 
+	a sequential BoW corpus, and the <categoried, temporal, spatial> information tuples in the 
 	same order. You can build your personal Cats corpus from scratch by processing raw text and 
 	other data files, otherwise you need to load an existed cats corpus. 
 	"""
@@ -98,7 +127,8 @@ class CatsCorpus(object):
 		# Non-sampling for original corpus
 		self.sampling_flag = False
 
-	def build(self, text_iter_obj, cats_iter_obj, cats_def=None, min_term_freq=2):
+	def build(self, text_iter_obj, cats_iter_obj, cats_def=None, min_term_freq=1, \
+		      n=1, pad_right=False, pad_left=False, left_pad_symbol=None, right_pad_symbol=None):
 		"""
 		Build
 
@@ -114,17 +144,27 @@ class CatsCorpus(object):
 		   The content it yield each time is supposed to be a single line of string (without "\"). 
 		2. cats_iter_obj: is a streaming data handler. It could be a file handler or a stdin handler. 
 		   The content it yield each time is supposed to be a tuple of information delimited by tabs
+		3. cats_def: is the definition of the fields of the CaTS information. It is required to be a 
+		   list, each of the elements is a brief description of the corresponding field.
+		4. min_term_freq: will keep the terms whose times of apperance are greater than this minimum 
+		   number of the terms.
+		5. n, pad_right, pad_left, left_pad_symbol, right_pad_symbol:
+		   are the parameters of Documents class.
 		"""
 
 		# Init document object by loading an iterable object (for reading text iteratively),
 		# the iterable object could be a file handler, or standard input handler and so on
-		docs            = Documents(text_iter_obj)
+		docs = Documents(text_iter_obj, n=n, pad_right=pad_right, pad_left=pad_left, \
+						 left_pad_symbol=left_pad_symbol, \
+						 right_pad_symbol=right_pad_symbol)
+		# TODO: Make it more memory friendly
+		docs = [ doc for doc in docs ]
 		# Build dictionary based on the words appeared in documents
-		self.dictionary = corpora.Dictionary([ doc for doc in docs ])
+		self.dictionary = corpora.Dictionary(docs)
 		# Remove non-character and low-frequency terms in the dictionary
-		nonchar_ids = [ tokenid for token, tokenid in iteritems(dictionary.token2id) \
+		nonchar_ids = [ tokenid for token, tokenid in iteritems(self.dictionary.token2id) \
 		                if not re.match("^[A-Za-z_]*$", token) ]
-		lowfreq_ids = [ tokenid for tokenid, docfreq in iteritems(dictionary.dfs) \
+		lowfreq_ids = [ tokenid for tokenid, docfreq in iteritems(self.dictionary.dfs) \
 		                if docfreq <= min_term_freq ]
 		self.dictionary.filter_tokens(lowfreq_ids + nonchar_ids)
 		# Remove gaps in id sequence after some of the words being removed
@@ -135,6 +175,9 @@ class CatsCorpus(object):
 		self.cats   = { "collections": [ cats_tuple.strip("\n").split("\t") for cats_tuple in cats_iter_obj ] }
 		if type(cats_def) is list and len(cats_def) == len(self.cats["collections"]):
 			self.cats["definitions"] = cats_def
+
+		print >> sys.stderr, self.dictionary
+		print >> sys.stderr, "The size of the corpus is %d" % len(self.corpus)
 
 	def add_documents(self, text_iter_obj, cats_iter_obj):
 		"""
@@ -152,7 +195,8 @@ class CatsCorpus(object):
 		"""
 
 		# Update dictionary
-		self.dictionary.add_documents([Documents.tokenize(doc_text)])
+		# TODO: 
+		# self.dictionary.add_documents([Documents.tokenize(doc_text)])
 		# Update corpus
 		for doc in Documents(text_iter_obj):
 			self.corpus.append(self.dictionary.doc2bow(doc))
@@ -206,6 +250,7 @@ class CatsCorpus(object):
 		"""
 		Random Sampling
 		
+		Randomly select and keep specific number of samples from the dataset.
 		"""
 
 		if num_samples < len(self.corpus):
@@ -214,7 +259,6 @@ class CatsCorpus(object):
 			# Set sampling flag as True, for indicating the current corpus is not
 			# the original one.
 			self.sampling_flag = True
-
 
 	def _clean_corpus(self):
 		"""
@@ -229,14 +273,10 @@ class CatsCorpus(object):
 			if len(doc_bow) > 0:
 				clean_corpus.append(doc_bow)
 				clean_cats.append(cats_tuple)
+			else: 
+				print >> sys.stderr, "Empty document is discarded."
 		self.corpus              = clean_corpus
 		self.cats["collections"] = clean_cats
-
-	# def __iter__(self):
-	# 	"""
-	# 	"""
-
-	# 	pass
 
 	def __len__(self):
 		"""
