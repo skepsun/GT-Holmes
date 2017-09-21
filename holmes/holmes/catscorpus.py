@@ -30,8 +30,8 @@ class Documents(object):
 	1. preprocessing documents text in a memory-friendly way.
 	2. outputting tokenized terms of each of the documents iteratively. 
 
-	It's mainly used to be the load the documents and help substantiate gensim's
-	dictionary and corpus.
+	It's mainly used to load the documents and help substantiate gensim's dictionary and 
+	corpus.
 
 	Essentially, a documents object is simply an iterable, where each iteration step yields 
 	one document, then splits and formats their words by an unified and standard method. 
