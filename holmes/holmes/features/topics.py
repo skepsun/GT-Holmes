@@ -22,6 +22,7 @@ class TopicsFeature(catscorpus.CatsCorpus, utils.Config):
 
 	def train_lda(self, num_samples=None, num_topics=100, chunksize=500, is_corpus_saved=True):
 		"""
+		
 		"""
 
 		# Randomly downsampling from original corpus and cats collections
