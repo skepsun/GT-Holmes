@@ -7,6 +7,17 @@ Module contains a variety of utility functions or classes.
 
 import ConfigParser
 
+# Supplements of Basic Data Operations
+
+def pops(pop_indexs, _list):
+    """
+    
+    """
+    pop_indexs = list(pop_indexs)
+    pop_indexs.sort()
+    pop_indexs.reverse()
+    return [ _list.pop(pop_index) for pop_index in pop_indexs ]
+
 class Config:
     """
     Config
