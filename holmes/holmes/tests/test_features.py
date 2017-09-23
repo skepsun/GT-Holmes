@@ -10,17 +10,19 @@ import unittest
 from holmes.catscorpus import CatsCorpus
 from holmes.features.topics import TopicsFeature
 
-class TopicsTestCase(unittest.TestCase):
+class FeaturesTestCase(unittest.TestCase):
 
-	def test_training_lda(self):
+	def test_topics(self):
 		"""
 
 		"""
 
+		# Parameters of 
 		root_path       = "resource/lda_test"
 		corpus_path     = "%s/%s" % (root_path, "corpus.mm") 
 		dictionary_path = "%s/%s" % (root_path, "vocab.dict")
 		cats_path       = "%s/%s" % (root_path, "cats")
+		# 
 		topic_feature   = TopicsFeature(corpus_path, dictionary_path, cats_path)
 		print >> sys.stderr, "Corpus Loaded\n%s" % topic_feature
 
