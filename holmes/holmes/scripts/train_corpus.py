@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+
+"""
+
 import itertools
 import numpy as np
 from copy import deepcopy
 from holmes import utils
-
-"""
-
-"""
 
 class BootstrappingShuffle(object):
 	"""
@@ -98,7 +98,7 @@ if __name__ == "__main__":
 
 	# Configurations
 	num_test = 1
-
+	q_ind  = 0
 
 	root_path       = "resource/test_corpus"
 	corpus_path     = "%s/%s" % (root_path, "corpus.mm") 
@@ -124,8 +124,7 @@ if __name__ == "__main__":
 		doc_ind += 1
 
 	rawdata = csc_matrix((val, (row, col)), shape=(doc_len, dict_len)).toarray()
-
-	q_ind  = 0
+	
 	d_inds = range(doc_len)
 	d_inds.pop(q_ind)
 	

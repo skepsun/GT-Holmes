@@ -43,7 +43,7 @@ class Clicks2Score(object):
 		# Minimize error using cross entropy
 		L1_loss        = tf.contrib.layers.apply_regularization(L1, [W])
 		self.cost      = tf.reduce_mean(w0*self.y*tf.log(self.pred)+w1*(1-self.y)*tf.log(1-self.pred))+L1_loss
-		# self.cost      = tf.reduce_sum(tf.pow(self.pred-self.y, 2))+L1_loss
+		# self.cost      = tf.reduce_sum(tf.pow(.pred-self.y, 2))+L1_loss
 		self.optimizer = tf.train.GradientDescentOptimizer(lr).minimize(self.cost)
 
 		# Evaluate model
@@ -51,6 +51,12 @@ class Clicks2Score(object):
 		self.accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
 	def train(self, sess, qs, ds, ys, test_qs, test_ds, test_ys, pretrained=False):
+		"""
+		Train
+
+		
+		"""
+
 		# Set pretrained variable if it was existed
 		if not pretrained:
 			init = tf.global_variables_initializer()
@@ -87,15 +93,15 @@ class Clicks2Score(object):
 
 		
 		"""
-		return sess.run([self.pred], feed_dict={self.q: qs, self.d: ds})
+		return sess.run(self.pred, feed_dict={self.q: qs, self.d: ds})
 
 	def test_acc(self, sess, qs, ds, ys):
 		"""
-		Score
+		Test Accuracy
 
 		
 		"""
-		return sess.run([self.accuracy], feed_dict={self.q: qs, self.d: ds, self.y: ys})
+		return sess.run(self.accuracy, feed_dict={self.q: qs, self.d: ds, self.y: ys})
 		
 	def _next_batch(self, qs, ds, ys, start_index):
 		"""

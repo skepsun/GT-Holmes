@@ -94,7 +94,7 @@ class Documents(object):
 					tokens_in_sentence = [ 
 						token
 						for token in nltk.word_tokenize(sent.translate(None, string.punctuation).lower()) 
-						if token not in nltk.corpus.stopwords.words('english') and \
+						if token not in nltk.corpus.stopwords.words("english") and \
 						   token not in string.punctuation ]
 					# Calculate ngram of a tokenized sentence
 					ngram_tokens_in_sentence = [ 
