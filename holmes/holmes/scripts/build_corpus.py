@@ -10,10 +10,9 @@ from holmes.catscorpus import CatsCorpus
 
 if __name__ == "__main__":
 
-	text_path = "data/26_labeled_records/text.txt"
-	cats_path = "data/26_labeled_records/cats.txt"
-	cats_def  = [ "incident_id", "crime_code", "crime_desc", "incident_datetime", \
-                  "avg_lat", "avg_long" ]
+	text_path = "data/records_56+500/text.txt"
+	cats_path = "data/records_56+500/cats.txt"
+	cats_def  = [ "ID", "C", "T", "LAT", "LONG"]
 
 	# Init CatsCorpus object
 	cats_corpus = CatsCorpus()
@@ -25,6 +24,6 @@ if __name__ == "__main__":
 
 	# Serializing and saving built catscorpus in local files
 	print >> sys.stderr, "Serializing and saving the corpus in local file."
-	cats_corpus.save_corpus("resource/test_corpus/corpus.mm", \
-		                    "resource/test_corpus/vocab.dict", \
-		                    "resource/test_corpus/cats")
+	cats_corpus.save_corpus("resource/56labeld+500random.corpus", \
+		                    "resource/56labeld+500random.corpus", \
+		                    "resource/56labeld+500random.corpus")

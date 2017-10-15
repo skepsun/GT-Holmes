@@ -8,9 +8,11 @@ The interfaces are realized as abstract base classes for the basic natural langu
 processing. 
 """
 
+from scipy.sparse import csc_matrix
 from gensim import corpora
 from nltk.util import ngrams
 from six import iteritems
+import numpy as np
 import itertools
 import string
 import pickle
@@ -65,7 +67,7 @@ class Documents(object):
 			except UnicodeDecodeError as e:
 				print >> sys.stderr, "[%s] [Documents] No. %s doc raise expection: %s." % \
 				         (arrow.now(), self.counter, e)
-				yield [] 
+				yield []
 
 			self.counter += 1
 
@@ -87,15 +89,14 @@ class Documents(object):
 		# Free text part for each of the records are delimited by "\1"
 		for remark in text_string.strip().split("\1"):
 			# For every sentences in each of the free text part
-			for sent in nltk.tokenize.sent_tokenize(remark):
+			for sent in nltk.tokenize.sent_tokenize(remark.encode('utf-8').strip()):
+				# Tokenize a sentence by english word level of granularity
+				tokens_in_sentence = [ 
+					token
+					for token in nltk.word_tokenize(sent.translate(None, string.punctuation).lower()) 
+					if token not in nltk.corpus.stopwords.words("english")]
 				# Calculate all the grams terms from unigram to N-grams
 				for n in range(1, N+1):
-					# Tokenize a sentence by english word level of granularity
-					tokens_in_sentence = [ 
-						token
-						for token in nltk.word_tokenize(sent.translate(None, string.punctuation).lower()) 
-						if token not in nltk.corpus.stopwords.words("english") and \
-						   token not in string.punctuation ]
 					# Calculate ngram of a tokenized sentence
 					ngram_tokens_in_sentence = [ 
 						"_".join(ngram_tuple)
@@ -120,12 +121,13 @@ class CatsCorpus(object):
 	other data files, otherwise you need to load an existed cats corpus. 
 	"""
 
-	def __init__(self, corpus_path=None, dictionary_path=None, cats_path=None):
+	def __init__(self, root_path=None):
 		# Load existed corpus if the params are not None
-		if corpus_path and dictionary_path and cats_path:
-			self.load_corpus(corpus_path, dictionary_path, cats_path)
+		if root_path:
+			self.load_corpus(root_path)
 		# Non-sampling for original corpus
 		self.sampling_flag = False
+		self._csc_corpus   = None
 
 	def build(self, text_iter_obj, cats_iter_obj, cats_def=None, min_term_freq=1, \
 		      n=1, pad_right=False, pad_left=False, left_pad_symbol=None, right_pad_symbol=None):
@@ -175,6 +177,8 @@ class CatsCorpus(object):
 		self.cats   = { "collections": [ cats_tuple.strip("\n").split("\t") for cats_tuple in cats_iter_obj ] }
 		if type(cats_def) is list and len(cats_def) == len(self.cats["collections"]):
 			self.cats["definitions"] = cats_def
+		# Remove empty documents
+		self._clean_corpus()
 
 		print >> sys.stderr, self.dictionary
 		print >> sys.stderr, "The size of the corpus is %d" % len(self.corpus)
@@ -204,7 +208,36 @@ class CatsCorpus(object):
 		for cats_tuple in cats_iter_obj:
 			self.cats["collections"].append(cats_tuple.strip("\n").split("\t"))
 
-	def load_corpus(self, corpus_path, dictionary_path, cats_path):
+	def csc_corpus(self):
+		"""
+		Corpus in Compressed Sparse Column Matrix Format
+
+		Return the corpus of the object in Compressed Sparse Column Matrix Format. This format also 
+		supports to be converted to numpy array by calling 'csc_matrix.toarray()'.
+		
+		In order to accelarate the process of getting csc_corpus after the first request. This function
+		would do the computation only once at the first request for the csc_corpus, and save the 
+		result in a private member.
+		"""
+
+		if self._csc_corpus is None:
+			doc_ind  = 0  # Index of documents in corpus
+			row_inds = [] # The list of indexs of rows (means docs) in csc matrix
+			col_inds = [] # The list of indexs of columns (means terms) in csc matrix
+			vals     = [] # The list of nonzero values in csc matrix
+
+			for doc in self.corpus:
+				row_inds += [ doc_ind for _ in range(len(doc)) ]
+				col_inds += [ term_ind for term_ind, freq in doc ]
+				vals     += [ freq for term_ind, freq in doc ]
+				doc_ind  += 1
+
+			self._csc_corpus = csc_matrix((vals, (row_inds, col_inds)), 
+				shape=(len(self.corpus), len(self.dictionary)))
+
+		return self._csc_corpus
+
+	def load_corpus(self, root_path):
 		"""
 		Load
 		
@@ -213,19 +246,18 @@ class CatsCorpus(object):
 		"""
 
 		# Persist the path information
-		self.corpus_path     = corpus_path
-		self.dictionary_path = dictionary_path
-		self.cats_path       = cats_path
+		self.root_path  = root_path
 		# Load dictionary
 		self.dictionary = corpora.Dictionary()
-		self.dictionary = self.dictionary.load(dictionary_path)
+		self.dictionary = self.dictionary.load("%s/%s" % (root_path, "vocab.dict"))
 		# Load corpus text and convert it to bow list
-		self.corpus     = [ doc_bow for doc_bow in corpora.MmCorpus(corpus_path) ]
+		self.corpus     = [ doc_bow 
+			for doc_bow in corpora.MmCorpus("%s/%s" % (root_path, "corpus.mm")) ]
 		# Load cats tuples collection
-		with open(cats_path, "r") as h:
+		with open("%s/%s" % (root_path, "cats.txt"), "r") as h:
 			self.cats = pickle.load(h)
 
-	def save_corpus(self, corpus_path=None, dictionary_path=None, cats_path=None):
+	def save_corpus(self, root_path=None):
 		"""
 		Save
 
@@ -237,20 +269,21 @@ class CatsCorpus(object):
 
 		# Persist dictionary
 		if corpus_path is not None:
-			self.dictionary.save(dictionary_path)
+			self.dictionary.save("%s/%s" % (root_path, "vocab.dict"))
 		# Persist corpus text
 		if corpus_path is not None:
-			corpora.MmCorpus.serialize(corpus_path, self.corpus)
+			corpora.MmCorpus.serialize("%s/%s" % (root_path, "corpus.mm"), self.corpus)
 		# Persist cats tuples collection by pickle
 		if cats_path is not None:
-			with open(cats_path, "wb") as h:
+			with open("%s/%s" % (root_path, "cats.txt"), "wb") as h:
 				pickle.dump(self.cats, h)
 
 	def random_sampling(self, num_samples):
 		"""
 		Random Sampling
 		
-		Randomly select and keep specific number of samples from the dataset.
+		Randomly select and keep specific number of samples from the dataset. One cats object
+		can be only sampled once. 
 		"""
 
 		if num_samples < len(self.corpus):
@@ -259,6 +292,16 @@ class CatsCorpus(object):
 			# Set sampling flag as True, for indicating the current corpus is not
 			# the original one.
 			self.sampling_flag = True
+
+	def categories(self):
+		"""
+		Categories
+
+		Return the list of categories corresponding to the documents in the corpus
+		"""
+
+		category_ind = self.cats["definitions"].index("C")
+		return np.array(self.cats["collections"])[:, category_ind].tolist()
 
 	def _clean_corpus(self):
 		"""
@@ -277,6 +320,26 @@ class CatsCorpus(object):
 				print >> sys.stderr, "Empty document is discarded."
 		self.corpus              = clean_corpus
 		self.cats["collections"] = clean_cats
+
+	# def __add__(self, other):
+	# 	"""
+	# 	Overloading addition operation for cats objects
+	# 	"""
+	# 	if len(self.cats["definitions"]) is not len(other.cats["definitions"]):
+	# 		raise Exception("The cats definitions of two cats object are different.")
+	# 	corpus_obj = CatsCorpus()
+	# 	corpus_obj.corpus = self.corpus + other.corpus
+	# 	corpus_obj.cats["collections"] = self.cats["collections"] + other.cats["collections"]
+	# 	return corpus_obj
+
+	def __getitem__(self, C):
+		"""
+		Get documents with same specific category in numpy array format
+		"""
+
+		categories_list = self.categories()
+		indices         = [ ind for ind, category in enumerate(categories_list) if C == category ]
+		return self.csc_corpus().toarray()[indices, :]
 
 	def __len__(self):
 		"""
