@@ -100,7 +100,7 @@ class BootstrappingShuffle(object):
 
 
 
-def train_correlation(cats_corpus, test_train_ratio=0.1, lr=0.01, batch_size=1):
+def train_correlation(cats_corpus, test_train_ratio=0.1, iters=200, lr=0.01, batch_size=5):
 	"""
 	Train Correlation
 
@@ -185,7 +185,7 @@ def main():
 	lr         = args.lr
 
 	cats_corpus.cats["definitions"] = [ "ID", "C", "T", "LAT", "LONG" ]
-	train_correlation(cats_corpus, lr=lr, batch_size=batch_size)
+	train_correlation(cats_corpus, iters=iters, lr=lr, batch_size=batch_size)
 
 	# Create sparse matrix for corpus' documents
 	# TODO: Improve the way of creating sparse matrix
