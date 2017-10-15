@@ -19,7 +19,7 @@ class Correlation(object):
 	"""
 
 	def __init__(self, feature_len, \
-		         L1_scale=0.005, cost_w0=1.0, cost_w1=1.0, \
+		         L1_scale=0.005, cost_w0=1.0, cost_w1=20.0, \
 		         iters=5, lr=0.01, batch_size=1, display_step=1):
 		# Model parameters
 		self.iters        = iters
