@@ -17,11 +17,8 @@ class CatsCorpusTestCase(unittest.TestCase):
 		"""
 		"""
 
-		root_path       = "resource/cats_corpus"
-		corpus_path     = "%s/%s" % (root_path, "corpus.mm") 
-		dictionary_path = "%s/%s" % (root_path, "vocab.dict")
-		cats_path       = "%s/%s" % (root_path, "cats")
-		cats_corpus     = CatsCorpus(corpus_path, dictionary_path, cats_path)
+		root_path       = "resource/340klabeled.corpus"
+		cats_corpus     = CatsCorpus(root_path)
 		print >> sys.stderr, "Corpus Loaded\n%s" % cats_corpus
 		
 	@unittest.skip("Building corpus is time-consuming.")

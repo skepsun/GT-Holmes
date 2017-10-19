@@ -9,7 +9,7 @@ processing.
 """
 
 from scipy.sparse import csc_matrix
-from gensim import corpora
+from gensim import corpora, models
 from nltk.util import ngrams
 from six import iteritems
 import numpy as np
@@ -122,12 +122,17 @@ class CatsCorpus(object):
 	"""
 
 	def __init__(self, root_path=None):
+
+		self.tfidf = None
+		# Non-sampling for original corpus
+		self.sampling_flag = False
 		# Load existed corpus if the params are not None
 		if root_path:
 			self.load_corpus(root_path)
-		# Non-sampling for original corpus
-		self.sampling_flag = False
-		self._csc_corpus   = None
+			# self.csc_corpus = self._csc_corpus()
+			self.tfidf = models.TfidfModel(self.corpus)[self.corpus]
+			
+		
 
 	def build(self, text_iter_obj, cats_iter_obj, cats_def=None, min_term_freq=1, \
 		      n=1, pad_right=False, pad_left=False, left_pad_symbol=None, right_pad_symbol=None):
@@ -179,6 +184,9 @@ class CatsCorpus(object):
 			self.cats["definitions"] = cats_def
 		# Remove empty documents
 		self._clean_corpus()
+		# Calculate tfidf matrix
+		self.tfidf = models.TfidfModel(self.corpus)
+		# self.csc_corpus = self._csc_corpus()
 
 		print >> sys.stderr, self.dictionary
 		print >> sys.stderr, "The size of the corpus is %d" % len(self.corpus)
@@ -208,34 +216,32 @@ class CatsCorpus(object):
 		for cats_tuple in cats_iter_obj:
 			self.cats["collections"].append(cats_tuple.strip("\n").split("\t"))
 
-	def csc_corpus(self):
-		"""
-		Corpus in Compressed Sparse Column Matrix Format
+	# def _csc_corpus(self):
+	# 	"""
+	# 	Corpus in Compressed Sparse Column Matrix Format
 
-		Return the corpus of the object in Compressed Sparse Column Matrix Format. This format also 
-		supports to be converted to numpy array by calling 'csc_matrix.toarray()'.
+	# 	Return the corpus of the object in Compressed Sparse Column Matrix Format. This format also 
+	# 	supports to be converted to numpy array by calling 'csc_matrix.toarray()'.
 		
-		In order to accelarate the process of getting csc_corpus after the first request. This function
-		would do the computation only once at the first request for the csc_corpus, and save the 
-		result in a private member.
-		"""
+	# 	In order to accelarate the process of getting csc_corpus after the first request. This function
+	# 	would do the computation only once at the first request for the csc_corpus, and save the 
+	# 	result in a private member.
+	# 	"""
 
-		if self._csc_corpus is None:
-			doc_ind  = 0  # Index of documents in corpus
-			row_inds = [] # The list of indexs of rows (means docs) in csc matrix
-			col_inds = [] # The list of indexs of columns (means terms) in csc matrix
-			vals     = [] # The list of nonzero values in csc matrix
+	# 	if self.csc_corpus is None:
+	# 		doc_ind  = 0  # Index of documents in corpus
+	# 		row_inds = [] # The list of indexs of rows (means docs) in csc matrix
+	# 		col_inds = [] # The list of indexs of columns (means terms) in csc matrix
+	# 		vals     = [] # The list of nonzero values in csc matrix
 
-			for doc in self.corpus:
-				row_inds += [ doc_ind for _ in range(len(doc)) ]
-				col_inds += [ term_ind for term_ind, freq in doc ]
-				vals     += [ freq for term_ind, freq in doc ]
-				doc_ind  += 1
+	# 		for doc in self.corpus:
+	# 			row_inds += [ doc_ind for _ in range(len(doc)) ]
+	# 			col_inds += [ term_ind for term_ind, freq in doc ]
+	# 			vals     += [ freq for term_ind, freq in doc ]
+	# 			doc_ind  += 1
 
-			self._csc_corpus = csc_matrix((vals, (row_inds, col_inds)), 
-				shape=(len(self.corpus), len(self.dictionary)))
-
-		return self._csc_corpus
+	# 		self.csc_corpus = csc_matrix((vals, (row_inds, col_inds)), 
+	# 			shape=(len(self.corpus), len(self.dictionary)))
 
 	def load_corpus(self, root_path):
 		"""
@@ -267,6 +273,10 @@ class CatsCorpus(object):
 		would be serialized by pickle.
 		"""
 
+		if self.sampling_flag:
+			print >> sys.stderr, "The current corpus is incomplete (sampled), saving operation is not allowed."
+			return
+
 		# Persist dictionary
 		if corpus_path is not None:
 			self.dictionary.save("%s/%s" % (root_path, "vocab.dict"))
@@ -278,12 +288,25 @@ class CatsCorpus(object):
 			with open("%s/%s" % (root_path, "cats.txt"), "wb") as h:
 				pickle.dump(self.cats, h)
 
+	def category_sampling(self, categories):
+		"""
+		Category Sampling
+
+		Select the documents whose categories are included in the specific categories list.
+		"""
+
+		all_categories = self.categories()
+		indices        = [ ind for ind, category in enumerate(all_categories) if C in categories ]
+		self.corpus    = self.corpus[indices, :]
+		# Set sampling falg as True for indicating the current corpus is incomplete.
+		self.sampling_flag = True
+
+
 	def random_sampling(self, num_samples):
 		"""
 		Random Sampling
 		
-		Randomly select and keep specific number of samples from the dataset. One cats object
-		can be only sampled once. 
+		Randomly select and keep specific number of samples from the dataset.
 		"""
 
 		if num_samples < len(self.corpus):
@@ -332,15 +355,6 @@ class CatsCorpus(object):
 	# 	corpus_obj.cats["collections"] = self.cats["collections"] + other.cats["collections"]
 	# 	return corpus_obj
 
-	def __getitem__(self, C):
-		"""
-		Get documents with same specific category in numpy array format
-		"""
-
-		categories_list = self.categories()
-		indices         = [ ind for ind, category in enumerate(categories_list) if C == category ]
-		return self.csc_corpus().toarray()[indices, :]
-
 	def __len__(self):
 		"""
 		Return the size of the corpus (the number of the documents)
@@ -351,5 +365,5 @@ class CatsCorpus(object):
 		"""
 		Return the details of the cats corpus object
 		"""
-		return "<Cats Corpus Object>\nDictionary:\t%s\nCorpus Size:\t%s\nCATS Info:\n  Collections size:\t%s\n  Definitions:\t%s" % \
-		       (self.dictionary, len(self.corpus), len(self.cats["collections"]), self.cats["definitions"])
+		return "<Cats Corpus Object>\nDictionary:\t%s\nCorpus Size:\t%s\nCATS Info:\n  Collections size:\t%s\n" % \
+		       (self.dictionary, len(self.corpus), len(self.cats["collections"]))
