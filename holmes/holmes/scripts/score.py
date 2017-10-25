@@ -24,7 +24,8 @@ def query_crime_record(incident_id):
 	encrypt  = "yes"
 	timeout  = 30
 	# Connecting to the database
-	cnxn   = pyodbc.connect('Driver={%s};Server=%s;Database=%s;Uid=%s;Pwd=%s;Encrypt=%s;TrustServerCertificate=;Connection Timeout=%s;')
+	# cnxn   = pyodbc.connect('Driver={%s};Server=%s;Database=%s;Uid=%s;Pwd=%s;Encrypt=%s;TrustServerCertificate=;Connection Timeout=%s;')
+	cnxn   = pyodbc.connect('Driver={ODBC Driver 13 for SQL Server};Server=tcp:awarecorecdsserver2308170150.database.usgovcloudapi.net,1433;Database=awarecorecdsdb2308170150;Uid=IncidentNarrativeRetrainReader;Pwd=Pass@w0rd;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;')
 	cursor = cnxn.cursor()
 	# Perform the query by incident id
 	cursor.execute("SELECT * FROM IncidentNarrativeView WHERE IncidentId=%d;" % (incident_id))
