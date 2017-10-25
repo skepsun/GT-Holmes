@@ -28,7 +28,7 @@ def query_crime_record(incident_id):
 	cnxn   = pyodbc.connect('Driver={ODBC Driver 13 for SQL Server};Server=tcp:awarecorecdsserver2308170150.database.usgovcloudapi.net,1433;Database=awarecorecdsdb2308170150;Uid=IncidentNarrativeRetrainReader;Pwd=Pass@w0rd;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;')
 	cursor = cnxn.cursor()
 	# Perform the query by incident id
-	cursor.execute("SELECT * FROM IncidentNarrativeView WHERE IncidentId=%d;" % (incident_id))
+	cursor.execute("SELECT * FROM IncidentNarrativeView WHERE IncidentId=%s;" % (incident_id))
 	return cursor.fetchone()
 
 
@@ -47,7 +47,9 @@ def main():
 	index_path       = conf.get_section("Corpus")["index_path"]
 
 	# Query raw data via the query_id and get the narratives
-	query_crime_record(args.query_id)
+	query_res   = query_crime_record(args.query_id)
+	text_string = query_res[6]
+	print >> sys.stderr, "[%s] The query narratives is %s." % (arrow.now(), text_string)
 
 	# Preprocessing the narratives
 	query_tokens = Documents.tokenize(text_string, N=1)
