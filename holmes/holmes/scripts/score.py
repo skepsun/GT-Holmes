@@ -53,7 +53,7 @@ def main():
 
 	# Loading Id information
 	id_list = load_id_info(id_info_path)
-	print >> sys.stderr, "[%s] Ids list has been loaded %s... ." % (arrow.now(), text_string)
+	print >> sys.stderr, "[%s] Ids list has been loaded %s... ." % (arrow.now(), id_list[:5])
 
 	# Query raw data via the query_id and get the narratives
 	query_res   = query_crime_record(args.query_id)
