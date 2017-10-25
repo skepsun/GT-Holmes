@@ -13,7 +13,7 @@ from holmes.catscorpus import Documents
 
 def load_id_info(id_info_path):
 	with open(id_info_path, "r") as f:
-		return [ line.strip("\n").split("t")[0] for line in f ]
+		return [ line.strip("\n").split("\t")[0] for line in f ]
 
 
 
@@ -40,6 +40,7 @@ def main():
 	# Parse the input parameters
 	parser = argparse.ArgumentParser(description="Script for parsing xml format crime records.")
 	parser.add_argument("-q", "--query_id", required=True, help="The path of the input xml file")
+	parser.add_argument("-n", "--num", default=1, type=int, help="The path of the input xml file")
 	parser.add_argument("-c", "--config", required=True, help="The path of the output folder")
 	args = parser.parse_args()
 
@@ -81,8 +82,9 @@ def main():
 	sims = index[query_bow]
 	print >> sys.stderr, "[%s] Performed a similarity query against the corpus." % (arrow.now())
 
-	sims = sorted(enumerate(sims), key=lambda item: -item[1])
-
+	sims    = sorted(enumerate(sims), key=lambda item: -item[1])
+	results = [ (id_list[ind], score) for ind, score in sims[:args.n] ]
+	print results
 
 if __name__ == "__main__":
 	main()
