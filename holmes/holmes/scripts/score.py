@@ -49,7 +49,7 @@ def main():
 	# Query raw data via the query_id and get the narratives
 	query_res   = query_crime_record(args.query_id)
 	text_string = query_res[6]
-	print >> sys.stderr, "[%s] The query narratives is %s." % (arrow.now(), text_string)
+	print >> sys.stderr, "[%s] The query narratives is {%s}." % (arrow.now(), text_string)
 
 	# Preprocessing the narratives
 	query_tokens = Documents.tokenize(text_string, N=1)
