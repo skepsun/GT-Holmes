@@ -11,8 +11,11 @@ from gensim import corpora, models, similarities
 from holmes.utils import Config
 from holmes.catscorpus import Documents
 
-# def load_index():
-# 	pass
+def load_id_info(id_info_path):
+	with open(id_info_path, "r") as f:
+		return [ line.strip("\n").split("t")[0] for line in f ]
+
+
 
 def query_crime_record(incident_id):
 	# Configuration
@@ -32,6 +35,7 @@ def query_crime_record(incident_id):
 	return cursor.fetchone()
 
 
+
 def main():
 	# Parse the input parameters
 	parser = argparse.ArgumentParser(description="Script for parsing xml format crime records.")
@@ -40,11 +44,16 @@ def main():
 	args = parser.parse_args()
 
 	# Read configuration from ini file
-	conf = Config("conf/text.ini")
+	conf = Config(args.config)
 	# Read Crime Codes Descriptions
-	pruned_dict_path = conf.get_section("Corpus")["pruned_dict_path"]
-	mm_corpus_path   = conf.get_section("Corpus")["mm_corpus_path"]
-	index_path       = conf.get_section("Corpus")["index_path"]
+	pruned_dict_path = conf.get_section("Model")["pruned_dict_path"]
+	mm_corpus_path   = conf.get_section("Model")["mm_corpus_path"]
+	id_info_path     = conf.get_section("Model")["id_info_path"]
+	index_path       = conf.get_section("Model")["index_path"]
+
+	# Loading Id information
+	id_list = load_id_info(id_info_path)
+	print >> sys.stderr, "[%s] Ids list has been loaded %s... ." % (arrow.now(), text_string)
 
 	# Query raw data via the query_id and get the narratives
 	query_res   = query_crime_record(args.query_id)
@@ -53,7 +62,7 @@ def main():
 
 	# Preprocessing the narratives
 	query_tokens = Documents.tokenize(text_string, N=1)
-	print >> sys.stderr, "[%s] The query has been tokenized as [%s, ... ]." % (arrow.now(), query_tokens[:5])
+	print >> sys.stderr, "[%s] The query has been tokenized as: %s... ." % (arrow.now(), query_tokens[:5])
 
 	# Load dictionary
 	dictionary = corpora.Dictionary()
@@ -62,7 +71,7 @@ def main():
 
 	# Get BoW representation of the query
 	query_bow = dictionary.doc2bow(query_tokens)
-	print >> sys.stderr, "[%s] The query has been converted into BoW as [%s, ... ]." % (arrow.now(), query_bow[:5]) 
+	print >> sys.stderr, "[%s] The query has been converted into BoW as: %s... ." % (arrow.now(), query_bow[:5]) 
 
 	# Load indexing
 	index = similarities.MatrixSimilarity.load(index_path)
@@ -72,7 +81,8 @@ def main():
 	sims = index[query_bow]
 	print >> sys.stderr, "[%s] Performed a similarity query against the corpus." % (arrow.now())
 
-	# sims = sorted(enumerate(sims), key=lambda item: -item[1])
+	sims = sorted(enumerate(sims), key=lambda item: -item[1])
+
 
 if __name__ == "__main__":
 	main()
