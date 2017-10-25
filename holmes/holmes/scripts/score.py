@@ -83,7 +83,7 @@ def main():
 	print >> sys.stderr, "[%s] Performed a similarity query against the corpus." % (arrow.now())
 
 	sims    = sorted(enumerate(sims), key=lambda item: -item[1])
-	results = [ (id_list[ind], score) for ind, score in sims[:args.n] ]
+	results = [ (id_list[ind], score) for ind, score in sims[:args.num] ]
 	print results
 
 if __name__ == "__main__":
