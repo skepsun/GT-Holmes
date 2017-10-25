@@ -276,16 +276,23 @@ class CatsCorpus(object):
 		if self.sampling_flag:
 			print >> sys.stderr, "The current corpus is incomplete (sampled), saving operation is not allowed."
 			return
-
-		# Persist dictionary
-		if corpus_path is not None:
+		
+		if root_path is not None:
+			# Persist dictionary
 			self.dictionary.save("%s/%s" % (root_path, "vocab.dict"))
-		# Persist corpus text
-		if corpus_path is not None:
+			# Persist corpus text
 			corpora.MmCorpus.serialize("%s/%s" % (root_path, "corpus.mm"), self.corpus)
-		# Persist cats tuples collection by pickle
-		if cats_path is not None:
+			# Persist cats tuples collection by pickle
 			with open("%s/%s" % (root_path, "cats.txt"), "wb") as h:
+				pickle.dump(self.cats, h)
+
+	def save_cats(self, cats_folder_path):
+		"""
+		"""
+
+		# Persist cats tuples collection by pickle
+		if cats_folder_path is not None:
+			with open("%s/%s" % (cats_folder_path, "cats.txt"), "wb") as h:
 				pickle.dump(self.cats, h)
 
 	def category_sampling(self, categories):
@@ -298,6 +305,7 @@ class CatsCorpus(object):
 		all_categories = self.categories()
 		indices        = [ ind for ind, category in enumerate(all_categories) if C in categories ]
 		self.corpus    = self.corpus[indices, :]
+		self.tfidf     = models.TfidfModel(self.corpus)[self.corpus]
 		# Set sampling falg as True for indicating the current corpus is incomplete.
 		self.sampling_flag = True
 
@@ -312,6 +320,7 @@ class CatsCorpus(object):
 		if num_samples < len(self.corpus):
 			self.corpus, self.cats["collections"] = zip(*random.sample(
 				list(zip(self.corpus, self.cats["collections"])), num_samples))
+			self.tfidf = models.TfidfModel(self.corpus)[self.corpus]
 			# Set sampling flag as True, for indicating the current corpus is not
 			# the original one.
 			self.sampling_flag = True
