@@ -19,29 +19,26 @@ this issue.
 
 import string
 import arrow
-# import nltk
-# import json
 import sys
-# import numpy as np
 from gensim import corpora, models, similarities
-import utils
+from holmes.utils import Config
 # from holmes.utilities.config import Config
 # from holmes.utilities.plot import MockGeoLocation, ScatterPointsSimilarities
 
-def code2desc(codes, crime_codes_dict):
-	"""
-	Interpret crime codes as a brief description by crime-codes-dictionary
+# def code2desc(codes, crime_codes_dict):
+# 	"""
+# 	Interpret crime codes as a brief description by crime-codes-dictionary
 
-	Note that if code is '9999' which means non-crime or there is no description for the code
-	in dictionary, it'd disgard this code without interpretation.
-	"""
-	codes = [ code for code in codes if code != "9999"]
-	desc = "/".join([crime_codes_dict[code] for code in codes if code in crime_codes_dict.keys()])
-	return desc
+# 	Note that if code is '9999' which means non-crime or there is no description for the code
+# 	in dictionary, it'd disgard this code without interpretation.
+# 	"""
+# 	codes = [ code for code in codes if code != "9999"]
+# 	desc = "/".join([crime_codes_dict[code] for code in codes if code in crime_codes_dict.keys()])
+# 	return desc
 
 
 
-class feature:
+class Feature:
 
 	def __init__(self):
 		# Read configuration from ini file
@@ -49,23 +46,23 @@ class feature:
 		# Read Crime Codes Descriptions
 		pruned_dict_path      = conf.config_section_map("Corpus")["pruned_dict_path"]
 		mm_corpus_path        = conf.config_section_map("Corpus")["mm_corpus_path"]
-		crime_codes_desc_path = conf.config_section_map("Corpus")["crime_codes_desc_path"]
-		code_list_path        = conf.config_section_map("Corpus")["labels_path"]
+		# crime_codes_desc_path = conf.config_section_map("Corpus")["crime_codes_desc_path"]
+		# code_list_path        = conf.config_section_map("Corpus")["labels_path"]
 
 		print >> sys.stderr, "[%s] Loading Crime Codes Dictionary & Labels ..." % arrow.now()
 		# Load (crime codes vs description) dictionary
-		crime_codes_dict = {}
-		with open(crime_codes_desc_path, "rb") as f:
-			crime_codes_dict = json.load(f)
-		# Load codes list & interpret code as description
-		self.id_list   = []
-		self.code_list = []
-		with open(code_list_path, "rb") as f:
-			for line in f.readlines():
-				id, codes_str = line.strip("\n").split("\t")
-				self.id_list.append(id)
-				self.code_list.append([ code for code in codes_str.strip("\n").split("#") ])
-		self.descs = [ code2desc(codes, crime_codes_dict) for codes in self.code_list ]
+		# crime_codes_dict = {}
+		# with open(crime_codes_desc_path, "rb") as f:
+		# 	crime_codes_dict = json.load(f)
+		# # Load codes list & interpret code as description
+		# self.id_list   = []
+		# self.code_list = []
+		# with open(code_list_path, "rb") as f:
+		# 	for line in f.readlines():
+		# 		id, codes_str = line.strip("\n").split("\t")
+		# 		self.id_list.append(id)
+		# 		self.code_list.append([ code for code in codes_str.strip("\n").split("#") ])
+		# self.descs = [ code2desc(codes, crime_codes_dict) for codes in self.code_list ]
 
 		# # for testing
 		# self.pos_list = [ (33.7490 + (lat_diff - 0.5) * 0.05, -84.3880 + (lon_diff - 0.5) * 0.05)
@@ -82,14 +79,13 @@ class feature:
 		self.corpus = corpora.MmCorpus(mm_corpus_path)
 		print >> sys.stderr, "[%s] Corpus: %s" % (arrow.now(), self.corpus)
 
-		for doc in self.corpus:
-			print doc
+		print >> sys.stderr, "[%s] Init Tfidf model." % arrow.now()
+		self.tfidf = models.TfidfModel(self.corpus)
 
-		# print >> sys.stderr, "[%s] Init Tfidf model." % arrow.now()
-		# self.tfidf = models.TfidfModel(self.corpus)
+		print >> sys.stderr, "[%s] Calculating similarities ..." % arrow.now()
+		self.index = similarities.SparseMatrixSimilarity(self.tfidf[self.corpus], num_features=74945)
 
-		# print >> sys.stderr, "[%s] Calculating similarities ..." % arrow.now()
-		# self.index = similarities.SparseMatrixSimilarity(self.tfidf[self.corpus], num_features=74945)
+		# self.index.save('correlation.index')
 
 		# sim_np_mat = index[tfidf[corpus[0:25]]]
 		# self.sim_mat = np.array([ sim_np_vec for no, sim_np_vec in list(enumerate(sim_np_mat)) ])
@@ -112,7 +108,7 @@ class feature:
 
 
 if __name__ == "__main__":
-
+	# pass
 	f = Feature()
 	# print >> sys.stderr, "test start"
 	# print f.query_via_id("170160001", 50)
