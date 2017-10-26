@@ -31,9 +31,10 @@ def query_crime_record(incident_id, driver, server, database, uid, password):
 def main():
 	# Parse the input parameters
 	parser = argparse.ArgumentParser(description="Script for parsing xml format crime records.")
-	parser.add_argument("-q", "--query_id", required=True, help="The path of the input xml file")
-	parser.add_argument("-n", "--num", default=1, type=int, help="The path of the input xml file")
-	parser.add_argument("-c", "--config", required=True, help="The path of the output folder")
+	parser.add_argument("-q", "--query_id", required=True, help="The query id")
+	parser.add_argument("-n", "--num", default=1, type=int, help="Return the top n results")
+	parser.add_argument("-s", "--score", default=0.0, type=float, help="Return the results that have the similarities above the threshold")
+	parser.add_argument("-c", "--config", required=True, help="The path of the configuration file")
 	args = parser.parse_args()
 
 	# Read configuration from ini file
@@ -80,7 +81,11 @@ def main():
 	print >> sys.stderr, "[%s] Performed a similarity query against the corpus." % (arrow.now())
 
 	sims    = sorted(enumerate(sims), key=lambda item: -item[1])
-	results = [ (id_list[ind], score) for ind, score in sims[:args.num] ]
+	# Return the similarities that above the threshold
+	if args.score != 0.0:
+		results = [ (id_list[ind], score) for ind, score in sims if score >= args.score ]
+	# Return the top n results
+	results = [ (id_list[ind], score) for ind, score in results[:args.num] ]
 	print >> sys.stderr, "[%s] Results have been output to the stdout." % (arrow.now())
 	print results
 
