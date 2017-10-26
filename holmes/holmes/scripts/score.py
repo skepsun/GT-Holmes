@@ -17,18 +17,16 @@ def load_id_info(id_info_path):
 
 
 
-def query_crime_record(incident_id):
+def query_crime_record(incident_id, driver, server, database, uid, password):
 	# Configuration
-	driver   = "ODBC Driver 13 for SQL Server"
-	server   = "tcp:awarecorecdsserver2308170150.database.usgovcloudapi.net,1433"
-	database = "awarecorecdsdb2308170150"
-	uid      = "IncidentNarrativeRetrainReader"
-	password = "Pass@w0rd"
-	encrypt  = "yes"
-	timeout  = 30
+	# driver   = "ODBC Driver 13 for SQL Server"
+	# server   = "tcp:awarecorecdsserver2308170150.database.usgovcloudapi.net,1433"
+	# database = "awarecorecdsdb2308170150"
+	# uid      = "IncidentNarrativeRetrainReader"
+	# password = "Pass@w0rd"
 	# Connecting to the database
-	# cnxn   = pyodbc.connect('Driver={%s};Server=%s;Database=%s;Uid=%s;Pwd=%s;Encrypt=%s;TrustServerCertificate=;Connection Timeout=%s;')
-	cnxn   = pyodbc.connect('Driver={ODBC Driver 13 for SQL Server};Server=tcp:awarecorecdsserver2308170150.database.usgovcloudapi.net,1433;Database=awarecorecdsdb2308170150;Uid=IncidentNarrativeRetrainReader;Pwd=Pass@w0rd;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;')
+	cnxn   = pyodbc.connect("Driver={%s};Server=%s;Database=%s;Uid=%s;Pwd=%s;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;" 
+		% (driver, server, database, uid, password))
 	cursor = cnxn.cursor()
 	# Perform the query by incident id
 	cursor.execute("SELECT * FROM IncidentNarrativeView WHERE IncidentId=%s;" % (incident_id))
@@ -46,18 +44,24 @@ def main():
 
 	# Read configuration from ini file
 	conf = Config(args.config)
-	# Read Crime Codes Descriptions
+	# Get configuration of the model
 	pruned_dict_path = conf.get_section("Model")["pruned_dict_path"]
 	mm_corpus_path   = conf.get_section("Model")["mm_corpus_path"]
 	id_info_path     = conf.get_section("Model")["id_info_path"]
 	index_path       = conf.get_section("Model")["index_path"]
+	# Get configuration of the database connection
+	driver   = conf.get_section("Database")["driver"]
+	server   = conf.get_section("Database")["server"]
+	database = conf.get_section("Database")["database"]
+	uid      = conf.get_section("Database")["uid"]
+	password = conf.get_section("Database")["password"]
 
 	# Loading Id information
 	id_list = load_id_info(id_info_path)
 	print >> sys.stderr, "[%s] Ids list has been loaded %s... ." % (arrow.now(), id_list[:5])
 
 	# Query raw data via the query_id and get the narratives
-	query_res   = query_crime_record(args.query_id)
+	query_res   = query_crime_record(args.query_id, driver, server, database, uid, password)
 	text_string = query_res[6]
 	print >> sys.stderr, "[%s] The query narratives is {%s}." % (arrow.now(), text_string)
 
