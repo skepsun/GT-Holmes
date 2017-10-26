@@ -3,68 +3,63 @@ Crime Pattern Detection for Atlanta Police
 
 Introduction
 ---
-It's a project that ISyE Dept., Georgia Tech collaborates with Atlanta Police Department to detect the pattern of history crimes in Atlanta. The crime data comes from the database of Atlanta Police. There are three types of records that we've used:
-- CFS (*Call for Services*): A standard records from the 911 call.
-- OffCore: includes some basic attributes of a criminal case.
-- Remarks: includes one or more pieces of free text that describes some details of a crimial case.
+**holmes** is simple Python package that can do similarity query on crime records rapidly. It majorly requires [gensim](https://radimrehurek.com/gensim/index.html), [nltk](http://www.nltk.org/), [tfrbm](https://github.com/meownoid/tensorfow-rbm) and some other basic Python denpendencies.
 
-Preliminary
+The basic idea of **holmes** is extracting critical crime pattern embeddings as criminal features, and measuring their correlations subsequently. The difficulties of this topic lies on the feature engineering and how to retrieve their similarities at a high rate of speed. 
+
+How to Use It
+---
+Below is a example for how to do a similary query on crime record "16002085701":
+```bash
+sudo python -m holmes.scripts.score \
+	-q 16002085701 \
+	-c conf/text.ini \
+	-n 5
+```
+`q` or `--query_id` is the input crime record id for querying. `c` or `config` is the path of the ini configuration file. `n` or `num` is the top `n` results that you want it return. 
+
+The expected output is shown as the follow:
+```
+[2017-10-25T21:54:55.578147+00:00] Ids list has been loaded ['170152495', '170160001', '170160059', '161881787', '161901350']... .
+[2017-10-25T21:54:56.219877+00:00] The query narratives is {         On 1-5-2016 I Ofc. XXX was dispatched to 1751 XXXX St regarding a stolen vehicle. Upon my arrival I noticed a white in color Toyota Camry parked on the wrong side of the street. I approached the vehicle and noticed that the steering collum was damaged. I then checked the status of the vehicle on ACIC and was informed that it was stolen out of the city on X-X-XXXX and the reporting party is Mr. XXX XXX. I dusted the driver side door for prints and was able to pull one between the window and the handle. S&W came on scene to remove the vehicle while I took it off the system.}.
+[2017-10-25T21:54:56.285879+00:00] The query has been tokenized as: ['152016', 'ofc', 'pressley', 'dispatched', '1751']... .
+[2017-10-25T21:54:56.308519+00:00] Dictionary has been loaded Dictionary(74945 unique tokens: [u'darryle', u'fawn', u'tajudeen', u'schlegel', u'nunnery']...)
+[2017-10-25T21:54:56.308716+00:00] The query has been converted into BoW as: [(1558, 1), (4482, 1), (4686, 1), (9785, 1), (12651, 1)]... .
+[2017-10-25T21:54:56.359254+00:00] Well-trained indexings has been loaded.
+[2017-10-25T21:54:56.471826+00:00] Performed a similarity query against the corpus.
+
+The results is output to the stdout. 
+[('160020865', 0.42382765), ('162250747', 0.38998085), ('160131778', 0.37461773), ('153041309', 0.35186708), ('160412474', 0.35050681)]
+```
+
+Set Up Running Environment
 ---
 
-#### 1. Generate the latest requirements.txt for the python environment
-Run the following script at root directory:
-```bash
-sh script/gen_py_reqs.sh
+#### 1. Install NLTK and download the required NLP resources (e.g. english stopwords and so on)
+NLTK is a commonly-used NLP Python toolkit. It includes various of fundamental NLP operations and classic corpus resource. 
+- [NLTK installation](http://www.nltk.org/install.html)
+- [How to download resource by NLTK](http://www.nltk.org/data.html)
+
+#### 2. Configuration settings.
+You have to configure settings for model and database connections in an INI file.
+The following is a concrete example for the configurations:
+
+```ini
+[Model]
+pruned_dict_path: resource/simple.corpus/universe_pruned.dict
+id_info_path: resource/simple.corpus/info.txt
+index_path: resource/index/correlation
+
+[Database]
+driver: ODBC Driver 13 for SQL Server
+server: tcp:example_server.database.example_companycouldapi.net,example_port
+database: example_database_name
+uid: example_uid
+password: example_password
 ```
 
-#### 2. Install the dependent python library that project needs
-Run the following script at root directory:
-```bash
-pip install -r python/requirements.txt
-```
-And try to install other library if they were required according to the prompt.
-
-#### 3. Download the required corpus (e.g. corpurs for the english stopwords)
-i) Run the following python script to download basic corpus (e.g. English stopwords)
-```python
-import nltk
-nltk.download()
-```
-In the GUI window that opens simply press the 'Download' button to download all corpora or go to the 'Corpora' tab and only download the ones you need/want.
-
-ii) Run the following bash script to download and install a basic unified parsing model (Wall Street Journal)
-```bash
-sudo python -m nltk.downloader bllip_wsj_no_aux
-```
-
-#### 4. Configure setting.
-Configure your own setting in `/config/script_config.sh`:
-```bash 
-#!/bin/bash
-
-# Basic config 
-export owner_tag='woodie'
-export task_tag='pedrobbery.text_feature'
-export created_at=`date +%Y%m%d-%H%M%S`
-
-# Resource
-export word2vec_model_path='resource/GoogleNews-vectors-negative300.bin'
-export words_category_path='tmp/woodie.burglary.gen_vectors_from_wordslist/KeyWords.json'
-```
-
-Get Key Words
----
-The combination of fundamental knowledge and dozens of criminal detection techniques based on years of work experience that Atlanta Police summerized a words dictionary for us, which contains about ten categories, and each of the categories contains ten or more key words.
-
-| VEHICLE DESCRIPTORS | WEAPONS | Aggregated Assualts / Homicide | ... |
-|:-------------------:|:-------:|:------------------------------:|:---:|
-|        4 Door       |   Gun   |              Shot              | ... |
-|        2 Door       | Firearm |             Stabbed            | ... |
-|         SUV         |  Pistol |         Pointed the gun        | ... |
-|         ...         |   ...   |               ...              | ... |
-
-
-
-
-
+The settings for database connection are straightfoward as shown in the example. In addition, you have to indicate the paths for required resource file, including:
+- **pruned_dict_path**: It's a dictionary file defined by gensim, details are referred to [gensim.corpora.dictionary](https://radimrehurek.com/gensim/corpora/dictionary.html)
+- **index_path**: It's a similarity file defined by gensim, details are referred to [Similarity Queries](https://radimrehurek.com/gensim/tut3.html)
+- **id_info_path**: It's a text file that contains the ids information of the training dataset. 
 
