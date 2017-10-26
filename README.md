@@ -14,6 +14,7 @@ Below is a example for how to do a similary query on crime record "16002085701":
 sudo python -m holmes.scripts.score \
 	-q 16002085701 \
 	-c conf/text.ini \
+	-s 0.3
 	-n 5
 ```
 `-q` or `--query_id` is the input crime record id for querying. `-c` or `--config` is the path of the ini configuration file. `-n` or `--num` is the top `n` results that you want it return. `-s` or `--score` is the minimum confidence score for which to return results.
