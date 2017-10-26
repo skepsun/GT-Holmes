@@ -10,7 +10,7 @@ The basic idea of **holmes** is extracting critical crime pattern embeddings as 
 How to Use It
 ---
 Below is a example for how to do a similary query on crime record "16002085701":
-```bash
+```shell
 sudo python -m holmes.scripts.score \
 	-q 16002085701 \
 	-c conf/text.ini \
@@ -40,9 +40,17 @@ NLTK is a commonly-used NLP Python toolkit. It includes various of fundamental N
 - [NLTK installation](http://www.nltk.org/install.html)
 - [How to download resource by NLTK](http://www.nltk.org/data.html)
 
-#### 2. Configuration settings.
-You have to configure settings for model and database connections in an INI file.
-The following is a concrete example for the configurations:
+#### 2. Install tfrbm package manually
+Since the tfrbm is a trd-party RBM package I choosed to use, which is not available on pip source for the time being, you have to install the package manually by running:
+```shell
+# tensorflow has been properly installed.
+cd /root/path/of/the/project
+sudo pip install tfrbm/
+```
+
+#### 3. Configuration settings.
+You have to configure settings for model and database connections in an INI file. And the INI file will be passed in as a parameter of the python command shown above.
+The following is a concrete example for the configurations in an INI file:
 
 ```ini
 [Model]
