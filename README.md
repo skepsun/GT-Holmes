@@ -71,3 +71,14 @@ The settings for database connection are straightfoward as shown in the example.
 - **index_path**: It's a similarity file defined by gensim, details are referred to [Similarity Queries](https://radimrehurek.com/gensim/tut3.html)
 - **id_info_path**: It's a text file that contains the ids information of the training dataset. 
 
+Performance on Real Data
+---
+Our package has a inspiring performance on the real dataset currently. We also did a comparison between our method and conventional LDA, which reveals a great advantage over the LDA. 
+
+![GBRBM](results/gbrbm_5000.png)
+> Results by our method
+
+![LDA](results/lda_1000.png)
+> Results by the LDA
+
+
