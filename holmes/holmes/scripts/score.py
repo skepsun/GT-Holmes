@@ -18,12 +18,6 @@ def load_id_info(id_info_path):
 
 
 def query_crime_record(incident_id, driver, server, database, uid, password):
-	# Configuration
-	# driver   = "ODBC Driver 13 for SQL Server"
-	# server   = "tcp:awarecorecdsserver2308170150.database.usgovcloudapi.net,1433"
-	# database = "awarecorecdsdb2308170150"
-	# uid      = "IncidentNarrativeRetrainReader"
-	# password = "Pass@w0rd"
 	# Connecting to the database
 	cnxn   = pyodbc.connect("Driver={%s};Server=%s;Database=%s;Uid=%s;Pwd=%s;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;" 
 		% (driver, server, database, uid, password))
@@ -80,7 +74,7 @@ def main():
 
 	# Load indexing
 	index = similarities.MatrixSimilarity.load(index_path)
-	print >> sys.stderr, "[%s] Well-trained indexings has been loaded." % (arrow.now()) 
+	print >> sys.stderr, "[%s] Well-trained indexings has been loaded." % (arrow.now())
 
 	# perform a similarity query against the corpus
 	sims = index[query_bow]
