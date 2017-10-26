@@ -84,6 +84,7 @@ def main():
 
 	sims    = sorted(enumerate(sims), key=lambda item: -item[1])
 	results = [ (id_list[ind], score) for ind, score in sims[:args.num] ]
+	print >> sys.stderr, "[%s] Results have been output to the stdout." % (arrow.now())
 	print results
 
 if __name__ == "__main__":
