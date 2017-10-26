@@ -16,7 +16,7 @@ sudo python -m holmes.scripts.score \
 	-c conf/text.ini \
 	-n 5
 ```
-`q` or `--query_id` is the input crime record id for querying. `c` or `config` is the path of the ini configuration file. `n` or `num` is the top `n` results that you want it return. 
+`-q` or `--query_id` is the input crime record id for querying. `-c` or `--config` is the path of the ini configuration file. `-n` or `--num` is the top `n` results that you want it return. 
 
 The expected output is shown as the follow:
 ```
