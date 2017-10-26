@@ -40,7 +40,6 @@ def main():
 	conf = Config(args.config)
 	# Get configuration of the model
 	pruned_dict_path = conf.get_section("Model")["pruned_dict_path"]
-	mm_corpus_path   = conf.get_section("Model")["mm_corpus_path"]
 	id_info_path     = conf.get_section("Model")["id_info_path"]
 	index_path       = conf.get_section("Model")["index_path"]
 	# Get configuration of the database connection
