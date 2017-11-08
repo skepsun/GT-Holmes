@@ -9,10 +9,17 @@ from holmes.catscorpus import CatsCorpus
 """
 
 if __name__ == "__main__":
+	
+	# Parse the input parameters
+	parser = argparse.ArgumentParser(description="Script for parsing xml format crime records.")
+	parser.add_argument("-q", "--query_id", required=True, help="The query id")
+	parser.add_argument("-n", "--num", default=1, type=int, help="Return the top n results")
+	parser.add_argument("-s", "--score", default=0.0, type=float, help="Return the results that have the similarities above the threshold")
+	parser.add_argument("-c", "--config", required=True, help="The path of the configuration file")
 
 	text_path = "data/records_56+500/text.txt"
 	cats_path = "data/records_56+500/cats.txt"
-	cats_def  = [ "ID", "C", "T", "LAT", "LONG"]
+	cats_def  = [ "ID", "C", "T" ]
 
 	# Init CatsCorpus object
 	cats_corpus = CatsCorpus()

@@ -80,7 +80,7 @@ def main():
 	sims = index[query_bow]
 	print >> sys.stderr, "[%s] Performed a similarity query against the corpus." % (arrow.now())
 
-	sims    = sorted(enumerate(sims), key=lambda item: -item[1])
+	sims = sorted(enumerate(sims), key=lambda item: -item[1])
 	# Return the similarities that above the threshold
 	if args.score != 0.0:
 		results = [ (id_list[ind], score) for ind, score in sims if score >= args.score ]

@@ -17,9 +17,15 @@ class CatsCorpusTestCase(unittest.TestCase):
 		"""
 		"""
 
-		root_path       = "resource/340klabeled.corpus"
+		root_path       = "resource/56labeld+500random.corpus"
 		cats_corpus     = CatsCorpus(root_path)
 		print >> sys.stderr, "Corpus Loaded\n%s" % cats_corpus
+
+		# from gensim.matutils import corpus2dense
+		# from scipy.io import savemat
+
+		# corpus = corpus2dense(cats_corpus.corpus, num_terms=len(cats_corpus.dictionary)).transpose()
+		# savemat('temp', {'corpus': corpus})
 		
 	@unittest.skip("Building corpus is time-consuming.")
 	def test_building_corpus(self):
